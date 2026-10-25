@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+  engineType = "client"
+}
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+model User {
+  id String @id @default(uuid()) @db.Uuid
+  email String @unique
+  name String
+  passwordHash String
+  createdAt DateTime @default(now())
+  sessions Session[]
+  wallets Wallet[]
+  categories Category[]
+  transactions Transaction[]
+  budgets BudgetPlan[]
+}
+model Session {
+  id String @id
+  userId String @db.Uuid
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  @@index([userId])
+  @@index([expiresAt])
+}
+model Wallet {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name String
+  kind String @default("BANK")
+  openingBalance BigInt @default(0)
+  color String @default("#747de8")
+  archived Boolean @default(false)
+  createdAt DateTime @default(now())
+  transactions Transaction[] @relation("PrimaryWallet")
+  incoming Transaction[] @relation("DestinationWallet")
+  @@index([userId])
+}
+model Category {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name String
+  kind String
+  icon String @default("other")
+  color String @default("#747de8")
+  archived Boolean @default(false)
+  transactions Transaction[]
+  budgetItems BudgetItem[]
+  @@index([userId])
+  @@unique([userId, name, kind])
+}
+model Transaction {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind String
+  amount BigInt
+  walletId String @db.Uuid
+  wallet Wallet @relation("PrimaryWallet", fields: [walletId], references: [id])
+  destinationWalletId String? @db.Uuid
+  destinationWallet Wallet? @relation("DestinationWallet", fields: [destinationWalletId], references: [id])
+  categoryId String? @db.Uuid
+  category Category? @relation(fields: [categoryId], references: [id])
+  note String @default("")
+  occurredAt DateTime @db.Timestamptz(3)
+  createdAt DateTime @default(now())
+  @@index([userId, occurredAt])
+  @@index([walletId])
+  @@index([destinationWalletId])
+  @@index([categoryId])
+}
+model BudgetPlan {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  month String
+  revision Int
+  income BigInt
+  savings BigInt
+  mode String @default("AUTO")
+  active Boolean @default(true)
+  createdAt DateTime @default(now())
+  items BudgetItem[]
+  @@unique([userId, month, revision])
+  @@index([userId, month, active])
+}
+model BudgetItem {
+  id String @id @default(uuid()) @db.Uuid
+  planId String @db.Uuid
+  plan BudgetPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  categoryId String @db.Uuid
+  category Category @relation(fields: [categoryId], references: [id])
+  fixed BigInt @default(0)
+  weight Int @default(0)
+  limit BigInt
+  @@unique([planId, categoryId])
+}

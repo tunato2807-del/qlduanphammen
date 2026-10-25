@@ -1,0 +1,31 @@
+{
+  "name": "finora",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c cyan,magenta \"npm run dev -w @finora/api\" \"npm run dev -w @finora/web\"",
+    "build": "npm run build --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "test": "npm run test -w @finora/api",
+    "test:e2e": "playwright test",
+    "format": "prettier --write 'apps/**/*.{ts,tsx,css}' '*.json' '*.ts' 'e2e/*.ts' 'docs/*.md' README.md",
+    "db:generate": "npm run db:generate -w @finora/api",
+    "db:migrate": "npm run db:migrate -w @finora/api"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "concurrently": "^9.2.1",
+    "prettier": "^3.9.10"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "overrides": {
+    "multer": "^2.5.0",
+    "deepmerge-ts": "^8.0.2",
+    "effect": "^3.22.4"
+  }
+}
