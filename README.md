@@ -21,7 +21,8 @@
 - Ngân sách tháng tự động theo chi bắt buộc, trọng số và tiết kiệm dự kiến; hoặc nhập hạn mức thủ công.
 - Xem trước phương án, xác nhận áp dụng, giữ các phiên bản trước trong database.
 - Dashboard, biểu đồ dòng tiền sáu tháng, báo cáo theo danh mục, cảnh báo từ 80% hạn mức và xuất CSV.
-- Giao diện responsive, animation, font tiếng Việt được phục vụ tại chỗ, hỗ trợ giảm chuyển động.
+- Giao diện Finora Studio với tông lavender/lime, chữ rõ nét và bố cục responsive. Nút bấm có chuyển động nảy, thẻ nổi khi tương tác và minh họa tài chính chuyển động.
+- Nút ✨ trên màn hình đăng nhập và thanh công cụ giúp giảm chuyển động; lựa chọn được lưu trên thiết bị. Tôn trọng cài đặt giảm chuyển động của hệ điều hành, bao gồm biểu đồ.
 - Trải nghiệm dữ liệu mẫu riêng cho từng lần tạo phiên demo. Mặc định tắt khi chạy production.
 
 ## Chạy trên máy phát triển
@@ -70,7 +71,7 @@ Nếu môi trường đã có Chromium, không cần tải trình duyệt mới:
 CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e
 ```
 
-Playwright tự khởi động ứng dụng nếu chưa chạy. Hai luồng kiểm thử bao gồm tài khoản demo, CRUD giao dịch, áp dụng ngân sách, tải CSV, giao diện điện thoại, đăng ký mới, tạo ví, ngân sách thủ công và đổi tên danh mục. Các tài khoản do E2E tạo được giữ lại trong database phát triển.
+Playwright tự khởi động ứng dụng nếu chưa chạy. Các luồng kiểm thử bao gồm tài khoản demo, CRUD giao dịch, áp dụng ngân sách, tải CSV, giao diện điện thoại, đăng ký mới, tạo ví, ngân sách thủ công đổi tên danh mục và lưu tùy chọn giảm chuyển động. Các tài khoản do E2E tạo được giữ lại trong database phát triển.
 
 ## Quy tắc tài chính
 

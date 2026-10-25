@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { MoneyOrbit, useExperience } from "./Experience";
 import {
   ArrowDownLeft,
   ArrowRight,
@@ -39,6 +40,7 @@ import {
   type Transaction,
 } from "./types";
 export function FlowChart({ data }: { data: Summary["history"] }) {
+  const { reduced } = useExperience();
   const chart = data.map((i) => ({
     name: `T${Number(i.month.slice(5))}`,
     income: Number(i.income),
@@ -93,6 +95,7 @@ export function FlowChart({ data }: { data: Summary["history"] }) {
             }}
           />
           <Area
+            isAnimationActive={!reduced}
             type="monotone"
             dataKey="income"
             name="Thu nhập"
@@ -101,6 +104,7 @@ export function FlowChart({ data }: { data: Summary["history"] }) {
             fill="url(#income-fill)"
           />
           <Area
+            isAnimationActive={!reduced}
             type="monotone"
             dataKey="expense"
             name="Chi tiêu"
@@ -120,6 +124,7 @@ export function SpendingChart({
   data: Summary["spending"];
   total: string;
 }) {
+  const { reduced } = useExperience();
   if (!data.length)
     return (
       <Empty
@@ -133,6 +138,7 @@ export function SpendingChart({
         <ResponsiveContainer width="100%" height={185}>
           <PieChart>
             <Pie
+              isAnimationActive={!reduced}
               data={data.map((i) => ({ ...i, value: Number(i.amount) }))}
               dataKey="value"
               innerRadius={62}
@@ -215,21 +221,28 @@ export default function Dashboard({
     s.budget?.items.reduce((sum, i) => sum + Number(i.spent), 0) || 0;
   return (
     <>
-      <div className="page-heading">
+      <div className="page-heading dashboard-hero">
         <div>
           <div className="greeting">
-            KHÔNG GIAN TÀI CHÍNH CỦA BẠN <span>✦</span>
+            MAKE MONEY MOVES <span>✦</span>
           </div>
           <h1>
             Chào {userName.split(" ").slice(-2).join(" ")}, ngày mới tốt lành{" "}
             <span className="wave">☀</span>
           </h1>
-          <p>Cùng chăm chút cho những kế hoạch lớn, từ những điều nhỏ.</p>
+          <p>Quản lý tiền gọn gàng. Dành chỗ cho những điều bạn thích.</p>
         </div>
         <Button onClick={onAdd}>
           <Plus size={18} />
           Thêm giao dịch
         </Button>
+        <MoneyOrbit />
+      </div>
+      <div className="section-row overview-label">
+        <h2>Tài chính trong tầm tay</h2>
+        <span className="live-label">
+          <i /> Bức tranh của bạn, cập nhật mỗi ngày
+        </span>
       </div>
       <div className="stat-grid">
         <motion.section

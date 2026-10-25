@@ -145,3 +145,21 @@ test("new account: empty state, wallet creation and manually approved budget", a
     page.getByText("Ăn uống cá nhân", { exact: true }),
   ).toBeVisible();
 });
+
+test("motion preference is controllable, persists, and honors system reduction", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+  const toggle = page.getByRole("button", { name: "Giảm chuyển động" });
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await toggle.click();
+  await expect(page.locator("html")).toHaveAttribute("data-motion", "quiet");
+  await page.reload();
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await toggle.click();
+  await expect(page.locator("html")).toHaveAttribute("data-motion", "playful");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(page.locator("html")).toHaveAttribute("data-motion", "quiet");
+  await expect(page.locator(".auth-float")).toHaveCSS("animation-name", "none");
+});

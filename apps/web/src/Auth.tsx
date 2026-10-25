@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
+import { MotionToggle } from "./Experience";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -123,6 +124,9 @@ export default function Auth({ onLogin }: { onLogin: (user: User) => void }) {
         </div>
       </div>
       <main className="auth-form-panel">
+        <div className="auth-motion">
+          <MotionToggle />
+        </div>
         <div className="auth-mobile-brand">
           <Brand />
         </div>

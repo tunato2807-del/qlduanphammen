@@ -27,6 +27,7 @@ import {
   Wallet as WalletIcon,
   X,
 } from "lucide-react";
+import { MotionToggle } from "./Experience";
 import Auth, { Brand } from "./Auth";
 import Dashboard, { FlowChart, SpendingChart } from "./Dashboard";
 import {
@@ -331,6 +332,7 @@ export default function App() {
               />
               <kbd>⌕</kbd>
             </label>
+            <MotionToggle />
             <div className="notification-wrap">
               <button
                 className="icon-button bell-button"
