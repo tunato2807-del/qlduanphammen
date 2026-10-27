@@ -119,6 +119,7 @@ Chưa triển khai lên dịch vụ công khai, chưa cấu hình tên miền ho
 
 ## Tài liệu dự án
 
+- [PowerPoint báo cáo đồ án — 15 slide, PDF và ghi chú thuyết trình](docs/presentation/README.md)
 - [Phân tích, thiết kế và kế hoạch phát triển](docs/DESIGN.md)
 - [Hợp đồng API và quy tắc dữ liệu](docs/API.md)
 
