@@ -163,3 +163,32 @@ test("motion preference is controllable, persists, and honors system reduction",
   await expect(page.locator("html")).toHaveAttribute("data-motion", "quiet");
   await expect(page.locator(".auth-float")).toHaveCSS("animation-name", "none");
 });
+
+test("session bootstrap distinguishes server failure from signed-out state and supports retry", async ({
+  page,
+}) => {
+  let unavailable = true;
+  await page.route("**/api/auth/me", async (route) => {
+    await route.fulfill({
+      status: unavailable ? 503 : 401,
+      contentType: "application/json",
+      body: JSON.stringify({
+        message: unavailable
+          ? "Máy chủ tạm thời chưa sẵn sàng."
+          : "Vui lòng đăng nhập.",
+      }),
+    });
+  });
+  await page.goto("/");
+  await expect(page.getByRole("alert")).toContainText(
+    "Máy chủ tạm thời chưa sẵn sàng.",
+  );
+  await expect(
+    page.getByRole("button", { name: "Đăng nhập", exact: true }),
+  ).not.toBeVisible();
+  unavailable = false;
+  await page.getByRole("button", { name: "Thử kết nối lại" }).click();
+  await expect(
+    page.getByRole("button", { name: "Đăng nhập", exact: true }),
+  ).toBeVisible();
+});

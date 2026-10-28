@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { MotionToggle } from "./Experience";
 import Auth, { Brand } from "./Auth";
+import { useSession } from "./features/identity/useSession";
 import Dashboard, { FlowChart, SpendingChart } from "./Dashboard";
 import {
   Button,
@@ -63,9 +64,9 @@ const navigation = [
   { id: "reports", label: "Báo cáo", icon: FolderOpen },
 ];
 export default function App() {
-  const [user, setUser] = useState<User | null>(null),
-    [initializing, setInitializing] = useState(true),
-    [page, setPage] = useState(() => location.hash.slice(1) || "overview");
+  const { user, setUser, initializing, sessionError, retrySession } =
+    useSession();
+  const [page, setPage] = useState(() => location.hash.slice(1) || "overview");
   const [month, setMonth] = useState(today().slice(0, 7)),
     [summary, setSummary] = useState<Summary | null>(null),
     [categories, setCategories] = useState<Category[]>([]),
@@ -90,12 +91,15 @@ export default function App() {
     [mutationLoading, setMutationLoading] = useState(false);
   const request = useRef(0);
   useEffect(() => {
-    api<User>("/auth/me")
-      .then(setUser)
-      .catch(() => {})
-      .finally(() => setInitializing(false));
     const expired = () => {
+      request.current++;
       setUser(null);
+      setTxs(null);
+      setModal("");
+      setEdit(undefined);
+      setDeleting(null);
+      setWalletEdit(null);
+      setCategoryEdit(null);
       setSummary(null);
       setCategories([]);
       setToast("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
@@ -124,24 +128,30 @@ export default function App() {
   useEffect(() => {
     if (!user) return;
     const id = ++request.current;
+    const controller = new AbortController();
     setLoading(true);
     setError("");
     Promise.all([
-      api<Summary>("/reports/summary?month=" + month),
-      api<Category[]>("/categories"),
+      api<Summary>("/reports/summary?month=" + month, {
+        signal: controller.signal,
+      }),
+      api<Category[]>("/categories", { signal: controller.signal }),
     ])
       .then(([s, c]) => {
-        if (request.current === id) {
+        if (!controller.signal.aborted && request.current === id) {
           setSummary(s);
           setCategories(c);
         }
       })
       .catch((e) => {
-        if (request.current === id) setError(e.message);
+        if (!controller.signal.aborted && request.current === id)
+          setError(e.message);
       })
       .finally(() => {
-        if (request.current === id) setLoading(false);
+        if (!controller.signal.aborted && request.current === id)
+          setLoading(false);
       });
+    return () => controller.abort();
   }, [user, month, version]);
   useEffect(() => {
     setTxPage(1);
@@ -203,6 +213,16 @@ export default function App() {
         <Brand />
         <LoaderCircle className="spin" size={24} />
         <span>Đang mở không gian của bạn…</span>
+      </div>
+    );
+  if (sessionError)
+    return (
+      <div className="boot-screen">
+        <Brand />
+        <div className="form-error" role="alert">
+          {sessionError}
+        </div>
+        <Button onClick={retrySession}>Thử kết nối lại</Button>
       </div>
     );
   if (!user)
