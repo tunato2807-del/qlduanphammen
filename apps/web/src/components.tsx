@@ -1,5 +1,3 @@
-import { useEffect, useRef, type ReactNode, type FormEvent } from "react";
-import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowDownLeft,
   ArrowLeftRight,
@@ -19,6 +17,8 @@ import {
   Wallet,
   X,
 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useRef, type FormEvent, type ReactNode } from "react";
 import type { Transaction } from "./types";
 import { dateLabel, money } from "./types";
 export const icons: Record<string, typeof Wallet> = {

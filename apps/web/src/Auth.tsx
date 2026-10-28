@@ -1,6 +1,3 @@
-import { useEffect, useState } from "react";
-import { motion } from "motion/react";
-import { MotionToggle } from "./Experience";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -14,8 +11,11 @@ import {
   Sparkles,
   TrendingUp,
 } from "lucide-react";
-import { api, type User } from "./types";
+import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 import { Button, Field } from "./components";
+import { MotionToggle } from "./Experience";
+import { api, type User } from "./types";
 export function Brand() {
   return (
     <span className="brand">

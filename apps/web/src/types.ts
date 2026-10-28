@@ -1,3 +1,3 @@
-export * from "./shared/models";
+export { ApiError, api } from "./shared/api";
 export * from "./shared/format";
-export { api, ApiError } from "./shared/api";
+export * from "./shared/models";

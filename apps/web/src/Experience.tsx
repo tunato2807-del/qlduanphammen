@@ -1,3 +1,5 @@
+import { Sparkles } from "lucide-react";
+import { MotionConfig } from "motion/react";
 import {
   createContext,
   useContext,
@@ -5,8 +7,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { MotionConfig } from "motion/react";
-import { Sparkles } from "lucide-react";
 
 const Experience = createContext({
   quiet: false,
