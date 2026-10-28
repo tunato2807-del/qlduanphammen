@@ -1,6 +1,6 @@
 # Finora — phương án làm lại dự án
 
-**Trạng thái: Đề xuất, chờ duyệt ranh giới module.** Ngày 28/10/2026.
+**Trạng thái: Đã được người dùng cho phép tiếp tục ngày 29/10/2026.** Phương án lập ngày 28/10/2026.
 
 Người dùng chọn hướng **cân bằng giao diện Gen Z, nghiệp vụ và chất lượng đồ án**. Đích đến là một ứng dụng web fullstack có thể chạy, demo và giải thích khi bảo vệ, giữ toàn bộ chức năng hiện có và dữ liệu hiện hữu.
 
@@ -76,6 +76,10 @@ Các mục AI, đồng bộ ngân hàng, nhiều tiền tệ, ứng dụng mobil
 - [Toàn bộ 25 skill và cách áp dụng](docs/rebuild/SKILLS.md)
 - [Phương án giao diện và tổ chức dự án (PDF)](docs/rebuild/Finora-V2-Phuong-an.pdf)
 
-## Điểm duyệt
+## Ghi nhận triển khai
+
+Ngày 29/10/2026, sau khi được hỏi duyệt phương án và giao tiếp tục đặc tả, kế hoạch, triển khai trọn gói, người dùng trả lời “Hãy làm tiếp giúp tôi”. Phạm vi, ranh giới và thứ tự ở trên được dùng làm cơ sở triển khai; các bước kỹ thuật và thay thế mã liên quan trong phạm vi này được thực hiện tự chủ. Không bao gồm triển khai dịch vụ có phí hoặc xóa dữ liệu.
+
+## Điểm duyệt ban đầu (lưu lịch sử)
 
 Duyệt hoặc điều chỉnh sáu nhóm công việc, chiều phụ thuộc, thứ tự xây dựng và phạm vi nêu trên. Theo skill đã được yêu cầu, cần duyệt capability map trước khi viết đặc tả từng module và thay mã nguồn ứng dụng. Việc chọn hướng cân bằng đã được ghi nhận; nó chưa phải duyệt ranh giới module khi tài liệu này chưa tồn tại.
