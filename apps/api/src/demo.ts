@@ -1,13 +1,19 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { randomUUID } from "node:crypto";
 import { Accounts } from "./auth";
-import { Finance } from "./finance";
+import { Database } from "./database";
+import { Budgets } from "./budgets";
+import { Wallets } from "./wallets";
+import { Transactions } from "./transactions";
 import { currentMonth, monthOffset } from "./budget";
 @Injectable()
 export class Demo {
   constructor(
     @Inject(Accounts) private accounts: Accounts,
-    @Inject(Finance) private finance: Finance,
+    @Inject(Database) private db: Database,
+    @Inject(Budgets) private budgets: Budgets,
+    @Inject(Wallets) private wallets: Wallets,
+    @Inject(Transactions) private transactions: Transactions,
   ) {}
   async create() {
     const user = await this.accounts.register({
@@ -15,25 +21,25 @@ export class Demo {
       password: randomUUID(),
       name: "Minh Anh",
     });
-    const bank = await this.finance.createWallet(user.id, {
+    const bank = await this.wallets.createWallet(user.id, {
       name: "Tài khoản ngân hàng",
       kind: "BANK",
       openingBalance: "8500000",
       color: "#39745d",
     });
-    const cash = await this.finance.createWallet(user.id, {
+    const cash = await this.wallets.createWallet(user.id, {
       name: "Tiền mặt",
       kind: "CASH",
       openingBalance: "5500000",
       color: "#dba673",
     });
-    const ewallet = await this.finance.createWallet(user.id, {
+    const ewallet = await this.wallets.createWallet(user.id, {
       name: "Ví điện tử",
       kind: "EWALLET",
       openingBalance: "700000",
       color: "#8580be",
     });
-    const cats = await this.finance.db.category.findMany({
+    const cats = await this.db.category.findMany({
       where: { userId: user.id },
     });
     const cat = (name: string) => cats.find((c) => c.name === name)!;
@@ -47,7 +53,7 @@ export class Demo {
       walletId = bank.id,
       note = "",
     ) =>
-      this.finance.createTransaction(user.id, {
+      this.transactions.createTransaction(user.id, {
         kind,
         amount,
         categoryId: cat(category).id,
@@ -192,7 +198,7 @@ export class Demo {
       ewallet.id,
       "Cà phê sáng",
     );
-    await this.finance.createTransaction(user.id, {
+    await this.transactions.createTransaction(user.id, {
       kind: "TRANSFER",
       amount: "1000000",
       walletId: bank.id,
@@ -200,7 +206,7 @@ export class Demo {
       note: "Rút tiền mặt",
       occurredAt: `${month}-${String(d(20)).padStart(2, "0")}T12:00:00+07:00`,
     });
-    await this.finance.saveBudget(user.id, {
+    await this.budgets.saveBudget(user.id, {
       month,
       income: "26500000",
       savings: "8000000",

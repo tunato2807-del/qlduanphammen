@@ -35,7 +35,11 @@ import {
   WalletDto,
   WalletPatchDto,
 } from "./dto";
-import { Finance, validMonth } from "./finance";
+import { Wallets } from "./wallets";
+import { Transactions } from "./transactions";
+import { Budgets } from "./budgets";
+import { Reports } from "./reports";
+import { validMonth } from "./month";
 import { Database } from "./database";
 import { Demo } from "./demo";
 @Controller("api/auth")
@@ -109,29 +113,38 @@ export class AuthController {
 @Controller("api")
 @UseGuards(SessionGuard)
 export class FinanceController {
-  constructor(@Inject(Finance) private finance: Finance) {}
+  constructor(
+    @Inject(Wallets) private walletsService: Wallets,
+    @Inject(Transactions) private transactionsService: Transactions,
+    @Inject(Budgets) private budgetsService: Budgets,
+    @Inject(Reports) private reportsService: Reports,
+    @Inject(Database) private db: Database,
+  ) {}
   @Get("wallets") wallets(@Req() req: AuthRequest) {
-    return this.finance.wallets(req.user.id);
+    return this.walletsService.wallets(req.user.id);
   }
   @Post("wallets") createWallet(
     @Req() req: AuthRequest,
     @Body() body: unknown,
   ) {
-    return this.finance.createWallet(req.user.id, parse(WalletDto, body));
+    return this.walletsService.createWallet(
+      req.user.id,
+      parse(WalletDto, body),
+    );
   }
   @Patch("wallets/:id") updateWallet(
     @Req() req: AuthRequest,
     @Param("id", ParseUUIDPipe) id: string,
     @Body() body: unknown,
   ) {
-    return this.finance.updateWallet(
+    return this.walletsService.updateWallet(
       req.user.id,
       id,
       parse(WalletPatchDto, body),
     );
   }
   @Get("categories") categories(@Req() req: AuthRequest) {
-    return this.finance.db.category.findMany({
+    return this.db.category.findMany({
       where: { userId: req.user.id },
       orderBy: { name: "asc" },
     });
@@ -141,7 +154,7 @@ export class FinanceController {
     @Body() body: unknown,
   ) {
     const dto = parse(CategoryDto, body);
-    return this.finance.db.category.create({
+    return this.db.category.create({
       data: { ...dto, name: dto.name.trim(), userId: req.user.id },
     });
   }
@@ -152,24 +165,24 @@ export class FinanceController {
   ) {
     const dto = parse(CategoryPatchDto, body);
     if (
-      !(await this.finance.db.category.findFirst({
+      !(await this.db.category.findFirst({
         where: { id, userId: req.user.id },
       }))
     )
       throw new NotFoundException("Không tìm thấy danh mục.");
-    return this.finance.db.category.update({ where: { id }, data: dto });
+    return this.db.category.update({ where: { id }, data: dto });
   }
   @Get("transactions") transactions(
     @Req() req: AuthRequest,
     @Query() query: Record<string, string>,
   ) {
-    return this.finance.transactions(req.user.id, query);
+    return this.transactionsService.transactions(req.user.id, query);
   }
   @Post("transactions") createTransaction(
     @Req() req: AuthRequest,
     @Body() body: unknown,
   ) {
-    return this.finance.createTransaction(
+    return this.transactionsService.createTransaction(
       req.user.id,
       parse(TransactionDto, body),
     );
@@ -179,7 +192,7 @@ export class FinanceController {
     @Param("id", ParseUUIDPipe) id: string,
     @Body() body: unknown,
   ) {
-    return this.finance.updateTransaction(
+    return this.transactionsService.updateTransaction(
       req.user.id,
       id,
       parse(TransactionDto, body),
@@ -189,7 +202,7 @@ export class FinanceController {
     @Req() req: AuthRequest,
     @Param("id", ParseUUIDPipe) id: string,
   ) {
-    return this.finance.deleteTransaction(req.user.id, id);
+    return this.transactionsService.deleteTransaction(req.user.id, id);
   }
   @Get("budget-plans") async budget(
     @Req() req: AuthRequest,
@@ -197,26 +210,29 @@ export class FinanceController {
     @Res() res: Response,
   ) {
     return res.json(
-      await this.finance.activeBudget(req.user.id, validMonth(month)),
+      await this.budgetsService.activeBudget(req.user.id, validMonth(month)),
     );
   }
   @Post("budget-plans/preview") preview(
     @Req() req: AuthRequest,
     @Body() body: unknown,
   ) {
-    return this.finance.budgetPreview(req.user.id, parse(BudgetDto, body));
+    return this.budgetsService.budgetPreview(
+      req.user.id,
+      parse(BudgetDto, body),
+    );
   }
   @Post("budget-plans") saveBudget(
     @Req() req: AuthRequest,
     @Body() body: unknown,
   ) {
-    return this.finance.saveBudget(req.user.id, parse(BudgetDto, body));
+    return this.budgetsService.saveBudget(req.user.id, parse(BudgetDto, body));
   }
   @Get("reports/summary") summary(
     @Req() req: AuthRequest,
     @Query("month") month: string,
   ) {
-    return this.finance.summary(req.user.id, validMonth(month));
+    return this.reportsService.summary(req.user.id, validMonth(month));
   }
   @Get("transactions/export") async export(
     @Req() req: AuthRequest,
@@ -224,7 +240,7 @@ export class FinanceController {
     @Res() res: Response,
   ) {
     const month = validMonth(query.month);
-    const { items, total } = await this.finance.transactions(
+    const { items, total } = await this.transactionsService.transactions(
       req.user.id,
       { ...query, month },
       true,

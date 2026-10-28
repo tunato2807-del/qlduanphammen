@@ -19,7 +19,10 @@ import express, { Response } from "express";
 import { resolve } from "node:path";
 import { Database } from "./database";
 import { Accounts, SessionGuard } from "./auth";
-import { Finance } from "./finance";
+import { Wallets } from "./wallets";
+import { Transactions } from "./transactions";
+import { Budgets } from "./budgets";
+import { Reports } from "./reports";
 import { Demo } from "./demo";
 import { AuthController, FinanceController } from "./controllers";
 @Controller("api/health")
@@ -58,7 +61,16 @@ class DatabaseErrorFilter implements ExceptionFilter {
 }
 @Module({
   controllers: [HealthController, AuthController, FinanceController],
-  providers: [Database, Accounts, SessionGuard, Finance, Demo],
+  providers: [
+    Database,
+    Accounts,
+    SessionGuard,
+    Wallets,
+    Transactions,
+    Budgets,
+    Reports,
+    Demo,
+  ],
 })
 class AppModule {}
 export async function createApp() {
