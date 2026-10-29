@@ -14,7 +14,7 @@ export default defineConfig({
     launchOptions: { executablePath: process.env.CHROMIUM_EXECUTABLE_PATH },
   },
   webServer: {
-    command: "bash scripts/start.sh",
+    command: process.env.CI ? "npm run dev" : "bash scripts/start.sh",
     url: "http://127.0.0.1:5173/api/health",
     reuseExistingServer: !process.env.CI,
     timeout: 90000,

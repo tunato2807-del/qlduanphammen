@@ -6,7 +6,7 @@ command -v docker >/dev/null
 if [ ! -f .env ]; then cp .env.example .env; fi
 if [ ! -f apps/api/.env ]; then cp apps/api/.env.example apps/api/.env; fi
 export npm_config_cache="${TMPDIR:-/tmp}/finora-npm-cache"
-npm ci
+npm ci --ignore-scripts
 npm run db:generate
 docker compose up -d db
 ready=0
