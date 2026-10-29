@@ -78,3 +78,7 @@ a3aa6ba95638497025577469eda10ed17918698209615aeafbc26f131bf2469d  skills/test-dr
 - `references/accessibility-checklist.md`: bàn phím, focus, nhãn và tương phản.
 
 Không chạy script/hook cài tự động từ repository nguồn. Không thêm telemetry, dịch vụ ngoài hoặc thay cơ chế tài khoản chỉ vì ví dụ trong skill có đề cập.
+
+## Cập nhật triển khai ngày 29/10/2026
+
+Người dùng đã giao tiếp tục sau khi xem phương án. Đã lập sáu SPEC, kế hoạch và thực hiện các lát cắt có kiểm chứng. TDD áp dụng cho lỗi phiên và request ID/mã lỗi (đã quan sát test fail trước sửa); browser runtime dùng Playwright/Chromium/axe, không dùng Chrome DevTools MCP. Không triển khai cross-model review hay production launch. Official live docs đã thử truy cập nhưng không tải được; ghi giới hạn trong ADR. Xem RELEASE.md cho đầu ra và kết quả thật; bảng ngày 28/10 phía trên là nhật ký thời điểm chuẩn bị.

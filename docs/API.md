@@ -1,6 +1,6 @@
 # API Finora
 
-Tiền tố `/api`. Request thay đổi dữ liệu có `Content-Type: application/json`. Sau đăng nhập, trình duyệt tự gửi cookie phiên cùng origin. Tiền là chuỗi số nguyên VND, số tiền giao dịch từ `1` đến `9999999999999`. Lỗi dùng HTTP status tương ứng và thuộc tính `message`.
+Tiền tố `/api`. Request thay đổi dữ liệu có `Content-Type: application/json`. Sau đăng nhập, trình duyệt tự gửi cookie phiên cùng origin. Tiền là chuỗi số nguyên VND, số tiền giao dịch từ `1` đến `9999999999999`. Lỗi giữ HTTP status và thuộc tính `message`, bổ sung `statusCode`, `code` và `requestId`. Mọi phản hồi có header `X-Request-Id` do server tạo; không tin ID tùy ý từ client. Ví dụ 401: `{ "message": "Vui lòng đăng nhập.", "statusCode": 401, "code": "UNAUTHENTICATED", "requestId": "UUID" }`. Không tự động retry các yêu cầu ghi dữ liệu khi chưa rõ kết quả trước đó.
 
 ## Endpoint
 

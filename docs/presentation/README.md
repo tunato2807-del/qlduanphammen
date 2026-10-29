@@ -1,4 +1,6 @@
-# Bài trình chiếu Finora
+# Bài trình chiếu Finora V2
+
+Cập nhật ngày 29/10/2026 theo bản làm lại V2 và ảnh giao diện đang chạy.
 
 Báo cáo đồ án **quản lý tài chính cá nhân và lập ngân sách tự động**, 15 slide tiếng Việt, khổ 16:9. Thời lượng nội dung khoảng 12–14 phút; demo trực tiếp có thể thêm khoảng 2 phút.
 
@@ -34,6 +36,6 @@ Chọn Presenter View để đọc ghi chú. File không có macro hoặc âm th
 
 ## Căn cứ nội dung
 
-Nội dung đối chiếu với [README dự án](../../README.md), [phân tích và thiết kế](../DESIGN.md), [schema](../../apps/api/prisma/schema.prisma), [thuật toán ngân sách](../../apps/api/src/budget.ts) và ảnh giao diện trong `docs/images`. Mốc mã nguồn tham chiếu: `40ea763`.
+Nội dung đối chiếu với [README dự án](../../README.md), [phân tích và thiết kế](../DESIGN.md), [schema](../../apps/api/prisma/schema.prisma), [thuật toán ngân sách](../../apps/api/src/budget.ts) và ảnh giao diện trong `docs/images`. Mốc MVP trước làm lại: `e83cbbd`; bản hiện tại theo [bàn giao V2](../rebuild/RELEASE.md).
 
-Số 17 kiểm thử API/nghiệp vụ và 3 kiểm thử trình duyệt là kết quả đã xác nhận trong quá trình xây dựng MVP và cải tiến giao diện; không phải một lần chạy test mới khi tạo PowerPoint. Các mục triển khai công khai, email, tích hợp ngân hàng và AI được ghi rõ là hướng phát triển. Sơ đồ dữ liệu trên slide được rút gọn; xem tài liệu thiết kế để đọc các quan hệ đầy đủ.
+Số 18 kiểm thử API/nghiệp vụ và 6 kiểm thử trình duyệt là kết quả đã chạy lại trong giai đoạn bàn giao V2 ngày 29/10/2026. Các mục triển khai công khai, email, tích hợp ngân hàng và AI được ghi rõ là hướng phát triển. Sơ đồ dữ liệu trên slide được rút gọn; xem tài liệu thiết kế để đọc các quan hệ đầy đủ.

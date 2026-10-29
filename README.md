@@ -2,7 +2,9 @@
 
 Ứng dụng fullstack quản lý tài chính cá nhân và lập ngân sách tự động, giao diện tiếng Việt, tiền VND, báo cáo theo múi giờ Việt Nam.
 
-**Frontend:** React 19, TypeScript, Vite, Tailwind CSS 4, Motion, Recharts. **Backend:** NestJS 11, TypeScript. **Database:** PostgreSQL 17, Prisma 6.19 với bộ máy JavaScript và driver PostgreSQL.
+**Frontend:** React 19, TypeScript, Vite, CSS theo token, Motion, Recharts. **Backend:** NestJS 11, TypeScript. **Database:** PostgreSQL 17, Prisma 6.19 với bộ máy JavaScript và driver PostgreSQL.
+
+Bản làm lại Finora V2 giữ nghiệp vụ và dữ liệu, tổ chức frontend theo tính năng và backend theo provider. [Kết quả bàn giao V2](docs/rebuild/RELEASE.md).
 
 ## Xem trước giao diện
 
@@ -21,7 +23,9 @@
 - Ngân sách tháng tự động theo chi bắt buộc, trọng số và tiết kiệm dự kiến; hoặc nhập hạn mức thủ công.
 - Xem trước phương án, xác nhận áp dụng, giữ các phiên bản trước trong database.
 - Dashboard, biểu đồ dòng tiền sáu tháng, báo cáo theo danh mục, cảnh báo từ 80% hạn mức và xuất CSV.
-- Giao diện Finora Studio với tông lavender/lime, chữ rõ nét và bố cục responsive. Nút bấm có chuyển động nảy, thẻ nổi khi tương tác và minh họa tài chính chuyển động.
+- Giao diện Finora V2 dùng nền ấm, sidebar tối, điểm nhấn lavender/lime; dashboard ưu tiên số dư và ngân sách còn lại. Bố cục responsive, nút nảy và minh họa chuyển động; có skip link và menu mobile hỗ trợ bàn phím.
+- Lỗi mạng/máy chủ khi khởi tạo phiên có thông báo và nút thử lại; phân biệt với chưa đăng nhập.
+- API có `X-Request-Id`, mã lỗi và log metadata an toàn; không log body/cookie/số tiền.
 - Nút ✨ trên màn hình đăng nhập và thanh công cụ giúp giảm chuyển động; lựa chọn được lưu trên thiết bị. Tôn trọng cài đặt giảm chuyển động của hệ điều hành, bao gồm biểu đồ.
 - Trải nghiệm dữ liệu mẫu riêng cho từng lần tạo phiên demo. Mặc định tắt khi chạy production.
 
@@ -34,7 +38,7 @@ bash scripts/setup.sh
 bash scripts/start.sh
 ```
 
-Script thiết lập tạo `.env` và `apps/api/.env` từ file mẫu **chỉ khi chưa có**, cài đúng lockfile, tạo Prisma Client, khởi động PostgreSQL và chạy migration. Script không tự sửa file môi trường đã có.
+Script thiết lập tạo `.env` và `apps/api/.env` từ file mẫu **chỉ khi chưa có**, cài đúng lockfile với lifecycle script tắt (`npm ci --ignore-scripts`), tạo Prisma Client bằng lệnh dự án đã kiểm soát, khởi động PostgreSQL và chạy migration. Script không tự sửa file môi trường đã có.
 
 - Frontend phát triển: cổng **5173**.
 - API: cổng **3001**, tiền tố `/api`.
@@ -49,6 +53,8 @@ Các giá trị trong file `.env.example` chỉ phục vụ phát triển cục 
 ```bash
 npm run dev          # Chạy API và frontend cùng lúc
 npm run typecheck    # Kiểm tra TypeScript
+npm run check:fast   # Typecheck và kiểm tra định dạng
+npm run format:check # Kiểm tra định dạng không sửa file
 npm test             # Unit test + integration test với PostgreSQL thật
 npm run build        # Build cả API và frontend
 npm run db:generate  # Tạo lại Prisma Client sau khi sửa schema
@@ -71,7 +77,15 @@ Nếu môi trường đã có Chromium, không cần tải trình duyệt mới:
 CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e
 ```
 
-Playwright tự khởi động ứng dụng nếu chưa chạy. Các luồng kiểm thử bao gồm tài khoản demo, CRUD giao dịch, áp dụng ngân sách, tải CSV, giao diện điện thoại, đăng ký mới, tạo ví, ngân sách thủ công đổi tên danh mục và lưu tùy chọn giảm chuyển động. Các tài khoản do E2E tạo được giữ lại trong database phát triển.
+Playwright tự khởi động ứng dụng nếu chưa chạy. Các luồng kiểm thử bao gồm tài khoản demo, CRUD giao dịch, áp dụng ngân sách, tải CSV, giao diện điện thoại, đăng ký mới, tạo ví, ngân sách thủ công đổi tên danh mục và lưu tùy chọn giảm chuyển động. Kiểm tra bổ sung dùng axe-core cho đăng nhập/đăng ký, các trang chính và dialog giao dịch/ngân sách/mật khẩu; kiểm tra 320/390/768/1024/1440px, focus menu và lỗi khởi tạo phiên. Đây là kiểm tra tự động trong phạm vi cụ thể, không phải chứng nhận WCAG toàn diện. Các tài khoản do E2E tạo được giữ lại trong database phát triển.
+
+Workflow `.github/workflows/ci.yml` chạy typecheck, format, API test, build, audit và browser test. CI dùng PostgreSQL tạm trên runner, không cần thông tin production. Chưa tự cấu hình branch protection.
+
+Tạo lại ảnh tài liệu với PostgreSQL đã chạy/migrate:
+
+```bash
+CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node scripts/capture-screenshots.mjs
+```
 
 ## Quy tắc tài chính
 
@@ -116,6 +130,15 @@ NODE_ENV=production PORT=3001 npm start
 Ở production, NestJS phục vụ frontend đã build cùng API trên một origin. Cần HTTPS reverse proxy giữ nguyên `Host`; cookie phiên có `Secure`, `HttpOnly`, `SameSite=Lax`. Không bật `ALLOW_DEMO` khi không chủ đích cho phép tạo tài khoản mẫu. PostgreSQL nên được quản lý bên ngoài hoặc có chính sách lưu trữ, sao lưu phù hợp; không dùng mật khẩu mẫu cho production.
 
 Chưa triển khai lên dịch vụ công khai, chưa cấu hình tên miền hoặc chứng chỉ HTTPS. Chưa có email xác minh/khôi phục mật khẩu, đồng bộ ngân hàng, nhiều tiền tệ, AI dự đoán hoặc quản trị viên. Bản hiện tại là MVP cá nhân; chưa được kiểm thử tải cho lượng giao dịch lớn. CSV giới hạn 10.000 giao dịch mỗi lần xuất và báo lỗi nếu vượt giới hạn, không cắt dữ liệu âm thầm.
+
+## Tổ chức mã nguồn
+
+- `apps/web/src/app`: khung điều hướng và dialog.
+- `apps/web/src/features`: trang, form và hook của từng nghiệp vụ.
+- `apps/web/src/shared`: HTTP client, kiểu, định dạng và biểu đồ.
+- `apps/web/src/styles.css`: một hệ thiết kế dùng token; không còn lớp CSS override Studio.
+- `apps/api/src/{wallets,transactions,budgets,reports}.ts`: provider nghiệp vụ cùng ứng dụng NestJS.
+- `apps/api/src/http.ts`: request ID và lỗi an toàn.
 
 ## Tài liệu dự án
 

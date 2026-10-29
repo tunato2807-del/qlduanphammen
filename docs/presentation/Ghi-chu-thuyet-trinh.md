@@ -1,6 +1,6 @@
-# Ghi chú thuyết trình Finora
+# Ghi chú thuyết trình Finora V2
 
-Bản 15 slide, tiếng Việt; nội dung chính khoảng 12–14 phút. Demo trực tiếp có thể thêm khoảng 2 phút. Ghi chú cũng được lưu trong phần Notes của PowerPoint.
+15 slide; khoảng 12–14 phút, demo có thể thêm 2 phút. Cập nhật 29/10/2026. Nội dung Notes cũng nằm trong file PowerPoint.
 
 ## Slide 01
 
@@ -20,7 +20,7 @@ Thời lượng gợi ý: 40 giây. Đây là sơ đồ chức năng theo tác n
 
 ## Slide 05
 
-Thời lượng gợi ý: 60 giây. Giải thích lý do chọn TypeScript: chia sẻ cách biểu diễn dữ liệu và kiểm tra kiểu trên cả hai phía. React hỗ trợ xây dựng giao diện; NestJS tổ chức controller, guard và service; PostgreSQL lưu dữ liệu có ràng buộc. Prisma dùng JavaScript engine và adapter pg. Development dùng proxy Vite; production NestJS phục vụ frontend đã build cùng API. Không đưa bí mật hay thông tin kết nối database vào frontend.
+Thời lượng gợi ý: 60 giây. Giải thích lý do chọn TypeScript: chia sẻ cách biểu diễn dữ liệu và kiểm tra kiểu trên cả hai phía. React hỗ trợ xây dựng giao diện; NestJS tổ chức controller, guard và service; PostgreSQL lưu dữ liệu có ràng buộc. Prisma dùng JavaScript engine và adapter pg. Development dùng proxy Vite; production NestJS phục vụ frontend đã build cùng API. Không đưa bí mật hay thông tin kết nối database vào frontend. Finora V2 tách provider Wallets, Transactions, Budgets, Reports trong cùng NestJS; frontend tách app/features/shared. CSS theo token thay Tailwind không còn dùng. Dashboard và báo cáo tải động.
 
 ## Slide 06
 
@@ -44,15 +44,15 @@ Thời lượng gợi ý: 50 giây. Đây là ảnh từ ứng dụng chạy th�
 
 ## Slide 11
 
-Thời lượng gợi ý: 45 giây. Mục tiêu thiết kế là phù hợp người trẻ mà vẫn đọc được số liệu tài chính. Hiệu ứng được triển khai bằng Motion và CSS, ảnh tĩnh trên slide không thể hiện chuyển động. Khi demo có thể rê chuột lên nút, thẻ, rồi bấm nút biểu tượng lấp lánh để giảm chuyển động. Hệ thống cũng phản hồi khi cài đặt reduced motion của hệ điều hành thay đổi. Ảnh điện thoại được cắt phần đầu để dễ quan sát.
+Thời lượng gợi ý: 45 giây. Mục tiêu thiết kế là phù hợp người trẻ mà vẫn đọc được số liệu tài chính. Hiệu ứng được triển khai bằng Motion và CSS, ảnh tĩnh trên slide không thể hiện chuyển động. Khi demo có thể rê chuột lên nút, thẻ, rồi bấm nút biểu tượng lấp lánh để giảm chuyển động. Hệ thống cũng phản hồi khi cài đặt reduced motion của hệ điều hành thay đổi. Ảnh điện thoại được cắt phần đầu để dễ quan sát. Bản V2 dùng nền ấm, sidebar tối; sửa tương phản và kiểm tra 320/390/768/1024/1440px. Menu mobile giữ focus và đóng bằng Escape.
 
 ## Slide 12
 
-Thời lượng gợi ý: 60 giây. Các số 17 và 3 là kết quả các lần kiểm thử đã hoàn tất cho phiên bản MVP và cập nhật giao diện, không phải kiểm thử mới chạy riêng khi tạo slide. Build API và frontend đã thành công. API integration dùng PostgreSQL thật. Đổi mật khẩu thu hồi các phiên khác. Production bật Secure cho cookie và cần HTTPS. Các kiểm thử chứng minh những luồng đã kiểm tra; chưa có đánh giá tải lớn hay kiểm toán bảo mật độc lập.
+Thời lượng gợi ý: 60 giây. Các số 18 và 6 là kết quả kiểm tra bản Finora V2 ngày 29/10/2026. Có kiểm tra axe-core trên các màn hình/dialog chính và năm viewport; chưa phải chứng nhận WCAG toàn diện. Build API và frontend đã thành công. API integration dùng PostgreSQL thật. Đổi mật khẩu thu hồi các phiên khác. Production bật Secure cho cookie và cần HTTPS. Các kiểm thử chứng minh những luồng đã kiểm tra; chưa có đánh giá tải lớn hay kiểm toán bảo mật độc lập.
 
 ## Slide 13
 
-Thời lượng gợi ý: 55 giây. WBS chia dự án thành năm nhóm công việc theo đầu ra. Các mục trên là kết quả hiện có chứ không phải một lịch dự án được dựng lại. Khi làm báo cáo học phần có thể bổ sung thành viên, người phụ trách, ngày bắt đầu/kết thúc và ước lượng theo dữ liệu thực tế của nhóm. Repository đã được đẩy lên GitHub. Chưa có môi trường production công khai, tên miền hay chứng chỉ HTTPS.
+Thời lượng gợi ý: 55 giây. WBS chia dự án thành năm nhóm công việc theo đầu ra. Các mục trên là kết quả hiện có chứ không phải một lịch dự án được dựng lại. Khi làm báo cáo học phần có thể bổ sung thành viên, người phụ trách, ngày bắt đầu/kết thúc và ước lượng theo dữ liệu thực tế của nhóm. Repository đã được đẩy lên GitHub. Chưa có môi trường production công khai, tên miền hay chứng chỉ HTTPS. Workflow CI đã được cấu hình và các lệnh đã kiểm chứng cục bộ; không khẳng định GitHub Actions hoặc branch protection đã được xác nhận trên dịch vụ.
 
 ## Slide 14
 

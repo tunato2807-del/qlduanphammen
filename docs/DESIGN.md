@@ -19,13 +19,19 @@ Người dùng muốn tập hợp nguồn tiền, ghi nhận thu chi, hiểu dò
 
 ```mermaid
 flowchart LR
-    A[React + TypeScript] -->|REST API + session cookie| B[NestJS]
+    A[React app / features / shared] -->|REST + cookie phiên| B[NestJS controllers]
     B --> C[Accounts + SessionGuard]
-    B --> D[Finance service]
-    D --> E[Pure budget allocator]
-    C --> F[Prisma Client JS + pg]
-    D --> F
-    F --> G[(PostgreSQL)]
+    B --> D[Wallets + Transactions]
+    B --> E[Budgets]
+    B --> F[Reports]
+    F --> D
+    F --> E
+    E --> G[allocateBudget / BigInt]
+    C --> H[Database / Prisma JS + pg]
+    D --> H
+    E --> H
+    F --> H
+    H --> I[(PostgreSQL)]
 ```
 
 Môi trường phát triển dùng Vite proxy `/api` đến NestJS, tránh cấu hình CORS rộng. Bản production phục vụ frontend từ NestJS, cũng trên cùng một origin. Các nhóm controller được bảo vệ bằng session guard; dữ liệu được lọc theo `userId` trong service. Backend kiểm tra DTO một cách tường minh để cả môi trường `tsx` và bản TypeScript đã biên dịch có cùng hành vi.
@@ -94,3 +100,13 @@ Phiên bản cũ được giữ trong database với thời điểm tạo; giao 
 | Triển khai    | Production build và hướng dẫn            | Chạy bản build cùng API; triển khai công khai chờ cấu hình dịch vụ |
 
 Rủi ro chính: dữ liệu người dùng nhập thiếu, giả định thu nhập không đạt thực tế, mở rộng phạm vi sang tích hợp ngân hàng, và lưu trữ database không bền vững khi đổi hạ tầng. Biện pháp hiện có là phân biệt kế hoạch với thực tế, cảnh báo số dư âm, giữ MVP tập trung và cung cấp hướng dẫn sao lưu.
+
+## Cấu trúc và trải nghiệm V2
+
+Frontend tách app shell, trang/form theo tính năng, shared HTTP/model/format và biểu đồ. App điều phối phiên/tháng/modal; không còn chứa JSX của tất cả trang. Dashboard và trang báo cáo tải động; biểu đồ không nằm trên đường tải màn đăng nhập.
+
+Một stylesheet theo thứ tự token → primitive → shell → feature → responsive → motion thay thế hai lớp CSS cũ. Nền trung tính, chữ mực đậm, lavender/lime làm điểm nhấn. Số tiền hiển thị chính xác ngay; minh họa chỉ trang trí. Giảm chuyển động theo hệ điều hành và lựa chọn thiết bị áp dụng cả hiệu ứng xuất hiện.
+
+Khi /auth/me trả 401, hiển thị đăng nhập; lỗi mạng/5xx hiển thị trạng thái có thể thử lại. Request đang chờ được hủy khi effect thay đổi để tránh response cũ ghi đè dữ liệu mới. Backend giữ API/schema và quy tắc cũ, chia provider theo nhiệm vụ.
+
+Xem [ADR cấu trúc V2](decisions/001-finora-v2.md) và [bằng chứng bàn giao](rebuild/RELEASE.md).
