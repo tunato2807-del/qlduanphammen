@@ -1,17 +1,14 @@
 import "reflect-metadata";
 import "dotenv/config";
 import {
-  ArgumentsHost,
-  Catch,
   Controller,
-  ExceptionFilter,
   Get,
   Inject,
   Module,
   ServiceUnavailableException,
 } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
-import { Prisma } from "@prisma/client";
+import { SafeErrorFilter, requestContext } from "./http";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -39,26 +36,6 @@ class HealthController {
     }
   }
 }
-@Catch(Prisma.PrismaClientKnownRequestError)
-class DatabaseErrorFilter implements ExceptionFilter {
-  catch(error: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
-    const status =
-      error.code === "P2002" ? 409 : error.code === "P2025" ? 404 : 400;
-    host
-      .switchToHttp()
-      .getResponse<Response>()
-      .status(status)
-      .json({
-        statusCode: status,
-        message:
-          status === 409
-            ? "Dữ liệu đã tồn tại."
-            : status === 404
-              ? "Không tìm thấy dữ liệu."
-              : "Không thể lưu dữ liệu. Vui lòng kiểm tra thông tin.",
-      });
-  }
-}
 @Module({
   controllers: [HealthController, AuthController, FinanceController],
   providers: [
@@ -78,6 +55,7 @@ export async function createApp() {
     bodyParser: false,
     logger: process.env.NODE_ENV === "test" ? false : ["error", "warn", "log"],
   });
+  app.use(requestContext);
   app.use(helmet());
   app.use(express.json({ limit: "64kb" }));
   app.use(cookieParser());
@@ -153,7 +131,7 @@ export async function createApp() {
       },
     );
   }
-  app.useGlobalFilters(new DatabaseErrorFilter());
+  app.useGlobalFilters(new SafeErrorFilter());
   app.enableShutdownHooks();
   return app;
 }

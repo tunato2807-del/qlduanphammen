@@ -397,3 +397,15 @@ test("password change revokes other sessions; logout invalidates the current ses
   await a.request("/auth/logout", "POST", {});
   assert.equal((await a.request("/auth/me")).status, 401);
 });
+
+test("responses carry generated request IDs and structured safe errors", async () => {
+  const response = await new Client().request("/wallets", "GET", undefined, {
+    "X-Request-Id": "untrusted-input",
+  });
+  assert.equal(response.status, 401);
+  assert.match(response.headers.get("x-request-id") ?? "", /^[a-f0-9-]{36}$/);
+  assert.equal(response.data.code, "UNAUTHENTICATED");
+  assert.equal(response.data.requestId, response.headers.get("x-request-id"));
+  assert.equal(typeof response.data.message, "string");
+  assert.equal(response.data.stack, undefined);
+});
