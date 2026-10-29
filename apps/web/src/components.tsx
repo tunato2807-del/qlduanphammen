@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, type FormEvent, type ReactNode } from "react";
+import { useExperience } from "./Experience";
 import type { Transaction } from "./types";
 import { dateLabel, money } from "./types";
 export const icons: Record<string, typeof Wallet> = {
@@ -131,6 +132,7 @@ export function Modal({
   onClose: () => void;
   wide?: boolean;
 }) {
+  const { reduced } = useExperience();
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const dialog = ref.current!;
@@ -148,7 +150,7 @@ export function Modal({
       aria-labelledby="modal-title"
     >
       <motion.div
-        initial={{ opacity: 0, y: 18 }}
+        initial={reduced ? false : { opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         className="modal-content"
       >
@@ -174,6 +176,7 @@ export function Progress({
   value: number;
   color?: string;
 }) {
+  const { reduced } = useExperience();
   return (
     <div
       className="progress-track"
@@ -184,9 +187,9 @@ export function Progress({
       aria-valuemax={Math.max(100, Math.round(value))}
     >
       <motion.div
-        initial={{ width: 0 }}
+        initial={reduced ? false : { width: 0 }}
         animate={{ width: Math.min(100, Math.max(0, value)) + "%" }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+        transition={{ duration: reduced ? 0 : 0.8, ease: "easeOut" }}
         style={{ background: color }}
       />
     </div>

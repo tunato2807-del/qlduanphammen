@@ -14,7 +14,7 @@ import {
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Button, Field } from "./components";
-import { MotionToggle } from "./Experience";
+import { MotionToggle, useExperience } from "./Experience";
 import { api, type User } from "./types";
 export function Brand() {
   return (
@@ -27,6 +27,7 @@ export function Brand() {
   );
 }
 export default function Auth({ onLogin }: { onLogin: (user: User) => void }) {
+  const { reduced } = useExperience();
   const [register, setRegister] = useState(false),
     [loading, setLoading] = useState(""),
     [error, setError] = useState(""),
@@ -73,9 +74,9 @@ export default function Auth({ onLogin }: { onLogin: (user: User) => void }) {
           </p>
           <motion.div
             className="auth-preview"
-            initial={{ opacity: 0, y: 30, rotate: -3 }}
+            initial={reduced ? false : { opacity: 0, y: 30, rotate: -3 }}
             animate={{ opacity: 1, y: 0, rotate: -3 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: reduced ? 0 : 0.8 }}
           >
             <div className="preview-label">
               <span>TỔNG TÀI SẢN</span>
@@ -92,9 +93,12 @@ export default function Auth({ onLogin }: { onLogin: (user: User) => void }) {
                 (h, i) => (
                   <motion.i
                     key={i}
-                    initial={{ height: 0 }}
+                    initial={reduced ? false : { height: 0 }}
                     animate={{ height: h }}
-                    transition={{ delay: 0.3 + i * 0.045 }}
+                    transition={{
+                      duration: reduced ? 0 : 0.3,
+                      delay: reduced ? 0 : 0.3 + i * 0.045,
+                    }}
                   />
                 ),
               )}

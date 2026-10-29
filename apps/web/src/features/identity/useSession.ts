@@ -12,7 +12,9 @@ export function useSession() {
     setInitializing(true);
     setSessionError("");
     api<User>("/auth/me", { signal: controller.signal })
-      .then(setUser)
+      .then((value) => {
+        if (!controller.signal.aborted) setUser(value);
+      })
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
         if (error instanceof ApiError && error.status === 401) setUser(null);

@@ -13,10 +13,13 @@
     "test:e2e": "playwright test",
     "format": "prettier --write 'apps/**/*.{ts,tsx,css}' '*.json' '*.ts' 'e2e/*.ts' 'docs/*.md' README.md",
     "db:generate": "npm run db:generate -w @finora/api",
-    "db:migrate": "npm run db:migrate -w @finora/api"
+    "db:migrate": "npm run db:migrate -w @finora/api",
+    "format:check": "prettier --check \"apps/**/*.{ts,tsx,css}\" \"*.json\" \"*.ts\" \"e2e/*.ts\" \"scripts/*.mjs\" \".github/workflows/*.yml\"",
+    "check:fast": "npm run typecheck && npm run format:check"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
+    "axe-core": "4.14.0",
     "concurrently": "^9.2.1",
     "prettier": "^3.9.10"
   },

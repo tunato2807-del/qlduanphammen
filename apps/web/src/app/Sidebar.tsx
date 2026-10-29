@@ -6,24 +6,67 @@ import {
   Settings,
   ShieldCheck,
 } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { Brand } from "../Auth";
 import { type User } from "../types";
 import { navigation } from "./navigation";
 export default function Sidebar({
   mobile,
+  setMobile,
   user,
   page,
   navigate,
   setModal,
 }: {
   mobile: boolean;
+  setMobile: (value: boolean) => void;
   user: User;
   page: string;
   navigate: (id: string) => void;
   setModal: (id: string) => void;
 }) {
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!mobile) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const sidebar = ref.current!;
+    const focusable = () =>
+      Array.from(
+        sidebar.querySelectorAll<HTMLElement>("a[href], button:not(:disabled)"),
+      );
+    focusable()[0]?.focus();
+    const keydown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setMobile(false);
+      }
+      if (event.key === "Tab") {
+        const items = focusable(),
+          first = items[0],
+          last = items.at(-1);
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+    sidebar.addEventListener("keydown", keydown);
+    return () => {
+      sidebar.removeEventListener("keydown", keydown);
+      previous?.focus();
+    };
+  }, [mobile, setMobile]);
   return (
-    <aside className={`sidebar ${mobile ? "open" : ""}`}>
+    <aside
+      ref={ref}
+      role={mobile ? "dialog" : undefined}
+      aria-modal={mobile || undefined}
+      aria-label="Menu Finora"
+      className={`sidebar ${mobile ? "open" : ""}`}
+    >
       <a
         className="brand-link"
         href="#overview"
@@ -43,16 +86,16 @@ export default function Sidebar({
         <ShieldCheck size={15} />
       </div>
       <span className="nav-label">QUẢN LÝ TÀI CHÍNH</span>
-      <nav>
+      <nav aria-label="Điều hướng chính">
         {navigation.map((n) => (
           <button
             key={n.id}
+            aria-current={page === n.id ? "page" : undefined}
             className={page === n.id ? "active" : ""}
             onClick={() => navigate(n.id)}
           >
             <n.icon size={19} strokeWidth={1.7} />
             {n.label}
-            {n.id === "budgets" && <span className="nav-new">MỚI</span>}
           </button>
         ))}
       </nav>

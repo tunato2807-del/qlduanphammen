@@ -1,19 +1,27 @@
 import { CalendarDays, ChevronDown, Leaf, LoaderCircle } from "lucide-react";
 import { motion } from "motion/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import AppDialogs from "./app/AppDialogs";
 import { navigation } from "./app/navigation";
 import Sidebar from "./app/Sidebar";
 import Topbar from "./app/Topbar";
 import Auth, { Brand } from "./Auth";
+import { useExperience } from "./Experience";
 import { Button, Toast } from "./components";
-import Dashboard from "./Dashboard";
+const Dashboard = lazy(() => import("./Dashboard"));
 import BudgetsPage from "./features/budgeting/BudgetsPage";
 import SettingsPage from "./features/identity/SettingsPage";
 import { useSession } from "./features/identity/useSession";
 import TransactionsPage from "./features/ledger/TransactionsPage";
 import WalletsPage from "./features/ledger/WalletsPage";
-import ReportsPage from "./features/reporting/ReportsPage";
+const ReportsPage = lazy(() => import("./features/reporting/ReportsPage"));
 import {
   api,
   monthLabel,
@@ -26,9 +34,16 @@ import {
 } from "./types";
 
 export default function App() {
+  const { reduced } = useExperience();
   const { user, setUser, initializing, sessionError, retrySession } =
     useSession();
-  const [page, setPage] = useState(() => location.hash.slice(1) || "overview");
+  const [page, setPage] = useState(() =>
+    [...navigation.map((n) => n.id), "settings"].includes(
+      location.hash.slice(1),
+    )
+      ? location.hash.slice(1)
+      : "overview",
+  );
   const [month, setMonth] = useState(today().slice(0, 7)),
     [summary, setSummary] = useState<Summary | null>(null),
     [categories, setCategories] = useState<Category[]>([]),
@@ -85,6 +100,9 @@ export default function App() {
     location.hash = id;
     setMobile(false);
     setNotifications(false);
+    requestAnimationFrame(() =>
+      document.getElementById("main-content")?.focus(),
+    );
   };
   const refresh = () => setVersion((v) => v + 1);
   useEffect(() => {
@@ -130,6 +148,7 @@ export default function App() {
         { signal: controller.signal },
       )
         .then((data) => {
+          if (controller.signal.aborted) return;
           setTxs(data);
           if (txPage > data.pages) setTxPage(data.pages);
         })
@@ -203,6 +222,16 @@ export default function App() {
   const title = navigation.find((n) => n.id === page)?.label || "Cài đặt";
   return (
     <div className="app-shell">
+      <a
+        className="skip-link"
+        href="#main-content"
+        onClick={(event) => {
+          event.preventDefault();
+          document.getElementById("main-content")?.focus();
+        }}
+      >
+        Bỏ qua điều hướng
+      </a>
       {mobile && (
         <button
           className="sidebar-overlay"
@@ -212,12 +241,13 @@ export default function App() {
       )}
       <Sidebar
         mobile={mobile}
+        setMobile={setMobile}
         user={user}
         page={page}
         navigate={navigate}
         setModal={setModal}
       />
-      <div className="main-shell">
+      <div className="main-shell" inert={mobile}>
         <Topbar
           user={user}
           title={title}
@@ -230,7 +260,7 @@ export default function App() {
           setNotifications={setNotifications}
           alerts={alerts}
         />
-        <main className="content">
+        <main className="content" id="main-content" tabIndex={-1}>
           <div className="content-toolbar">
             <span className="section-kicker">
               <span className="live-dot" /> CHỦ ĐỘNG HÔM NAY, AN TÂM NGÀY MAI
@@ -272,67 +302,81 @@ export default function App() {
               </p>
             </div>
           ) : (
-            <motion.div
-              key={page}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25 }}
-              className={loading ? "data-updating" : ""}
+            <Suspense
+              fallback={
+                <div
+                  className="page-skeleton"
+                  role="status"
+                  aria-label="Đang tải màn hình"
+                >
+                  <i />
+                  <i />
+                  <i />
+                </div>
+              }
             >
-              {page === "overview" && (
-                <Dashboard
-                  summary={summary}
-                  userName={user.name}
-                  hidden={hidden}
-                  setHidden={setHidden}
-                  onAdd={addTransaction}
-                  onBudget={() => setModal("budget")}
-                  onPage={navigate}
-                  onEdit={editTransaction}
-                  onDelete={setDeleting}
-                />
-              )}
-              {page === "transactions" && (
-                <TransactionsPage
-                  summary={summary}
-                  month={month}
-                  kind={kind}
-                  setKind={setKind}
-                  search={search}
-                  setSearch={setSearch}
-                  txs={txs}
-                  txError={txError}
-                  txLoading={txLoading}
-                  txPage={txPage}
-                  setTxPage={setTxPage}
-                  addTransaction={addTransaction}
-                  editTransaction={editTransaction}
-                  setDeleting={setDeleting}
-                  refresh={refresh}
-                />
-              )}
-              {page === "wallets" && (
-                <WalletsPage
-                  summary={summary}
-                  setModal={setModal}
-                  setWalletEdit={setWalletEdit}
-                />
-              )}
-              {page === "budgets" && (
-                <BudgetsPage summary={summary} setModal={setModal} />
-              )}
-              {page === "reports" && (
-                <ReportsPage summary={summary} month={month} />
-              )}
-              {page === "settings" && (
-                <SettingsPage
-                  user={user}
-                  categories={categories}
-                  setModal={setModal}
-                  setCategoryEdit={setCategoryEdit}
-                />
-              )}
-            </motion.div>
+              <motion.div
+                key={page}
+                initial={reduced ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: reduced ? 0 : 0.25 }}
+                className={loading ? "data-updating" : ""}
+              >
+                {page === "overview" && (
+                  <Dashboard
+                    summary={summary}
+                    userName={user.name}
+                    hidden={hidden}
+                    setHidden={setHidden}
+                    onAdd={addTransaction}
+                    onBudget={() => setModal("budget")}
+                    onPage={navigate}
+                    onEdit={editTransaction}
+                    onDelete={setDeleting}
+                  />
+                )}
+                {page === "transactions" && (
+                  <TransactionsPage
+                    summary={summary}
+                    month={month}
+                    kind={kind}
+                    setKind={setKind}
+                    search={search}
+                    setSearch={setSearch}
+                    txs={txs}
+                    txError={txError}
+                    txLoading={txLoading}
+                    txPage={txPage}
+                    setTxPage={setTxPage}
+                    addTransaction={addTransaction}
+                    editTransaction={editTransaction}
+                    setDeleting={setDeleting}
+                    refresh={refresh}
+                  />
+                )}
+                {page === "wallets" && (
+                  <WalletsPage
+                    summary={summary}
+                    setModal={setModal}
+                    setWalletEdit={setWalletEdit}
+                  />
+                )}
+                {page === "budgets" && (
+                  <BudgetsPage summary={summary} setModal={setModal} />
+                )}
+                {page === "reports" && (
+                  <ReportsPage summary={summary} month={month} />
+                )}
+                {page === "settings" && (
+                  <SettingsPage
+                    user={user}
+                    categories={categories}
+                    setModal={setModal}
+                    setCategoryEdit={setCategoryEdit}
+                  />
+                )}
+              </motion.div>
+            </Suspense>
           )}
           <footer className="main-footer">
             <span>

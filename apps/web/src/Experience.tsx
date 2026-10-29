@@ -72,12 +72,11 @@ export function MoneyOrbit() {
     <div className="money-orbit" aria-hidden="true">
       <div className="orbit-ring" />
       <div className="orbit-ticket">
-        <span>YOUR MONEY</span>
-        <strong>your rules.</strong>
-        <i>✦</i>
-        <div className="ticket-chip" />
+        <Sparkles size={30} />
       </div>
-      <div className="orbit-coin">₫</div>
+      <div className="orbit-coin">
+        <Sparkles size={24} />
+      </div>
       <div className="orbit-star">✳</div>
       <span className="orbit-caption">small steps. big energy.</span>
     </div>
