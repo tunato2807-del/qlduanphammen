@@ -140,6 +140,16 @@ Chưa triển khai lên dịch vụ công khai, chưa cấu hình tên miền ho
 - `apps/api/src/{wallets,transactions,budgets,reports}.ts`: provider nghiệp vụ cùng ứng dụng NestJS.
 - `apps/api/src/http.ts`: request ID và lỗi an toàn.
 
+## Spec Kit cho quá trình phát triển
+
+Đã tích hợp GitHub Spec Kit v1.3.0 cho Codex. Dùng `npm run spec-kit -- version`
+trong terminal; trong chat Codex bắt đầu bằng `$speckit-specify` cho một thay đổi
+mới. Công cụ cần uv và Python 3.11+, tách khỏi runtime web/API.
+
+[Hướng dẫn tiếng Việt và các lệnh](docs/SPEC-KIT.md) ·
+[Constitution Finora](.specify/memory/constitution.md) ·
+[Đặc tả thay đổi](specs/README.md).
+
 ## Tài liệu dự án
 
 - [PowerPoint báo cáo đồ án — 15 slide, PDF và ghi chú thuyết trình](docs/presentation/README.md)
