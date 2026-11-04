@@ -8,3 +8,12 @@ dist/
 playwright-report/
 test-results/
 .local/
+
+# Project-local development tooling and Python caches
+tools/spec-kit/.venv/
+__pycache__/
+*.py[cod]
+
+# Commit reviewed agent skills, keep other agent session state local
+.agents/*
+!.agents/skills/
