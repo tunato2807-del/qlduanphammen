@@ -111,3 +111,42 @@ export class BudgetDto {
   @Type(() => BudgetItemDto)
   items!: BudgetItemDto[];
 }
+
+export class RecurringDto {
+  @IsString() @Length(1, 60) name!: string;
+  @IsIn(["INCOME", "EXPENSE"]) kind!: string;
+  @IsString() @Matches(/^[1-9]\d{0,12}$/) amount!: string;
+  @IsUUID() walletId!: string;
+  @IsUUID() categoryId!: string;
+  @IsOptional() @IsString() @MaxLength(250) note?: string;
+  @IsInt() @Min(1) @Max(31) day!: number;
+  @Matches(/^\d{4}-(0[1-9]|1[0-2])$/) startMonth!: string;
+  @IsOptional() @Matches(/^\d{4}-(0[1-9]|1[0-2])$/) endMonth?: string;
+}
+export class ActiveDto {
+  @IsBoolean() active!: boolean;
+}
+export class DraftActionDto {
+  @IsIn(["CONFIRM", "SKIP"]) action!: string;
+}
+export class GoalDto {
+  @IsString() @Length(1, 60) name!: string;
+  @IsString() @Matches(/^[1-9]\d{0,12}$/) target!: string;
+  @IsISO8601({ strict: true }) targetDate!: string;
+}
+export class ContributionDto {
+  @IsIn(["ADD", "WITHDRAW"]) action!: string;
+  @IsString() @Matches(/^[1-9]\d{0,12}$/) amount!: string;
+  @IsUUID() walletId!: string;
+  @IsOptional() @IsString() @MaxLength(250) note?: string;
+}
+export class ImportDto {
+  @IsString() @Length(1, 51200) csv!: string;
+}
+export class ForgotDto {
+  @IsEmail() @MaxLength(200) email!: string;
+}
+export class ResetDto {
+  @Matches(/^[a-f0-9]{64}$/) token!: string;
+  @IsString() @Length(8, 128) password!: string;
+}

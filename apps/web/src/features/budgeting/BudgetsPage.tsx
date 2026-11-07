@@ -1,3 +1,4 @@
+import BudgetHistory from "./BudgetHistory";
 import { Sparkles } from "lucide-react";
 import { Button, CategoryIcon, Empty, Progress, Tip } from "../../components";
 import { PageHeading } from "../../shared/PageHeading";
@@ -22,6 +23,10 @@ export default function BudgetsPage({
           </Button>
         }
       />
+      <p className="muted">
+        Thu thực tế {money(summary.income)} · Chi thực tế toàn tháng{" "}
+        {money(summary.expense)}
+      </p>
       {summary.budget ? (
         <>
           <div className="budget-summary-grid">
@@ -72,7 +77,11 @@ export default function BudgetsPage({
               const limit = Number(i.limit),
                 spent = Number(i.spent),
                 pct = limit ? (spent / limit) * 100 : spent ? 100 : 0;
-              const over = spent > limit;
+              const remaining = BigInt(i.limit) - BigInt(i.spent);
+              const over = remaining < 0n;
+              const near =
+                BigInt(i.limit) > 0n &&
+                BigInt(i.spent) * 5n >= BigInt(i.limit) * 4n;
               return (
                 <section
                   className="panel budget-category-card"
@@ -85,11 +94,11 @@ export default function BudgetsPage({
                     />
                     <h3>{i.category.name}</h3>
                     <span
-                      className={`budget-status ${over ? "over" : pct >= 80 ? "near" : ""}`}
+                      className={`budget-status ${over ? "over" : near ? "near" : ""}`}
                     >
                       {over
                         ? "Vượt hạn mức"
-                        : pct >= 80
+                        : near
                           ? "Gần hạn mức"
                           : "Trong kế hoạch"}
                     </span>
@@ -101,18 +110,14 @@ export default function BudgetsPage({
                   <Progress
                     value={pct}
                     color={
-                      over
-                        ? "#c66c5a"
-                        : pct >= 80
-                          ? "#d3a45e"
-                          : i.category.color
+                      over ? "#c66c5a" : near ? "#d3a45e" : i.category.color
                     }
                   />
                   <div className="budget-caption">
                     <span>
                       {over
-                        ? "Vượt " + money(spent - limit)
-                        : "Còn " + money(limit - spent)}
+                        ? "Vượt " + money(-remaining)
+                        : "Còn " + money(remaining)}
                     </span>
                     <strong>
                       {limit ? Math.round(pct) : spent ? "∞" : 0}%
@@ -142,6 +147,10 @@ export default function BudgetsPage({
           />
         </section>
       )}
+      <BudgetHistory
+        month={summary.month}
+        revision={summary.budget?.revision}
+      />
     </>
   );
 }

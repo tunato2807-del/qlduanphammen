@@ -1,0 +1,11 @@
+[Unit]
+Description=Finora PostgreSQL daily backup
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=finora
+WorkingDirectory=/opt/finora
+UMask=0077
+ExecStart=/usr/bin/bash /opt/finora/deploy/backup-daily.sh

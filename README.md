@@ -4,6 +4,8 @@
 
 **Frontend:** React 19, TypeScript, Vite, CSS theo token, Motion, Recharts. **Backend:** NestJS 11, TypeScript. **Database:** PostgreSQL 17, Prisma 6.19 với bộ máy JavaScript và driver PostgreSQL.
 
+Bản mở rộng ngày 07/11/2026 thêm lập kế hoạch, CSV nhập, PDF và chuẩn bị vận hành. [Đặc tả và bằng chứng](specs/002-financial-planning/spec.md) · [Hồ sơ quản lý đồ án](docs/PROJECT-MANAGEMENT.md).
+
 Bản làm lại Finora V2 giữ nghiệp vụ và dữ liệu, tổ chức frontend theo tính năng và backend theo provider. [Kết quả bàn giao V2](docs/rebuild/RELEASE.md).
 
 ## Xem trước giao diện
@@ -21,7 +23,13 @@ Bản làm lại Finora V2 giữ nghiệp vụ và dữ liệu, tổ chức fron
 - Tạo, đổi tên, lưu trữ danh mục thu/chi; giữ nguyên dữ liệu lịch sử.
 - Thêm, sửa, xóa giao dịch thu, chi, chuyển ví; tìm kiếm, lọc, phân trang.
 - Ngân sách tháng tự động theo chi bắt buộc, trọng số và tiết kiệm dự kiến; hoặc nhập hạn mức thủ công.
-- Xem trước phương án, xác nhận áp dụng, giữ các phiên bản trước trong database.
+- Xem trước, xác nhận ngân sách; gợi ý từ ba tháng đã kết thúc, lịch sử phiên bản và đối chiếu hạn mức với chi thực tế.
+- Quy tắc thu/chi hằng tháng: nháp đến hạn, xác nhận ghi sổ hoặc bỏ qua, tạm dừng/bật lại; xử lý ngày cuối tháng.
+- Mục tiêu tiết kiệm có hạn hoàn thành, phân bổ tiền từ ví, rút phân bổ và lịch sử; không cộng dự trù vào tiền thực tế.
+- Nhập CSV tối đa 50 KB/200 dòng: preview, lỗi từng dòng, bỏ trùng và xác nhận nguyên tử.
+- Báo cáo so tháng trước bằng số tiền và tải PDF tiếng Việt. [PDF/CSV mẫu chỉ dùng dữ liệu demo](docs/examples/README.md).
+- Khôi phục mật khẩu qua SMTP cấu hình được; token một lần/30 phút và thu hồi phiên. [Cách thử bằng Mailpit và vận hành](docs/OPERATIONS.md).
+- Chống ghi trùng cho thao tác tạo ví/giao dịch/ngân sách/kế hoạch qua Idempotency-Key và khóa transaction.
 - Dashboard, biểu đồ dòng tiền sáu tháng, báo cáo theo danh mục, cảnh báo từ 80% hạn mức và xuất CSV.
 - Giao diện Finora V2 dùng nền ấm, sidebar tối, điểm nhấn lavender/lime; dashboard ưu tiên số dư và ngân sách còn lại. Bố cục responsive, nút nảy và minh họa chuyển động; có skip link và menu mobile hỗ trợ bàn phím.
 - Lỗi mạng/máy chủ khi khởi tạo phiên có thông báo và nút thử lại; phân biệt với chưa đăng nhập.
@@ -79,6 +87,8 @@ CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e
 
 Playwright tự khởi động ứng dụng nếu chưa chạy. Các luồng kiểm thử bao gồm tài khoản demo, CRUD giao dịch, áp dụng ngân sách, tải CSV, giao diện điện thoại, đăng ký mới, tạo ví, ngân sách thủ công đổi tên danh mục và lưu tùy chọn giảm chuyển động. Kiểm tra bổ sung dùng axe-core cho đăng nhập/đăng ký, các trang chính và dialog giao dịch/ngân sách/mật khẩu; kiểm tra 320/390/768/1024/1440px, focus menu và lỗi khởi tạo phiên. Đây là kiểm tra tự động trong phạm vi cụ thể, không phải chứng nhận WCAG toàn diện. Các tài khoản do E2E tạo được giữ lại trong database phát triển.
 
+Bộ mở rộng có thêm kiểm thử mục tiêu, định kỳ, CSV nhập, PDF, recovery, giữ mã gửi lại qua 503/429 và hiển thị BigInt vượt giới hạn Number. Kết quả cuối ngày 07/11: 34 API/nghiệp vụ và 12 browser test đạt; xem [bằng chứng](specs/002-financial-planning/verification.md).
+
 Workflow `.github/workflows/ci.yml` chạy typecheck, format, API test, build, audit và browser test. CI dùng PostgreSQL tạm trên runner, không cần thông tin production. Chưa tự cấu hình branch protection.
 
 Tạo lại ảnh tài liệu với PostgreSQL đã chạy/migrate:
@@ -110,11 +120,11 @@ Lý do: cấu hình Prisma 6.19 dùng engine JavaScript cho môi trường khôn
 
 Docker lưu dữ liệu trong volume `finora_data`. Dừng database bằng `docker compose stop db`; **không dùng `docker compose down -v` nếu muốn giữ dữ liệu**. Không giả định volume Docker được giữ lại khi chuyển máy hoặc xuất bản môi trường cloud.
 
-Ví dụ sao lưu cục bộ:
+Sao lưu và kiểm tra khôi phục trên database riêng:
 
 ```bash
-mkdir -p .local
-docker compose exec -T db pg_dump -U finora -d finora --no-owner --no-acl > .local/backup.sql
+npm run db:backup -- .local/backups/finora-YYYYMMDD.dump
+npm run db:restore-check -- .local/backups/finora-YYYYMMDD.dump
 ```
 
 File sao lưu chứa dữ liệu riêng tư: không commit, không chia sẻ công khai. Với triển khai thực tế, cần sao lưu tự động và kiểm tra khôi phục định kỳ.
@@ -129,7 +139,7 @@ NODE_ENV=production PORT=3001 npm start
 
 Ở production, NestJS phục vụ frontend đã build cùng API trên một origin. Cần HTTPS reverse proxy giữ nguyên `Host`; cookie phiên có `Secure`, `HttpOnly`, `SameSite=Lax`. Không bật `ALLOW_DEMO` khi không chủ đích cho phép tạo tài khoản mẫu. PostgreSQL nên được quản lý bên ngoài hoặc có chính sách lưu trữ, sao lưu phù hợp; không dùng mật khẩu mẫu cho production.
 
-Chưa triển khai lên dịch vụ công khai, chưa cấu hình tên miền hoặc chứng chỉ HTTPS. Chưa có email xác minh/khôi phục mật khẩu, đồng bộ ngân hàng, nhiều tiền tệ, AI dự đoán hoặc quản trị viên. Bản hiện tại là MVP cá nhân; chưa được kiểm thử tải cho lượng giao dịch lớn. CSV giới hạn 10.000 giao dịch mỗi lần xuất và báo lỗi nếu vượt giới hạn, không cắt dữ liệu âm thầm.
+Đã có Docker multi-stage/non-root, Compose production và Caddy HTTPS; [hướng dẫn triển khai, SMTP, backup và restore](docs/OPERATIONS.md). Người dùng chưa có hosting/tên miền/email nên chưa triển khai công khai hoặc gửi thư thật. Đã đo báo cáo trên 10.000 giao dịch nhân tạo, chưa kiểm thử tải đồng thời production. Chưa có email xác minh đăng ký, đồng bộ ngân hàng, nhiều tiền tệ, AI dự đoán hoặc quản trị viên. CSV giới hạn 10.000 giao dịch mỗi lần xuất và báo lỗi nếu vượt giới hạn, không cắt dữ liệu âm thầm.
 
 ## Tổ chức mã nguồn
 
@@ -155,5 +165,9 @@ mới. Công cụ cần uv và Python 3.11+, tách khỏi runtime web/API.
 - [PowerPoint báo cáo đồ án — 15 slide, PDF và ghi chú thuyết trình](docs/presentation/README.md)
 - [Phân tích, thiết kế và kế hoạch phát triển](docs/DESIGN.md)
 - [Hợp đồng API và quy tắc dữ liệu](docs/API.md)
+- [Activity/sequence và mô hình mở rộng](docs/FINANCIAL-FLOWS.md)
+- [Gantt, RACI, dự toán, risk register và UAT](docs/PROJECT-MANAGEMENT.md)
+- [Ma trận yêu cầu–kiểm thử](docs/TRACEABILITY.md)
+- [Vận hành HTTPS, email, backup/restore](docs/OPERATIONS.md)
 
 Repository: [tunato2807-del/qlduanphammen](https://github.com/tunato2807-del/qlduanphammen).

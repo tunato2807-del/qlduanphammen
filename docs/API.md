@@ -75,3 +75,46 @@ Tối đa 50 danh mục, không trùng nhau. Preview trả `items` đã tính h�
 - Tổng thu/chi loại trừ số dư ban đầu và chuyển tiền nội bộ.
 - Báo cáo hiển thị mọi chi tiêu; tiến độ ngân sách chỉ tổng hợp các danh mục có trong kế hoạch.
 - Giới hạn tốc độ: 300 yêu cầu API/phút/IP; đăng nhập, đăng ký và demo dùng chung giới hạn 30 yêu cầu/15 phút/IP. Khi triển khai sau proxy, cần thiết kế chính sách IP đáng tin cậy trước khi bật trust proxy; không bật tin cậy proxy tùy tiện.
+
+## Mở rộng ngày 07/11/2026
+
+Các route cũ giữ tương thích. `/auth/config` thêm `recoveryEnabled`. Hai endpoint recovery công khai, vẫn chịu rate limit nhóm auth 30/15 phút/IP. Tất cả route kế hoạch/CSV/PDF bên dưới yêu cầu phiên đăng nhập.
+
+| Method | Route                                    | Đầu vào / đầu ra                                                                                       |
+| ------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| GET    | `/budget-plans/suggestion?month=YYYY-MM` | `from,to,hasIncome,income,savings,mode,items,explanation`; ba tháng trước, không ghi                   |
+| GET    | `/budget-plans/history?month=YYYY-MM`    | `{comparedAt,plans}` tất cả revision giảm dần, mỗi item thêm spent theo sổ hiện tại                    |
+| GET    | `/recurring?month=YYYY-MM`               | `{rules,drafts}`; tạo nháp on-demand cho quy tắc đến hạn trong tháng, không hạch toán                  |
+| POST   | `/recurring`                             | `{name,kind,amount,walletId,categoryId,day,startMonth,endMonth?,note?}`; kind INCOME/EXPENSE, day 1–31 |
+| PATCH  | `/recurring/:id`                         | `{active:boolean}`; tạm dừng/bật lại, đổi nội dung bằng quy tắc mới                                    |
+| POST   | `/recurring-drafts/:id/action`           | `{action:"CONFIRM"                                                                                     | "SKIP"}`; lock, xác nhận một lần, không đổi trạng thái ngược                |
+| GET    | `/goals`                                 | Mục tiêu + saved/monthlyNeeded/overdue + contribution history                                          |
+| POST   | `/goals`                                 | `{name,target,targetDate}`; tiền chuỗi dương, ngày ISO                                                 |
+| POST   | `/goals/:id/contributions`               | `{action:"ADD"                                                                                         | "WITHDRAW",amount,walletId,note?}`; dương ở request, response amount có dấu |
+| GET    | `/transactions/import/template`          | CSV header chuẩn tải xuống                                                                             |
+| POST   | `/transactions/import/preview`           | `{csv:string}` → `{rows,valid,duplicates,errors}`, không ghi sổ                                        |
+| POST   | `/transactions/import`                   | `{csv:string}` → `{imported,duplicates}`; tính lại, không cho lưu nếu có lỗi, transaction toàn bộ      |
+| GET    | `/reports/pdf?month=YYYY-MM`             | application/pdf attachment tiếng Việt                                                                  |
+| POST   | `/auth/forgot-password`                  | `{email}` → thông báo chung; 503 nếu cấu hình chưa sẵn sàng                                            |
+| POST   | `/auth/reset-password`                   | `{token,password}`; 8–128 ký tự, 30 phút/single-use, thu hồi mọi phiên                                 |
+
+Summary thêm `comparison:{month,income,expense,net,incomeDelta,expenseDelta,netDelta}`. Trường cũ không thay đổi; delta = tháng chọn − tháng trước, chuỗi nguyên có thể âm, không chia phần trăm khi gốc 0.
+
+### Idempotency-Key
+
+POST tạo ví, giao dịch, lưu ngân sách, quy tắc, mục tiêu, phân bổ, action nháp và nhập CSV nhận header tùy chọn `Idempotency-Key` (16–100 ký tự ASCII chữ/số/`_`/`-`; nên dùng UUID). Client cũ không gửi vẫn hoạt động. Cùng user/key/scope/nội dung chuẩn hóa trả response đã lưu; key dùng cho nội dung/scope khác trả 409. Khóa, ghi tài chính và lưu response trong cùng transaction. Key không tự hết hạn ở bản này. Header không dùng cho đăng nhập hoặc khôi phục mật khẩu.
+
+UI giữ key sau mọi lỗi (kể cả mạng/5xx/429) để người dùng thử lại trong cùng form; không tự retry, không giữ qua đóng form/reload. Sau response thành công, thao tác mới nhận key mới. PATCH/DELETE giữ semantics cũ, không tạo thêm bản ghi khi gửi lại; DELETE cần body JSON `{}` theo hợp đồng hiện hành. Với client tự viết, phải lưu key của một ý định trước khi gửi và dùng lại khi retry.
+
+### CSV nhập
+
+UTF-8, có hoặc không BOM, đúng bảy cột theo thứ tự:
+
+```csv
+occurredAt,kind,category,wallet,destinationWallet,amount,note
+2026-11-07T12:00:00+07:00,EXPENSE,Ăn uống,Tiền mặt,,50000,"Bữa trưa, cùng bạn"
+```
+
+Nhận cả header tiếng Việt do `/transactions/export` tạo. Tên ví/danh mục phải khớp chính xác và duy nhất trong tài khoản, chưa lưu trữ; category đúng loại, chuyển ví dùng destinationWallet và không hạch toán danh mục. Giới hạn 50 KB UTF-8/200 dòng; body HTTP JSON hiện giới hạn 64 KB, nên nội dung nhiều ký tự phải escape có thể chạm giới hạn sớm hơn. `rows[].line` là thứ tự bản ghi CSV + header (dòng ghi chú nhiều dòng vẫn tính một bản ghi). Lỗi cú pháp/header trả 400; lỗi dòng nằm trong preview. Nhập lại kiểm tra duplicate theo thời điểm, kind, amount, ví nguồn/đích, category và note trim; kể cả dòng trùng ngay trong file. Không giữ file nguồn, không tự tạo ví/danh mục.
+
+Phân bổ mục tiêu không sinh ledger transaction và không cộng vào thu/chi; kiểm tra tiền có thể dành tại thời điểm ghi. WITHDRAW có thể dùng ví đã lưu trữ để giải phóng phần dành cũ. Giao dịch chi sau đó vẫn được ghi thực tế, UI cảnh báo thiếu phần dành riêng. `monthlyNeeded` làm tròn lên nguyên VND trên số tháng còn lại gồm tháng hiện tại theo Việt Nam; overdue hiển thị riêng.

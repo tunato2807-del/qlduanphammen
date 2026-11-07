@@ -1,68 +1,69 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { Database } from "./database";
-import { BudgetDto, TransactionDto, WalletDto, WalletPatchDto } from "./dto";
-import {
-  allocateBudget,
-  currentMonth,
-  monthOffset,
-  monthRange,
-} from "./budget";
+import { WalletDto, WalletPatchDto } from "./dto";
+import { Idempotency } from "./idempotency";
 @Injectable()
 export class Wallets {
-  constructor(@Inject(Database) public db: Database) {}
+  constructor(
+    @Inject(Database) public db: Database,
+    @Inject(Idempotency) private requests: Idempotency,
+  ) {}
   async wallets(userId: string) {
-    const [wallets, transactions] = await Promise.all([
+    const [wallets, outgoing, incoming] = await Promise.all([
       this.db.wallet.findMany({
         where: { userId },
         orderBy: { createdAt: "asc" },
       }),
-      this.db.transaction.findMany({
+      this.db.transaction.groupBy({
+        by: ["walletId", "kind"],
         where: { userId },
-        select: {
-          walletId: true,
-          destinationWalletId: true,
-          kind: true,
-          amount: true,
-        },
+        _sum: { amount: true },
+      }),
+      this.db.transaction.groupBy({
+        by: ["destinationWalletId"],
+        where: { userId, kind: "TRANSFER" },
+        _sum: { amount: true },
       }),
     ]);
     return wallets.map((w) => ({
       ...w,
-      balance: transactions.reduce(
-        (sum, t) =>
-          sum +
-          (t.walletId === w.id
-            ? t.kind === "INCOME"
-              ? t.amount
-              : -t.amount
-            : 0n) +
-          (t.destinationWalletId === w.id ? t.amount : 0n),
-        w.openingBalance,
-      ),
+      balance:
+        outgoing
+          .filter((t) => t.walletId === w.id)
+          .reduce(
+            (s, t) =>
+              s + (t.kind === "INCOME" ? 1n : -1n) * (t._sum.amount || 0n),
+            w.openingBalance,
+          ) +
+        (incoming.find((t) => t.destinationWalletId === w.id)?._sum.amount ||
+          0n),
     }));
   }
-  createWallet(userId: string, dto: WalletDto) {
-    return this.db.wallet.create({
-      data: {
-        ...dto,
-        name: dto.name.trim(),
-        userId,
-        openingBalance: BigInt(dto.openingBalance),
-      },
-    });
+
+  createWallet(userId: string, dto: WalletDto, key?: string) {
+    return this.requests.run(userId, key, "wallet.create", dto, (tx) =>
+      tx.wallet.create({
+        data: {
+          ...dto,
+          name: dto.name.trim(),
+          userId,
+          openingBalance: BigInt(dto.openingBalance),
+        },
+      }),
+    );
   }
   async updateWallet(userId: string, id: string, dto: WalletPatchDto) {
     await this.ownedWallet(userId, id);
     return this.db.wallet.update({ where: { id }, data: dto });
   }
-  async ownedWallet(userId: string, id: string, active = false) {
-    const w = await this.db.wallet.findFirst({
+  async ownedWallet(
+    userId: string,
+    id: string,
+    active = false,
+    client: Prisma.TransactionClient = this.db,
+  ) {
+    const w = await client.wallet.findFirst({
       where: { id, userId, ...(active ? { archived: false } : {}) },
     });
     if (!w) throw new NotFoundException("Không tìm thấy ví.");

@@ -17,6 +17,10 @@ model User {
   categories Category[]
   transactions Transaction[]
   budgets BudgetPlan[]
+  resetTokens PasswordReset[]
+  requests IdempotencyRecord[]
+  recurringRules RecurringRule[]
+  goals SavingsGoal[]
 }
 model Session {
   id String @id
@@ -38,6 +42,8 @@ model Wallet {
   createdAt DateTime @default(now())
   transactions Transaction[] @relation("PrimaryWallet")
   incoming Transaction[] @relation("DestinationWallet")
+  recurringRules RecurringRule[]
+  contributions GoalContribution[]
   @@index([userId])
 }
 model Category {
@@ -51,6 +57,7 @@ model Category {
   archived Boolean @default(false)
   transactions Transaction[]
   budgetItems BudgetItem[]
+  recurringRules RecurringRule[]
   @@index([userId])
   @@unique([userId, name, kind])
 }
@@ -69,6 +76,7 @@ model Transaction {
   note String @default("")
   occurredAt DateTime @db.Timestamptz(3)
   createdAt DateTime @default(now())
+  recurringDraft RecurringDraft?
   @@index([userId, occurredAt])
   @@index([walletId])
   @@index([destinationWalletId])
@@ -99,4 +107,79 @@ model BudgetItem {
   weight Int @default(0)
   limit BigInt
   @@unique([planId, categoryId])
+}
+
+model PasswordReset {
+  id String @id
+  userId String @db.Uuid
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  @@index([userId])
+  @@index([expiresAt])
+}
+model IdempotencyRecord {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key String
+  hash String
+  response Json
+  createdAt DateTime @default(now())
+  @@unique([userId, key])
+}
+model RecurringRule {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name String
+  kind String
+  amount BigInt
+  walletId String @db.Uuid
+  wallet Wallet @relation(fields: [walletId], references: [id])
+  categoryId String @db.Uuid
+  category Category @relation(fields: [categoryId], references: [id])
+  note String @default("")
+  day Int
+  startMonth String
+  endMonth String?
+  active Boolean @default(true)
+  createdAt DateTime @default(now())
+  drafts RecurringDraft[]
+  @@index([userId])
+}
+model RecurringDraft {
+  id String @id @default(uuid()) @db.Uuid
+  ruleId String @db.Uuid
+  rule RecurringRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  month String
+  dueAt DateTime @db.Timestamptz(3)
+  state String @default("PENDING")
+  transactionId String? @unique @db.Uuid
+  transaction Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+  @@unique([ruleId, month])
+}
+model SavingsGoal {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name String
+  target BigInt
+  targetDate DateTime @db.Timestamptz(3)
+  archived Boolean @default(false)
+  createdAt DateTime @default(now())
+  contributions GoalContribution[]
+  @@index([userId])
+}
+model GoalContribution {
+  id String @id @default(uuid()) @db.Uuid
+  goalId String @db.Uuid
+  goal SavingsGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  walletId String @db.Uuid
+  wallet Wallet @relation(fields: [walletId], references: [id])
+  amount BigInt
+  note String @default("")
+  createdAt DateTime @default(now())
+  @@index([goalId])
+  @@index([walletId])
 }

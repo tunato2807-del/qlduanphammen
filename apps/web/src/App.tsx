@@ -15,6 +15,7 @@ import Topbar from "./app/Topbar";
 import Auth, { Brand } from "./Auth";
 import { useExperience } from "./Experience";
 import { Button, Toast } from "./components";
+const PlanningPage = lazy(() => import("./features/planning/PlanningPage"));
 const Dashboard = lazy(() => import("./Dashboard"));
 import BudgetsPage from "./features/budgeting/BudgetsPage";
 import SettingsPage from "./features/identity/SettingsPage";
@@ -35,6 +36,9 @@ import {
 
 export default function App() {
   const { reduced } = useExperience();
+  const [recoveryLink, setRecoveryLink] = useState(() =>
+    location.hash.startsWith("#reset-password?"),
+  );
   const { user, setUser, initializing, sessionError, retrySession } =
     useSession();
   const [page, setPage] = useState(() =>
@@ -81,13 +85,15 @@ export default function App() {
       setCategories([]);
       setToast("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
     };
-    const hash = () =>
+    const hash = () => {
+      if (location.hash.startsWith("#reset-password?")) setRecoveryLink(true);
       setPage(
         navigation.some((n) => n.id === location.hash.slice(1)) ||
           location.hash === "#settings"
           ? location.hash.slice(1)
           : "overview",
       );
+    };
     window.addEventListener("session-expired", expired);
     window.addEventListener("hashchange", hash);
     return () => {
@@ -206,11 +212,12 @@ export default function App() {
         <Button onClick={retrySession}>Thử kết nối lại</Button>
       </div>
     );
-  if (!user)
+  if (!user || recoveryLink)
     return (
       <>
         <Auth
           onLogin={(u) => {
+            setRecoveryLink(false);
             setUser(u);
             setSummary(null);
             setVersion((v) => v + 1);
@@ -363,6 +370,13 @@ export default function App() {
                 )}
                 {page === "budgets" && (
                   <BudgetsPage summary={summary} setModal={setModal} />
+                )}
+                {page === "planning" && (
+                  <PlanningPage
+                    summary={summary}
+                    categories={categories}
+                    onChanged={refresh}
+                  />
                 )}
                 {page === "reports" && (
                   <ReportsPage summary={summary} month={month} />

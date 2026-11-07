@@ -1,0 +1,5 @@
+{$FINORA_DOMAIN} {
+  encode zstd gzip
+  header Referrer-Policy "no-referrer"
+  reverse_proxy app:3001
+}

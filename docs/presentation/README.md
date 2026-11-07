@@ -1,41 +1,23 @@
-# Bài trình chiếu Finora V2
+# Bài trình chiếu Finora
 
-Cập nhật ngày 29/10/2026 theo bản làm lại V2 và ảnh giao diện đang chạy.
+Cập nhật 07/11/2026 theo chức năng đã triển khai, ảnh ứng dụng và bằng chứng kiểm thử. 15 slide tiếng Việt, 16:9, khoảng 12–15 phút; có thể thêm 2 phút demo.
 
-Báo cáo đồ án **quản lý tài chính cá nhân và lập ngân sách tự động**, 15 slide tiếng Việt, khổ 16:9. Thời lượng nội dung khoảng 12–14 phút; demo trực tiếp có thể thêm khoảng 2 phút.
+![Bìa trình chiếu](cover.png)
 
-![Bìa bài trình chiếu](cover.png)
+- [PowerPoint chỉnh sửa được](Finora-Thuyet-trinh.pptx?raw=true): chữ/sơ đồ là shape native, ảnh màn hình là dữ liệu demo, hiệu ứng Fade; có Notes.
+- [Bản PDF để xem nhanh](Finora-Thuyet-trinh.pdf).
+- [Ghi chú thuyết trình](Ghi-chu-thuyet-trinh.md).
 
-- [Tải PowerPoint (.pptx)](Finora-Thuyet-trinh.pptx?raw=true) — chữ, bảng và sơ đồ có thể chỉnh sửa; chuyển slide bằng hiệu ứng Fade.
-- [Xem bản PDF](Finora-Thuyet-trinh.pdf) — cùng nội dung và bố cục để đọc nhanh.
-- [Ghi chú thuyết trình](Ghi-chu-thuyet-trinh.md) — cũng có trong phần Notes của từng slide PowerPoint.
+Nội dung gồm vấn đề/phạm vi/tác nhân; kiến trúc và 13 model; thuật toán phân bổ BigInt; gợi ý/lịch sử ngân sách; định kỳ/mục tiêu; CSV/PDF; trải nghiệm; bảo vệ/vận hành; 34 API + 12 browser test; benchmark; Gantt/RACI/dự toán và kịch bản demo. Số đo cục bộ không được trình bày thành SLA production; kế hoạch UAT và dự toán được ghi là đề xuất. Email thật và public HTTPS chờ dịch vụ/tên miền, theo xác nhận của chủ dự án.
 
-## Nội dung
+Bìa còn ô họ tên/nhóm, lớp và GVHD để điền thông tin thật. Font PowerPoint Arial; bản PDF nhúng Liberation Sans có giấy phép trong assets. Ảnh được crop trong bố cục slide để đọc dễ hơn, không thay số liệu ứng dụng. Khi demo chuyển động, chạy web theo README; file không có macro hoặc âm thanh tự chạy.
 
-1. Giới thiệu đề tài.
-2. Vấn đề và mục tiêu.
-3. Phạm vi, yêu cầu chức năng và chất lượng.
-4. Chức năng theo tác nhân.
-5. Kiến trúc và công nghệ.
-6. Mô hình dữ liệu rút gọn.
-7. Quy tắc tài chính.
-8. Luồng lập ngân sách.
-9. Ví dụ phân bổ tự động và làm tròn.
-10. Giao diện dashboard.
-11. Mobile, phong cách và chuyển động.
-12. Bảo vệ dữ liệu và kiểm thử.
-13. Quản lý dự án theo đầu ra (WBS).
-14. Hướng phát triển.
-15. Kịch bản demo và thảo luận.
+Tạo lại sau khi chạy script chụp ảnh:
 
-## Cá nhân hóa và trình chiếu
+```bash
+python -m venv .local/presentation-venv
+.local/presentation-venv/bin/pip install -r tools/presentation/requirements.txt
+.local/presentation-venv/bin/python scripts/build-presentation.py
+```
 
-Mở file `.pptx` bằng Microsoft PowerPoint và bổ sung tên sinh viên/nhóm, lớp, giảng viên trên bìa nếu cần. Font dùng **Arial** để thuận tiện trình chiếu tiếng Việt. PDF giữ nguyên font và phù hợp khi máy trình chiếu hiển thị PowerPoint khác bố cục dự kiến.
-
-Chọn Presenter View để đọc ghi chú. File không có macro hoặc âm thanh tự chạy. Ảnh ứng dụng sử dụng dữ liệu demo và được cắt khung để dễ nhìn; muốn xem chuyển động, chạy ứng dụng theo README dự án. Đường dẫn GitHub ở slide cuối mở mã nguồn, không phải website production.
-
-## Căn cứ nội dung
-
-Nội dung đối chiếu với [README dự án](../../README.md), [phân tích và thiết kế](../DESIGN.md), [schema](../../apps/api/prisma/schema.prisma), [thuật toán ngân sách](../../apps/api/src/budget.ts) và ảnh giao diện trong `docs/images`. Mốc MVP trước làm lại: `e83cbbd`; bản hiện tại theo [bàn giao V2](../rebuild/RELEASE.md).
-
-Số 18 kiểm thử API/nghiệp vụ và 6 kiểm thử trình duyệt là kết quả đã chạy lại trong giai đoạn bàn giao V2 ngày 29/10/2026. Các mục triển khai công khai, email, tích hợp ngân hàng và AI được ghi rõ là hướng phát triển. Sơ đồ dữ liệu trên slide được rút gọn; xem tài liệu thiết kế để đọc các quan hệ đầy đủ.
+Script sinh cùng lúc `.pptx`, PDF và notes từ một bố cục. Ảnh bìa PNG có thể render từ trang 1 PDF bằng `pdftoppm`. Nguồn số liệu: [verification](../../specs/002-financial-planning/verification.md), [performance](../../specs/002-financial-planning/performance.json), [quản lý dự án](../PROJECT-MANAGEMENT.md), [ma trận truy vết](../TRACEABILITY.md). Không ghi phản hồi người dùng chưa được thu thập thành kết quả UAT.

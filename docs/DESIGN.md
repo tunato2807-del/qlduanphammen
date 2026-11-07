@@ -110,3 +110,9 @@ Một stylesheet theo thứ tự token → primitive → shell → feature → r
 Khi /auth/me trả 401, hiển thị đăng nhập; lỗi mạng/5xx hiển thị trạng thái có thể thử lại. Request đang chờ được hủy khi effect thay đổi để tránh response cũ ghi đè dữ liệu mới. Backend giữ API/schema và quy tắc cũ, chia provider theo nhiệm vụ.
 
 Xem [ADR cấu trúc V2](decisions/001-finora-v2.md) và [bằng chứng bàn giao](rebuild/RELEASE.md).
+
+## Mở rộng ngày 07/11/2026
+
+Phạm vi bổ sung do người dùng yêu cầu “thêm hết” các hạng mục đề xuất; đặc tả V2 trước đó là hồ sơ lịch sử. Xem [spec 002](../specs/002-financial-planning/spec.md) và [luồng activity/sequence, ERD mới](FINANCIAL-FLOWS.md) cho gợi ý/lịch sử ngân sách, định kỳ, mục tiêu, CSV, PDF và recovery. Schema hiện có 13 model, migration additive không sửa dữ liệu cũ.
+
+[Hồ sơ quản lý dự án](PROJECT-MANAGEMENT.md) bổ sung Gantt ngày thực và lịch UAT đề xuất, RACI theo vai trò, dự toán có giả định và risk register. [Ma trận truy vết](TRACEABILITY.md) nối FR với mã/test; [runbook](OPERATIONS.md) mô tả email, HTTPS và restore DB riêng. Chưa có dịch vụ công khai hoặc email production được cấu hình.

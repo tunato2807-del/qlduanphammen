@@ -108,6 +108,7 @@ export class Accounts {
       await tx.session.deleteMany({
         where: { userId: req.user.id, id: { not: req.sessionId } },
       });
+      await tx.passwordReset.deleteMany({ where: { userId: req.user.id } });
     });
     return { ok: true };
   }

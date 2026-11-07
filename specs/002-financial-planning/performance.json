@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-07T05:23:31.621Z",
+  "node": "v24.19.0",
+  "baselineCommit": "27e9f72",
+  "rows": 10000,
+  "months": 6,
+  "protocol": "Provider summary; 3 warmups, 20 sequential alternating samples. Exact totals/history checked. Synthetic account deleted in finally.",
+  "baseline": {
+    "medianMs": 106.28,
+    "p95Ms": 117.99,
+    "samples": 20
+  },
+  "current": {
+    "medianMs": 20.42,
+    "p95Ms": 27.77,
+    "samples": 20
+  },
+  "transportRows": {
+    "baselineLedgerReads": 20000,
+    "currentMonthlyAggregate": 6,
+    "currentSpendingAggregate": 1,
+    "currentWalletAggregate": 2
+  },
+  "limits": "Single local PostgreSQL environment; not a load test, concurrency test or production SLA."
+}

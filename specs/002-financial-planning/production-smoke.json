@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-07T05:57:40.926Z",
+  "mode": "Local production image behind Caddy internal TLS. CA explicitly trusted, TLS verification enabled; no public deployment.",
+  "nodeUid": 1000,
+  "readOnlyFilesystem": true,
+  "checks": [
+    "HTTPS certificate verified with internal CA; health + HSTS",
+    "built web served through Caddy",
+    "demo disabled in production",
+    "registration and Secure/HttpOnly/SameSite cookie",
+    "compiled Prisma/DI and wallet request replay",
+    "SQL summary in runtime image",
+    "PDF fonts available in runtime image",
+    "logout revokes session"
+  ]
+}

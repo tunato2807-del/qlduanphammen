@@ -17,14 +17,23 @@ export default function ReportsPage({
         title="Bức tranh tài chính"
         description={`Nhìn lại ${monthLabel(month).toLowerCase()} và tìm hướng đi cho tháng tới.`}
         action={
-          <a
-            className="button secondary"
-            href={"/api/transactions/export?month=" + month}
-            download
-          >
-            <ArrowDownToLine size={17} />
-            Tải dữ liệu CSV
-          </a>
+          <div className="inline-actions">
+            <a
+              className="button"
+              href={"/api/reports/pdf?month=" + month}
+              download
+            >
+              Tải báo cáo PDF
+            </a>
+            <a
+              className="button secondary"
+              href={"/api/transactions/export?month=" + month}
+              download
+            >
+              <ArrowDownToLine size={17} />
+              Tải dữ liệu CSV
+            </a>
+          </div>
         }
       />
       <div className="report-stats">
@@ -45,6 +54,29 @@ export default function ReportsPage({
           </strong>
         </section>
       </div>
+      <section className="panel planning-section">
+        <h2>So với tháng {summary.comparison.month}</h2>
+        <div className="report-stats">
+          <section>
+            <span>Thu nhập thay đổi</span>
+            <strong>{money(summary.comparison.incomeDelta)}</strong>
+            <small>Tháng trước {money(summary.comparison.income)}</small>
+          </section>
+          <section>
+            <span>Chi tiêu thay đổi</span>
+            <strong>{money(summary.comparison.expenseDelta)}</strong>
+            <small>Tháng trước {money(summary.comparison.expense)}</small>
+          </section>
+          <section>
+            <span>Chênh lệch thay đổi</span>
+            <strong>{money(summary.comparison.netDelta)}</strong>
+            <small>Tháng trước {money(summary.comparison.net)}</small>
+          </section>
+        </div>
+        <p className="muted small">
+          So sánh bằng số tiền tuyệt đối; số dương là tăng, số âm là giảm.
+        </p>
+      </section>
       <div className="dashboard-main">
         <section className="panel">
           <div className="panel-heading">

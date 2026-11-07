@@ -47,6 +47,15 @@ export type Budget = {
   items: BudgetItem[];
 };
 export type Summary = {
+  comparison: {
+    month: string;
+    income: string;
+    expense: string;
+    net: string;
+    incomeDelta: string;
+    expenseDelta: string;
+    netDelta: string;
+  };
   month: string;
   balance: string;
   income: string;

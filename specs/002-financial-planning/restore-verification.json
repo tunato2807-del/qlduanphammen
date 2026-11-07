@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-07T05:41:52.484Z",
+  "method": "Full rows in all 13 application tables and migration ledger sorted, SHA256 compared in memory, source stable before/after backup. No financial data or tokens printed.",
+  "match": true,
+  "counts": {
+    "User": 66,
+    "Session": 19,
+    "Wallet": 168,
+    "Category": 660,
+    "Transaction": 1859,
+    "BudgetPlan": 81,
+    "BudgetItem": 627,
+    "PasswordReset": 0,
+    "IdempotencyRecord": 32,
+    "RecurringRule": 7,
+    "RecurringDraft": 7,
+    "SavingsGoal": 10,
+    "GoalContribution": 14,
+    "_finora_migrations": 2
+  },
+  "sourcePreserved": true,
+  "temporaryDatabaseDropped": true
+}

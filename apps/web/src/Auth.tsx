@@ -1,3 +1,4 @@
+import RecoveryForm from "./features/identity/RecoveryForm";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -28,6 +29,30 @@ export function Brand() {
 }
 export default function Auth({ onLogin }: { onLogin: (user: User) => void }) {
   const { reduced } = useExperience();
+  const [resetToken, setResetToken] = useState(() => {
+    const token = location.hash.startsWith("#reset-password?")
+      ? new URLSearchParams(location.hash.split("?")[1]).get("token") || ""
+      : "";
+    return token;
+  });
+  useEffect(() => {
+    const read = () => {
+      if (location.hash.startsWith("#reset-password?")) {
+        const token = new URLSearchParams(location.hash.split("?")[1]).get(
+          "token",
+        );
+        if (token) setResetToken(token);
+      }
+    };
+    window.addEventListener("hashchange", read);
+    return () => window.removeEventListener("hashchange", read);
+  }, []);
+  useEffect(() => {
+    if (resetToken)
+      history.replaceState(null, "", location.pathname + location.search);
+  }, [resetToken]);
+  const [forgot, setForgot] = useState(false);
+  const recovery = forgot || !!resetToken;
   const [register, setRegister] = useState(false),
     [loading, setLoading] = useState(""),
     [error, setError] = useState(""),
@@ -137,7 +162,13 @@ export default function Auth({ onLogin }: { onLogin: (user: User) => void }) {
         <div className="auth-form">
           <span className="eyebrow">TÀI CHÍNH TRONG TẦM TAY</span>
           <h2>
-            {register ? "Bắt đầu hành trình của bạn" : "Chào mừng bạn trở lại"}
+            {recovery
+              ? resetToken
+                ? "Đặt lại mật khẩu"
+                : "Khôi phục tài khoản"
+              : register
+                ? "Bắt đầu hành trình của bạn"
+                : "Chào mừng bạn trở lại"}
             <span className="dot">.</span>
           </h2>
           <p>
@@ -145,103 +176,121 @@ export default function Auth({ onLogin }: { onLogin: (user: User) => void }) {
               ? "Một nơi dành riêng cho tài chính và những dự định của bạn."
               : "Một chút quan tâm hôm nay, một tương lai vững vàng hơn."}
           </p>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const f = new FormData(e.currentTarget);
-              void run(register ? "register" : "login", Object.fromEntries(f));
-            }}
-          >
-            {register && (
-              <Field label="Tên của bạn">
-                <input
-                  name="name"
-                  placeholder="Nguyễn Minh Anh"
-                  required
-                  minLength={2}
-                  maxLength={60}
-                  autoComplete="name"
-                />
-              </Field>
-            )}
-            <Field label="Địa chỉ email">
-              <input
-                name="email"
-                type="email"
-                placeholder="ban@email.com"
-                required
-                autoComplete="email"
-                maxLength={200}
-              />
-            </Field>
-            <Field label="Mật khẩu">
-              <span className="password-input">
-                <input
-                  name="password"
-                  type={show ? "text" : "password"}
-                  placeholder={
-                    register ? "Tối thiểu 8 ký tự" : "Nhập mật khẩu của bạn"
-                  }
-                  required
-                  minLength={register ? 8 : 1}
-                  maxLength={128}
-                  autoComplete={register ? "new-password" : "current-password"}
-                />
-                <button
-                  type="button"
-                  aria-label={show ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                  onClick={() => setShow(!show)}
-                >
-                  {show ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </span>
-            </Field>
-            {error && (
-              <div className="form-error" role="alert">
-                {error}
-              </div>
-            )}
-            <Button type="submit" disabled={!!loading} className="full">
-              {loading && loading !== "demo" ? (
-                <LoaderCircle className="spin" size={18} />
-              ) : null}
-              {register ? "Tạo tài khoản" : "Đăng nhập"}
-              <ArrowRight size={18} />
-            </Button>
-          </form>
-          <p className="auth-switch">
-            {register ? "Đã có tài khoản?" : "Bạn chưa có tài khoản?"}{" "}
-            <button
-              onClick={() => {
-                setRegister(!register);
-                setError("");
-              }}
-            >
-              {register ? "Đăng nhập" : "Đăng ký miễn phí"}
-            </button>
-          </p>
-          {demo && (
+          {recovery ? (
+            <RecoveryForm token={resetToken} onBack={() => setForgot(false)} />
+          ) : (
             <>
-              <div className="or-divider">
-                <span>HOẶC KHÁM PHÁ TRƯỚC</span>
-              </div>
-              <Button
-                secondary
-                className="full demo-button"
-                disabled={!!loading}
-                onClick={() => void run("demo")}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const f = new FormData(e.currentTarget);
+                  void run(
+                    register ? "register" : "login",
+                    Object.fromEntries(f),
+                  );
+                }}
               >
-                {loading === "demo" ? (
-                  <LoaderCircle size={18} className="spin" />
-                ) : (
-                  <Sparkles size={18} />
+                {register && (
+                  <Field label="Tên của bạn">
+                    <input
+                      name="name"
+                      placeholder="Nguyễn Minh Anh"
+                      required
+                      minLength={2}
+                      maxLength={60}
+                      autoComplete="name"
+                    />
+                  </Field>
                 )}
-                Trải nghiệm với dữ liệu mẫu
-                <ArrowUpRight size={16} />
-              </Button>
-              <small className="demo-note">
-                Một không gian trải nghiệm riêng, không cần đăng ký.
-              </small>
+                <Field label="Địa chỉ email">
+                  <input
+                    name="email"
+                    type="email"
+                    placeholder="ban@email.com"
+                    required
+                    autoComplete="email"
+                    maxLength={200}
+                  />
+                </Field>
+                <Field label="Mật khẩu">
+                  <span className="password-input">
+                    <input
+                      name="password"
+                      type={show ? "text" : "password"}
+                      placeholder={
+                        register ? "Tối thiểu 8 ký tự" : "Nhập mật khẩu của bạn"
+                      }
+                      required
+                      minLength={register ? 8 : 1}
+                      maxLength={128}
+                      autoComplete={
+                        register ? "new-password" : "current-password"
+                      }
+                    />
+                    <button
+                      type="button"
+                      aria-label={show ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                      onClick={() => setShow(!show)}
+                    >
+                      {show ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </span>
+                </Field>
+                {error && (
+                  <div className="form-error" role="alert">
+                    {error}
+                  </div>
+                )}
+                <Button type="submit" disabled={!!loading} className="full">
+                  {loading && loading !== "demo" ? (
+                    <LoaderCircle className="spin" size={18} />
+                  ) : null}
+                  {register ? "Tạo tài khoản" : "Đăng nhập"}
+                  <ArrowRight size={18} />
+                </Button>
+              </form>
+              {!register && (
+                <p className="auth-switch">
+                  <button onClick={() => setForgot(true)}>
+                    Quên mật khẩu?
+                  </button>
+                </p>
+              )}
+              <p className="auth-switch">
+                {register ? "Đã có tài khoản?" : "Bạn chưa có tài khoản?"}{" "}
+                <button
+                  onClick={() => {
+                    setRegister(!register);
+                    setError("");
+                  }}
+                >
+                  {register ? "Đăng nhập" : "Đăng ký miễn phí"}
+                </button>
+              </p>
+              {demo && (
+                <>
+                  <div className="or-divider">
+                    <span>HOẶC KHÁM PHÁ TRƯỚC</span>
+                  </div>
+                  <Button
+                    secondary
+                    className="full demo-button"
+                    disabled={!!loading}
+                    onClick={() => void run("demo")}
+                  >
+                    {loading === "demo" ? (
+                      <LoaderCircle size={18} className="spin" />
+                    ) : (
+                      <Sparkles size={18} />
+                    )}
+                    Trải nghiệm với dữ liệu mẫu
+                    <ArrowUpRight size={16} />
+                  </Button>
+                  <small className="demo-note">
+                    Một không gian trải nghiệm riêng, không cần đăng ký.
+                  </small>
+                </>
+              )}
             </>
           )}
         </div>

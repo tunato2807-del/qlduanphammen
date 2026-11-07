@@ -1,3 +1,5 @@
+import { useState } from "react";
+import ImportDialog from "./ImportDialog";
 import {
   ArrowDownToLine,
   ArrowLeft,
@@ -47,6 +49,7 @@ export default function TransactionsPage({
   setDeleting: (value: Transaction) => void;
   refresh: () => void;
 }) {
+  const [importing, setImporting] = useState(false);
   return (
     <>
       <PageHeading
@@ -60,8 +63,14 @@ export default function TransactionsPage({
           </Button>
         }
       />
+      {importing && (
+        <ImportDialog onClose={() => setImporting(false)} onSaved={refresh} />
+      )}
       <section className="panel">
         <div className="transactions-toolbar">
+          <Button secondary onClick={() => setImporting(true)}>
+            Nhập CSV
+          </Button>
           <div className="filter-tabs">
             {[
               ["", "Tất cả"],

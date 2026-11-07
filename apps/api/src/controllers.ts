@@ -1,5 +1,7 @@
+import { recoveryEnabled } from "./recovery";
 import {
   Body,
+  Headers,
   Controller,
   Delete,
   Get,
@@ -64,7 +66,7 @@ export class AuthController {
     return safeUser(user);
   }
   @Get("config") config() {
-    return { demoEnabled: demoEnabled() };
+    return { demoEnabled: demoEnabled(), recoveryEnabled: recoveryEnabled() };
   }
   @Post("register") async register(
     @Body() body: unknown,
@@ -126,10 +128,12 @@ export class FinanceController {
   @Post("wallets") createWallet(
     @Req() req: AuthRequest,
     @Body() body: unknown,
+    @Headers("idempotency-key") key?: string,
   ) {
     return this.walletsService.createWallet(
       req.user.id,
       parse(WalletDto, body),
+      key,
     );
   }
   @Patch("wallets/:id") updateWallet(
@@ -181,10 +185,12 @@ export class FinanceController {
   @Post("transactions") createTransaction(
     @Req() req: AuthRequest,
     @Body() body: unknown,
+    @Headers("idempotency-key") key?: string,
   ) {
     return this.transactionsService.createTransaction(
       req.user.id,
       parse(TransactionDto, body),
+      key,
     );
   }
   @Patch("transactions/:id") updateTransaction(
@@ -225,8 +231,13 @@ export class FinanceController {
   @Post("budget-plans") saveBudget(
     @Req() req: AuthRequest,
     @Body() body: unknown,
+    @Headers("idempotency-key") key?: string,
   ) {
-    return this.budgetsService.saveBudget(req.user.id, parse(BudgetDto, body));
+    return this.budgetsService.saveBudget(
+      req.user.id,
+      parse(BudgetDto, body),
+      key,
+    );
   }
   @Get("reports/summary") summary(
     @Req() req: AuthRequest,
@@ -249,7 +260,7 @@ export class FinanceController {
     const cell = (v: unknown) =>
       '"' +
       String(v ?? "")
-        .replace(/^[=+@\-\t\r]/, "'$&")
+        .replace(/^[=+@\-\t\r']/, "'$&")
         .replace(/"/g, '""') +
       '"';
     const rows = [

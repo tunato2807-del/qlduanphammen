@@ -2,7 +2,7 @@ name: Finora quality
 on:
   pull_request:
   push:
-    branches: [main, feature/finora-v2]
+    branches: [main, "feature/**"]
 permissions:
   contents: read
 concurrency:

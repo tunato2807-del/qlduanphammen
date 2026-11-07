@@ -1,63 +1,63 @@
-# Ghi chú thuyết trình Finora V2
+# Ghi chú thuyết trình Finora
 
-15 slide; khoảng 12–14 phút, demo có thể thêm 2 phút. Cập nhật 29/10/2026. Nội dung Notes cũng nằm trong file PowerPoint.
+Cập nhật 07/11/2026 · 15 slide, khoảng 12–15 phút. Họ tên/lớp/GVHD cần bổ sung theo thông tin thật.
 
-## Slide 01
+## 1. Tài chính trong tầm tay.
 
-Thời lượng gợi ý: 40 giây. Giới thiệu Finora, đề tài xây dựng hệ thống quản lý tài chính cá nhân và lập ngân sách tự động. Bản trình bày tập trung vào bài toán, phân tích thiết kế và sản phẩm MVP đã triển khai trong môi trường phát triển. Ví dụ tiền trên bìa chỉ là số liệu minh họa. Bổ sung tên sinh viên, lớp và giảng viên trên slide này nếu cần.
+Giới thiệu đề tài quản lý tài chính cá nhân và lập ngân sách tự động. Finora hỗ trợ quyết định bằng quy tắc minh bạch, không đồng bộ tài khoản ngân hàng hoặc dự đoán AI. Bổ sung họ tên, lớp và giảng viên trước khi bảo vệ.
 
-## Slide 02
+## 2. Từ ghi chép rời rạc đến một kế hoạch rõ ràng.
 
-Thời lượng gợi ý: 50 giây. Đây là các vấn đề mà sản phẩm hướng tới, không phải kết quả khảo sát người dùng. Nhấn mạnh ba nhu cầu: tập hợp tài sản, hiểu thu chi và chủ động lập kế hoạch. Giá trị kỳ vọng là hỗ trợ ra quyết định; chưa có nghiên cứu đo mức tăng tiết kiệm thực tế.
+Nêu ba vấn đề: khó biết tiền đi đâu, lập kế hoạch tách rời thực tế và dễ quên các khoản thanh toán. Mục tiêu là ghi nhận đúng, lập kế hoạch có căn cứ, xem lại và điều chỉnh. Không đưa ra số liệu khảo sát người dùng khi chưa có khảo sát.
 
-## Slide 03
+## 3. Một ứng dụng cá nhân, nghiệp vụ có ranh giới.
 
-Thời lượng gợi ý: 50 giây. Phạm vi hiện tại là ứng dụng web cho từng cá nhân, dùng tiền VND và ngân sách theo tháng. Dữ liệu mỗi tài khoản được tách biệt ở backend. Nêu yêu cầu phi chức năng: tiền tệ chính xác, bảo vệ dữ liệu và sử dụng được trên điện thoại. Chưa có vai trò quản trị viên đọc dữ liệu tài chính của người khác.
+Trình bày phạm vi VND, tháng Việt Nam và dữ liệu riêng theo tài khoản. Sáu nhóm năng lực trong capability map giữ nguyên; các chức năng mới mở rộng theo spec 002 đã được người dùng cho phép. Không mua dịch vụ hoặc đưa dữ liệu ra hệ thống bên ngoài.
 
-## Slide 04
+## 4. Người dùng kiểm soát mọi bước ghi tiền.
 
-Thời lượng gợi ý: 40 giây. Đây là sơ đồ chức năng theo tác nhân, dùng để trình bày tổng quan thay cho một sơ đồ UML chi tiết. Một tác nhân người dùng thao tác với sáu nhóm chức năng. Tất cả tài nguyên nghiệp vụ được xác thực phiên và kiểm tra quyền sở hữu. Chế độ trải nghiệm tạo dữ liệu mẫu riêng cho từng phiên demo.
+Tác nhân chính là người dùng cá nhân. Hệ thống tính toán và đề xuất, còn người dùng xác nhận các thay đổi tài chính. Giải thích vì sao khoản định kỳ tạo nháp thay vì tự ghi sổ, tránh nhầm dự kiến với thực tế.
 
-## Slide 05
+## 5. React → NestJS → PostgreSQL.
 
-Thời lượng gợi ý: 60 giây. Giải thích lý do chọn TypeScript: chia sẻ cách biểu diễn dữ liệu và kiểm tra kiểu trên cả hai phía. React hỗ trợ xây dựng giao diện; NestJS tổ chức controller, guard và service; PostgreSQL lưu dữ liệu có ràng buộc. Prisma dùng JavaScript engine và adapter pg. Development dùng proxy Vite; production NestJS phục vụ frontend đã build cùng API. Không đưa bí mật hay thông tin kết nối database vào frontend. Finora V2 tách provider Wallets, Transactions, Budgets, Reports trong cùng NestJS; frontend tách app/features/shared. CSS theo token thay Tailwind không còn dùng. Dashboard và báo cáo tải động.
+Dùng TypeScript cho frontend và backend để thống nhất kiểu dữ liệu. NestJS là ứng dụng một khối theo provider nghiệp vụ, không tách microservice. Prisma dùng bộ máy JavaScript với PostgreSQL. Spec Kit chỉ phục vụ quá trình phát triển, không chạy trong sản phẩm.
 
-## Slide 06
+## 6. 13 model, một nguyên tắc: giữ được dấu vết.
 
-Thời lượng gợi ý: 70 giây. Mô hình có bảy bảng. User sở hữu Session, Wallet, Category, Transaction và BudgetPlan. Transaction tham chiếu ví chính, có ví đích khi chuyển tiền, và có danh mục cho thu hoặc chi. BudgetItem nối kế hoạch với từng danh mục. Sơ đồ đã lược bớt thuộc tính và đường nối để dễ đọc; destinationId trên hình là viết tắt của destinationWalletId. PK là khóa chính, FK là khóa ngoại. Các quan hệ ví/danh mục tới giao dịch và danh mục/kế hoạch tới BudgetItem đều là một–nhiều, với khóa ngoại có thể rỗng theo loại giao dịch. Ràng buộc database giữ một kế hoạch đang áp dụng cho mỗi người và tháng.
+Nêu các nhóm dữ liệu, không đọc mọi cột. Sổ giao dịch là nguồn tính số dư; budget plan giữ revision; recurring draft unique theo quy tắc và tháng; goal contribution là phân bổ tiền đang có. Migration thêm sáu bảng và giữ dữ liệu cũ. Xem ERD đầy đủ trong tài liệu.
 
-## Slide 07
+## 7. Chia ngân sách đúng đến từng đồng.
 
-Thời lượng gợi ý: 60 giây. Minh họa chuyển 500 nghìn từ ví ngân hàng sang tiền mặt: tổng tài sản không đổi. Số dư đầu không tính là thu nhập trong kỳ. Thu nhập dự kiến không được cộng vào thu nhập thực tế. Tiết kiệm dự kiến không đồng nghĩa đã tiết kiệm. Cho phép số dư âm khi nhập thiếu hoặc chi vượt số dư, nhưng có cảnh báo để người dùng kiểm tra.
+Ví dụ thu 15 triệu, tiết kiệm dự kiến 3 triệu, chi bắt buộc 6 triệu, còn 6 triệu linh hoạt. Trọng số 3:2:1 nhận 3, 2 và 1 triệu. Khi có dư do chia nguyên, thuật toán largest remainder phân từng đồng cho phần dư lớn nhất, thứ tự danh mục xử lý trường hợp bằng nhau. Thiếu tiền thì từ chối trước khi lưu.
 
-## Slide 08
+## 8. Có căn cứ khi lập, có lịch sử khi điều chỉnh.
 
-Thời lượng gợi ý: 60 giây. Tách preview khỏi save để người dùng xem phương án trước. Khi lưu, backend tính lại từ đầu vào thay vì tin hạn mức do frontend gửi. Nếu thay đổi dữ liệu, bản xem trước cũ bị hủy. Database transaction và advisory lock tránh hai thao tác tạo kế hoạch đang áp dụng đồng thời. Phiên bản trước vẫn lưu trong database; giao diện hiện chỉ hiển thị bản đang áp dụng. Nếu nguồn tiền không đủ, hệ thống trả lỗi và không áp dụng.
+Gợi ý dùng ba tháng đã kết thúc, cả tháng không phát sinh vẫn tính bằng không. Mức tiết kiệm gợi ý 20% có thể sửa. Nhấn mạnh đây là quy tắc gợi ý, không phải AI. Mọi phiên bản giữ hạn mức riêng và đối chiếu sổ thực tế hiện tại, không phải ảnh chụp số chi trong quá khứ.
 
-## Slide 09
+## 9. Định kỳ và mục tiêu không làm sai tài sản.
 
-Thời lượng gợi ý: 80 giây. Thu nhập 10 triệu, chi bắt buộc 4 triệu, tiết kiệm dự kiến 2 triệu nên còn 4 triệu linh hoạt. Tổng trọng số là 6. Ăn uống nhận thêm 2 triệu; di chuyển nhận 1.333.333 đồng; giải trí nhận 666.667 đồng sau phân bổ phần dư. Hạn mức ăn uống cộng cả 1 triệu bắt buộc thành 3 triệu. Tổng bốn danh mục bằng 8 triệu. Thuật toán dùng BigInt, chia nguyên, rồi cấp từng đồng dư cho phần dư lớn nhất; nếu bằng nhau dùng thứ tự danh mục. Đây là tự động theo quy tắc, chưa phải mô hình AI dự đoán.
+Khoản định kỳ tạo bản nháp theo ngày đến hạn, xử lý tháng ngắn bằng ngày cuối tháng. Xác nhận đồng thời vẫn chỉ ghi một transaction. Mục tiêu dành riêng tiền trong ví và có thể rút phần đã dành; không cộng thành thu nhập hoặc giảm tổng tài sản. Nếu chi tiêu sau đó khiến ví thiếu phần dành riêng thì giao diện cảnh báo.
 
-## Slide 10
+## 10. Nhập có kiểm tra, xuất có đối chiếu.
 
-Thời lượng gợi ý: 50 giây. Đây là ảnh từ ứng dụng chạy thật với tài khoản demo, không phải wireframe. Ảnh cắt phần đầu để phóng to khu vực quan trọng. Đi từ trên xuống: hành động thêm giao dịch, bốn chỉ số tổng quan và biểu đồ. Tổng số dư là số dư hiện tại, còn thu nhập và chi tiêu phụ thuộc tháng được chọn. Dữ liệu mẫu không đại diện cho một người dùng thật.
+CSV giới hạn 50 KB và 200 dòng. Xem lỗi theo dòng, đọc dấu nháy và tiếng Việt đúng, bỏ dòng trùng, xác nhận nguyên tử. Báo cáo so tháng trước bằng số tiền; PDF tiếng Việt có ngân sách và mức chi, loại chuyển ví khỏi thu/chi. File nhập mẫu cần đúng tên ví/danh mục của tài khoản.
 
-## Slide 11
+## 11. Trẻ trung, nhưng số liệu luôn rõ ràng.
 
-Thời lượng gợi ý: 45 giây. Mục tiêu thiết kế là phù hợp người trẻ mà vẫn đọc được số liệu tài chính. Hiệu ứng được triển khai bằng Motion và CSS, ảnh tĩnh trên slide không thể hiện chuyển động. Khi demo có thể rê chuột lên nút, thẻ, rồi bấm nút biểu tượng lấp lánh để giảm chuyển động. Hệ thống cũng phản hồi khi cài đặt reduced motion của hệ điều hành thay đổi. Ảnh điện thoại được cắt phần đầu để dễ quan sát. Bản V2 dùng nền ấm, sidebar tối; sửa tương phản và kiểm tra 320/390/768/1024/1440px. Menu mobile giữ focus và đóng bằng Escape.
+Giao diện nền ấm, sidebar tối, lavender và lime. Chuyển động dùng Motion, cho phép giảm và tôn trọng hệ điều hành. Bố cục thử từ 320 đến 1440 pixel; menu mobile giữ focus và đóng bằng Escape. Lỗi hover qua lại khi đổi form đã có regression test.
 
-## Slide 12
+## 12. Giữ quyền sở hữu và giữ được dữ liệu.
 
-Thời lượng gợi ý: 60 giây. Các số 18 và 6 là kết quả kiểm tra bản Finora V2 ngày 29/10/2026. Có kiểm tra axe-core trên các màn hình/dialog chính và năm viewport; chưa phải chứng nhận WCAG toàn diện. Build API và frontend đã thành công. API integration dùng PostgreSQL thật. Đổi mật khẩu thu hồi các phiên khác. Production bật Secure cho cookie và cần HTTPS. Các kiểm thử chứng minh những luồng đã kiểm tra; chưa có đánh giá tải lớn hay kiểm toán bảo mật độc lập.
+Giải thích ownership phía server cho mọi ID, cookie HttpOnly/Secure production, password scrypt và reset token SHA256 dùng một lần. Key gửi lại ngăn ghi trùng. SQL migration additive có checksum; backup và restore thử DB riêng. Docker non-root và Caddy HTTPS đã chuẩn bị, chưa có tên miền hay SMTP thật theo thông tin người dùng.
 
-## Slide 13
+## 13. Bằng chứng chạy được, số liệu có giới hạn.
 
-Thời lượng gợi ý: 55 giây. WBS chia dự án thành năm nhóm công việc theo đầu ra. Các mục trên là kết quả hiện có chứ không phải một lịch dự án được dựng lại. Khi làm báo cáo học phần có thể bổ sung thành viên, người phụ trách, ngày bắt đầu/kết thúc và ước lượng theo dữ liệu thực tế của nhóm. Repository đã được đẩy lên GitHub. Chưa có môi trường production công khai, tên miền hay chứng chỉ HTTPS. Workflow CI đã được cấu hình và các lệnh đã kiểm chứng cục bộ; không khẳng định GitHub Actions hoặc branch protection đã được xác nhận trên dịch vụ.
+34 kiểm thử API/unit và 12 kiểm thử browser đã đạt; axe không có lỗi serious/critical trong các màn hình được kiểm tra, không thay chứng nhận WCAG. Benchmark 10 nghìn giao dịch: trung vị 106.28 xuống 20.42 ms, 20 mẫu sau 3 warmup, cùng kết quả tiền. Đây là provider trong môi trường cục bộ, chưa phải tải đồng thời production. Restore thử trên DB riêng thành công.
 
-## Slide 14
+## 14. Quản lý bằng đầu ra và bằng chứng.
 
-Thời lượng gợi ý: 50 giây. Đây là đề xuất lộ trình, chưa cam kết thời hạn và chưa phải chức năng hiện hữu. Ưu tiên vận hành ổn định và bảo vệ dữ liệu trước khi tích hợp thêm dịch vụ. Thu nhập dự kiến có thể sai so với thực tế nên cần cập nhật ngân sách. Tích hợp ngân hàng và dự báo cần khảo sát, nguồn dữ liệu, sự đồng ý và đánh giá chi phí. Không khẳng định hệ thống hiện có AI.
+Các mốc quá khứ lấy từ Git: MVP 25/10, V2 28–29/10, Spec Kit 04/11, mở rộng 07/11. Đề xuất UAT 08–10/11 chưa được coi là đã hoàn tất. RACI theo vai trò, không bịa tên thành viên. Dự toán 495 nghìn đồng là phương án hosting/tên miền và dự phòng, chưa phát sinh chi phí; xem giả định trong hồ sơ.
 
-## Slide 15
+## 15. Một luồng demo, đủ thấy giá trị.
 
-Thời lượng gợi ý: 30 giây giới thiệu + 2 phút demo nếu có. Trước buổi báo cáo chạy scripts/setup.sh và scripts/start.sh theo README. Mở tài khoản demo; thêm một khoản chi với số tiền dễ đối chiếu; xem số dư thay đổi; tạo phương án ngân sách rồi áp dụng; cuối cùng đổi kích thước màn hình hoặc mở trên điện thoại và thử nút giảm chuyển động. Nếu không có môi trường chạy, dùng ảnh slide 10 và 11, không nói rằng demo trực tiếp đã diễn ra. Link GitHub chứa mã nguồn và hướng dẫn, không phải đường dẫn website đã triển khai công khai.
+Demo trong khoảng hai phút nếu thời gian cho phép: mở tài khoản mẫu, ngân sách gợi ý và lịch sử, tạo nháp định kỳ/xác nhận, dành tiền cho mục tiêu, preview CSV và tải PDF. Nêu rõ email thật và website public chờ dịch vụ. Kết thúc bằng câu hỏi về mô hình dữ liệu, phân bổ chính xác, chống trùng và bảo vệ tài khoản.

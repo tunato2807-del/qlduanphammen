@@ -45,6 +45,7 @@ test("main screens and dialogs meet automated accessibility checks", async ({
     "Giao dịch",
     "Ví của tôi",
     "Ngân sách",
+    "Kế hoạch",
     "Báo cáo",
   ]) {
     await page
@@ -98,6 +99,7 @@ test("all screens fit supported viewport widths and mobile menu supports Escape"
       "Giao dịch",
       "Ví của tôi",
       "Ngân sách",
+      "Kế hoạch",
       "Báo cáo",
     ]) {
       if (width <= 800)

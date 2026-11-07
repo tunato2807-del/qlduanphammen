@@ -1,3 +1,4 @@
+import { useWrite } from "../../shared/useWrite";
 type BudgetDraft = {
   categoryId: string;
   fixed: string;
@@ -27,6 +28,8 @@ export function BudgetForm({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const write = useWrite();
+  const [suggestion, setSuggestion] = useState("");
   const [income, setIncome] = useState(budget?.income || "15000000"),
     [savings, setSavings] = useState(budget?.savings || "3000000"),
     [mode, setMode] = useState(budget?.mode || "AUTO");
@@ -63,10 +66,7 @@ export function BudgetForm({
     setError("");
     try {
       if (save) {
-        await api("/budget-plans", {
-          method: "POST",
-          body: JSON.stringify(payload),
-        });
+        await write("/budget-plans", payload);
         onSaved();
       } else {
         setPreview(
@@ -89,6 +89,44 @@ export function BudgetForm({
       description={`${monthLabel(month)} · Một kế hoạch phù hợp với cuộc sống của bạn.`}
       onClose={onClose}
     >
+      <Button
+        secondary
+        disabled={!!loading}
+        onClick={async () => {
+          setLoading("suggestion");
+          setError("");
+          try {
+            const s = await api<{
+              income: string;
+              savings: string;
+              items: BudgetDraft[];
+              explanation: string;
+              hasIncome: boolean;
+            }>("/budget-plans/suggestion?month=" + month);
+            setIncome(s.income);
+            setSavings(s.savings);
+            setMode("AUTO");
+            setItems(s.items.map((i) => ({ ...i, weight: i.weight || 1 })));
+            setPreview(null);
+            setSuggestion(
+              (s.hasIncome ? "" : "Chưa có thu nhập trong ba tháng trước. ") +
+                s.explanation,
+            );
+          } catch (e) {
+            setError((e as Error).message);
+          } finally {
+            setLoading("");
+          }
+        }}
+      >
+        <Sparkles size={16} />
+        Gợi ý từ 3 tháng trước
+      </Button>
+      {suggestion && (
+        <p className="muted small" role="status">
+          {suggestion}
+        </p>
+      )}
       <div className="segmented">
         <button
           className={mode === "AUTO" ? "active" : ""}

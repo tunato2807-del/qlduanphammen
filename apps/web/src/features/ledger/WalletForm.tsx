@@ -1,7 +1,7 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Button, Field, Modal } from "../../components";
-import { api } from "../../types";
+import { useWrite } from "../../shared/useWrite";
 export function WalletForm({
   onClose,
   onSaved,
@@ -9,6 +9,7 @@ export function WalletForm({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const write = useWrite();
   const [error, setError] = useState(""),
     [loading, setLoading] = useState(false);
   return (
@@ -23,12 +24,10 @@ export function WalletForm({
           setLoading(true);
           setError("");
           try {
-            await api("/wallets", {
-              method: "POST",
-              body: JSON.stringify(
-                Object.fromEntries(new FormData(e.currentTarget)),
-              ),
-            });
+            await write(
+              "/wallets",
+              Object.fromEntries(new FormData(e.currentTarget)),
+            );
             onSaved();
           } catch (e) {
             setError((e as Error).message);

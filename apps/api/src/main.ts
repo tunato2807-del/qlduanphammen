@@ -1,3 +1,8 @@
+import { Idempotency } from "./idempotency";
+import { Planning } from "./planning";
+import { Imports } from "./imports";
+import { Recovery } from "./recovery";
+import { PlanningController, RecoveryController } from "./planning-controller";
 import "reflect-metadata";
 import "dotenv/config";
 import {
@@ -37,9 +42,19 @@ class HealthController {
   }
 }
 @Module({
-  controllers: [HealthController, AuthController, FinanceController],
+  controllers: [
+    HealthController,
+    AuthController,
+    FinanceController,
+    PlanningController,
+    RecoveryController,
+  ],
   providers: [
     Database,
+    Idempotency,
+    Planning,
+    Imports,
+    Recovery,
     Accounts,
     SessionGuard,
     Wallets,
@@ -55,6 +70,8 @@ export async function createApp() {
     bodyParser: false,
     logger: process.env.NODE_ENV === "test" ? false : ["error", "warn", "log"],
   });
+  if (process.env.TRUST_PROXY === "1")
+    app.getHttpAdapter().getInstance().set("trust proxy", 1);
   app.use(requestContext);
   app.use(helmet());
   app.use(express.json({ limit: "64kb" }));
@@ -105,7 +122,13 @@ export async function createApp() {
     }),
   );
   app.use(
-    ["/api/auth/login", "/api/auth/register", "/api/auth/demo"],
+    [
+      "/api/auth/login",
+      "/api/auth/register",
+      "/api/auth/demo",
+      "/api/auth/forgot-password",
+      "/api/auth/reset-password",
+    ],
     rateLimit({
       windowMs: 15 * 60000,
       limit: 30,

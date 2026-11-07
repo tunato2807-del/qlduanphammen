@@ -1,0 +1,67 @@
+name: finora-production
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: finora
+      POSTGRES_DB: finora
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a strong database password}
+    volumes:
+      - production_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finora -d finora"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  migrate:
+    build: .
+    image: finora:local
+    command: ["node", "apps/api/scripts/migrate.mjs"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set the internal db URL}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+  app:
+    image: finora:local
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set the internal db URL}
+      NODE_ENV: production
+      PORT: 3001
+      ALLOW_DEMO: "false"
+      TRUST_PROXY: "1"
+      PUBLIC_URL: https://${FINORA_DOMAIN:?Set the public domain}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  proxy:
+    image: caddy:2-alpine
+    environment:
+      FINORA_DOMAIN: ${FINORA_DOMAIN:?Set the public domain}
+    ports: ["80:80", "443:443", "443:443/udp"]
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+volumes:
+  production_data:
+  caddy_data:
+  caddy_config:

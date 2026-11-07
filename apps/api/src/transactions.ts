@@ -14,15 +14,21 @@ import {
   monthRange,
 } from "./budget";
 import { Wallets } from "./wallets";
+import { Idempotency } from "./idempotency";
 import { validMonth } from "./month";
 @Injectable()
 export class Transactions {
   constructor(
     @Inject(Database) public db: Database,
     @Inject(Wallets) private walletsService: Wallets,
+    @Inject(Idempotency) private idempotency: Idempotency,
   ) {}
-  async transactionData(userId: string, dto: TransactionDto) {
-    await this.walletsService.ownedWallet(userId, dto.walletId, true);
+  async transactionData(
+    userId: string,
+    dto: TransactionDto,
+    client: Prisma.TransactionClient = this.db,
+  ) {
+    await this.walletsService.ownedWallet(userId, dto.walletId, true, client);
     if (dto.kind === "TRANSFER") {
       if (
         !dto.destinationWalletId ||
@@ -36,6 +42,7 @@ export class Transactions {
         userId,
         dto.destinationWalletId,
         true,
+        client,
       );
     } else {
       if (!dto.categoryId || dto.destinationWalletId)
@@ -43,7 +50,7 @@ export class Transactions {
           "Giao dịch thu/chi cần danh mục phù hợp.",
         );
       if (
-        !(await this.db.category.findFirst({
+        !(await client.category.findFirst({
           where: {
             id: dto.categoryId,
             userId,
@@ -65,10 +72,17 @@ export class Transactions {
       categoryId: dto.kind === "TRANSFER" ? null : dto.categoryId,
     };
   }
-  async createTransaction(userId: string, dto: TransactionDto) {
-    return this.db.transaction.create({
-      data: await this.transactionData(userId, dto),
-    });
+  async createTransaction(userId: string, dto: TransactionDto, key?: string) {
+    return this.idempotency.run(
+      userId,
+      key,
+      "transaction.create",
+      dto,
+      async (tx) =>
+        tx.transaction.create({
+          data: await this.transactionData(userId, dto, tx),
+        }),
+    );
   }
   async updateTransaction(userId: string, id: string, dto: TransactionDto) {
     await this.ownedTransaction(userId, id);

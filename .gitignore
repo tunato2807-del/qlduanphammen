@@ -17,3 +17,8 @@ __pycache__/
 # Commit reviewed agent skills, keep other agent session state local
 .agents/*
 !.agents/skills/
+
+.env.production
+backups/
+
+!.env.production.example

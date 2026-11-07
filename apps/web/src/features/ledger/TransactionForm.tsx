@@ -1,3 +1,4 @@
+import { useWrite } from "../../shared/useWrite";
 import { Check, LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import { Button, Field, Modal, Tip } from "../../components";
@@ -21,6 +22,7 @@ export function TransactionForm({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const write = useWrite();
   const [kind, setKind] = useState(transaction?.kind || "EXPENSE"),
     [loading, setLoading] = useState(false),
     [error, setError] = useState("");
@@ -30,9 +32,9 @@ export function TransactionForm({
     setLoading(true);
     setError("");
     try {
-      await api("/transactions" + (transaction ? "/" + transaction.id : ""), {
-        method: transaction ? "PATCH" : "POST",
-        body: JSON.stringify({
+      await write(
+        "/transactions" + (transaction ? "/" + transaction.id : ""),
+        {
           kind,
           amount: f.get("amount"),
           walletId: f.get("walletId"),
@@ -41,8 +43,9 @@ export function TransactionForm({
             : { categoryId: f.get("categoryId") }),
           occurredAt: f.get("date") + "T12:00:00+07:00",
           note: f.get("note"),
-        }),
-      });
+        },
+        transaction ? "PATCH" : "POST",
+      );
       onSaved();
     } catch (e) {
       setError((e as Error).message);
