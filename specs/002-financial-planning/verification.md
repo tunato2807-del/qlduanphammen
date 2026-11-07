@@ -50,3 +50,7 @@ HTTPS smoke dùng Caddy/API cùng namespace mạng với upstream loopback, CA t
 Mẫu systemd backup được cung cấp, shell script và lịch được kiểm tra; không được bật trên cloud. Không thể kiểm chứng khởi chạy unit Docker ở container này vì không có `docker.service` của systemd; cần kiểm tra sau khi cài trên host triển khai. Backup ngoài máy và retention vẫn là cấu hình của chủ vận hành, không giả vờ đã thiết lập.
 
 Axe không thay chứng nhận WCAG; UAT người dùng còn chờ theo hồ sơ quản lý. `pg` hiện có cảnh báo deprecation về query trong transaction từ adapter; không che cảnh báo, khóa phiên bản hiện có đã đạt tests. Không tuyên bố toàn bộ production được chứng nhận bảo mật/hiệu năng từ bộ kiểm tra này.
+
+## Đồng bộ GitHub
+
+Mã chức năng và bộ bàn giao ở commit `16b3146` đã được đẩy thành công lên `main` và `feature/finora-complete`, fast-forward từ `27e9f72`, không ghi đè lịch sử. Các cập nhật checklist bàn giao sau đó chỉ thay tài liệu. Các kết quả kiểm thử ở trên chạy trong môi trường cloud trước khi push; không coi đó là kết quả GitHub Actions chưa được quan sát.

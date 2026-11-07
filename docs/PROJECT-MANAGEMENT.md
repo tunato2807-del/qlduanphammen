@@ -38,7 +38,7 @@ gantt
   V2 và kiểm thử bàn giao :done, v2, 2026-10-29, 1d
   Spec Kit và constitution :done, spec, 2026-11-04, 1d
   section Mở rộng được yêu cầu
-  Nghiệp vụ, UI và kiểm chứng :active, ext, 2026-11-07, 1d
+  Nghiệp vụ, UI và kiểm chứng :done, ext, 2026-11-07, 1d
   section Lịch đề xuất
   Người dùng chạy kịch bản UAT :uat, 2026-11-08, 2d
   Hoàn thiện thông tin bìa và diễn tập bảo vệ :review, after uat, 1d

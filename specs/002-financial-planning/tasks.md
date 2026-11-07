@@ -44,6 +44,6 @@ Danh sách được tách theo US để truy vết từng luồng; không có ch
 ## Phase 10: Cross-cutting release
 
 - [x] T013 Toàn bộ check:fast/API/build/E2E/audit, accessibility và responsive; regression hover và race tải nháp; ghi verification (FR01–10, SC01–05).
-- [ ] T014 Rà soát spec→code, validate artifacts/links, commit/push feature và main khi remote an toàn (FR09).
+- [x] T014 Rà soát spec→code, validate artifacts/links, commit/push feature và main khi remote an toàn (FR09).
 
 Phụ thuộc: T001 → T002 → US1–6; UI E2E sau API từng luồng; T011 sau T008; T010/T012 trước T013/T014. Các bước môi trường độc lập có thể chạy song song bằng tool, không cần agent phụ. Không triển khai dịch vụ trả phí/public khi chưa có dịch vụ, không coi UAT người thật là đã hoàn thành.
