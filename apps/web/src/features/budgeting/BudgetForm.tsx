@@ -19,12 +19,14 @@ export function BudgetForm({
   month,
   categories,
   budget,
+  fromHistory = false,
   onClose,
   onSaved,
 }: {
   month: string;
   categories: Category[];
   budget: Budget | null;
+  fromHistory?: boolean;
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -89,6 +91,24 @@ export function BudgetForm({
       description={`${monthLabel(month)} · Một kế hoạch phù hợp với cuộc sống của bạn.`}
       onClose={onClose}
     >
+      {fromHistory && (
+        <Tip>
+          Bản nháp từ phiên bản {budget?.revision}. Xác nhận sẽ tạo một phiên
+          bản mới, không ghi đè lịch sử.
+          {budget?.items.some(
+            (i) =>
+              !categories.some((c) => c.id === i.categoryId && !c.archived),
+          )
+            ? " Danh mục đã lưu trữ được loại khỏi bản nháp; hãy kiểm tra lại hạn mức trước khi áp dụng."
+            : ""}
+        </Tip>
+      )}
+      <div className="form-stage">
+        <span className={!preview ? "active" : ""}>01 · Thiết lập</span>
+        <span className={preview ? "active" : ""}>
+          02 · Xem trước & xác nhận
+        </span>
+      </div>
       <Button
         secondary
         disabled={!!loading}

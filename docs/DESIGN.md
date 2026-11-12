@@ -116,3 +116,36 @@ Xem [ADR cấu trúc V2](decisions/001-finora-v2.md) và [bằng chứng bàn gi
 Phạm vi bổ sung do người dùng yêu cầu “thêm hết” các hạng mục đề xuất; đặc tả V2 trước đó là hồ sơ lịch sử. Xem [spec 002](../specs/002-financial-planning/spec.md) và [luồng activity/sequence, ERD mới](FINANCIAL-FLOWS.md) cho gợi ý/lịch sử ngân sách, định kỳ, mục tiêu, CSV, PDF và recovery. Schema hiện có 13 model, migration additive không sửa dữ liệu cũ.
 
 [Hồ sơ quản lý dự án](PROJECT-MANAGEMENT.md) bổ sung Gantt ngày thực và lịch UAT đề xuất, RACI theo vai trò, dự toán có giả định và risk register. [Ma trận truy vết](TRACEABILITY.md) nối FR với mã/test; [runbook](OPERATIONS.md) mô tả email, HTTPS và restore DB riêng. Chưa có dịch vụ công khai hoặc email production được cấu hình.
+
+## Kiến trúc và trải nghiệm ngày 12/11/2026
+
+[003](../specs/003-experience-renewal/spec.md), [004](../specs/004-planning-lifecycle/spec.md), [005](../specs/005-application-modules/spec.md) quản lý lần làm lại này. Không có thay đổi schema/migration hoặc microservice. Các phần V2 ở trên giữ ngữ cảnh lịch sử; giao diện hiện tại dùng canvas xám xanh, sidebar trắng, navy/mint/violet, chữ Be Vietnam Pro tự host.
+
+```mermaid
+flowchart TD
+  App[AppModule] --> Infra[InfrastructureModule global]
+  App --> Identity[IdentityModule]
+  App --> Ledger[LedgerModule]
+  App --> Budget[BudgetingModule]
+  App --> Planning[PlanningModule]
+  App --> Reporting[ReportingModule]
+  App --> Demo[DemoModule]
+  Ledger --> Identity
+  Budget --> Identity
+  Planning --> Identity
+  Planning --> Ledger
+  Reporting --> Identity
+  Reporting --> Ledger
+  Reporting --> Budget
+  Demo --> Identity
+  Demo --> Ledger
+  Demo --> Budget
+```
+
+**Mũi tên biểu diễn module nguồn import module đích**, khác sơ đồ capability map biểu diễn thứ tự cung cấp dữ liệu. Infrastructure global cung cấp Database/Idempotency cho toàn ứng dụng; Identity export Accounts/SessionGuard. Demo tách controller khỏi Identity để không tạo vòng Ledger → Identity → Demo → Ledger. Cookie đăng nhập dùng helper chung. main.ts giữ middleware/bootstrap; compatibility reexports giữ các tên controller phục vụ consumer cũ.
+
+Reports mở một transaction RepeatableRead, truyền transaction client xuống Wallets/Budgets/Transactions và thực hiện các lời gọi tuần tự. Các phép SUM/GROUP BY vẫn ở SQL; summary thêm planning/asOf. Kiểm thử cố ý commit một khoản chi sau query ví và trước query sổ, xác minh toàn response vẫn ở snapshot cũ; lần đọc sau thấy khoản chi mới. Việc nhất quán và đọc thêm kế hoạch làm tăng latency so bản 07/11; xem số đo và giới hạn ở [005 performance](../specs/005-application-modules/performance.json).
+
+Frontend App quản lý phiên/tháng/modal; từng trang lazy. Hook dữ liệu gắn owner+month và hủy request cũ, không đưa tháng trước vào nhãn tháng mới trong lúc tải. ErrorBoundary trang/root cho phép phục hồi lỗi render; lỗi mạng vẫn có retry. PlanningPage điều phối GoalCard, GoalForm, ContributionForm, RuleForm và RecurringPanel. Tab định kỳ được giữ qua URL `#planning?tab=recurring` khi đổi tháng/tải lại; không ghi dữ liệu tài chính vào localStorage. Bàn phím Ctrl/Cmd+K đưa focus vào tìm kiếm; giảm chuyển động vẫn theo người dùng/hệ điều hành.
+
+Rollback mã về commit `05d9f0a` không cần downgrade dữ liệu. Các route bổ sung là tương thích; thông tin goal/archive/endMonth dùng schema đã có. Backup/restore tiếp tục theo OPERATIONS, không reset database khi đổi bản.

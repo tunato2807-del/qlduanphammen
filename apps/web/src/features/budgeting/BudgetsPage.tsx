@@ -2,12 +2,14 @@ import BudgetHistory from "./BudgetHistory";
 import { Sparkles } from "lucide-react";
 import { Button, CategoryIcon, Empty, Progress, Tip } from "../../components";
 import { PageHeading } from "../../shared/PageHeading";
-import { money, type Summary } from "../../types";
+import { money, type Budget, type Summary } from "../../types";
 export default function BudgetsPage({
   summary,
   setModal,
+  onUseVersion,
 }: {
   summary: Summary;
+  onUseVersion: (budget: Budget) => void;
   setModal: (value: string) => void;
 }) {
   return (
@@ -149,6 +151,7 @@ export default function BudgetsPage({
       )}
       <BudgetHistory
         month={summary.month}
+        onUseVersion={onUseVersion}
         revision={summary.budget?.revision}
       />
     </>

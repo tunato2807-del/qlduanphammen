@@ -1,3 +1,4 @@
+import { isUUID } from "class-validator";
 import {
   BadRequestException,
   Inject,
@@ -104,6 +105,7 @@ export class Transactions {
     userId: string,
     query: Record<string, string>,
     all = false,
+    client?: Prisma.TransactionClient,
   ) {
     const month = validMonth(query.month);
     const page = Math.max(
@@ -119,30 +121,72 @@ export class Transactions {
         throw new BadRequestException("Loại giao dịch không hợp lệ.");
       where.kind = query.kind;
     }
-    if (query.walletId) where.walletId = query.walletId;
+    const filters: Prisma.TransactionWhereInput[] = [];
+    if (query.walletId) {
+      if (!isUUID(query.walletId))
+        throw new BadRequestException("Ví lọc không hợp lệ.");
+      await this.walletsService.ownedWallet(
+        userId,
+        query.walletId,
+        false,
+        client || this.db,
+      );
+      filters.push({
+        OR: [
+          { walletId: query.walletId },
+          { destinationWalletId: query.walletId },
+        ],
+      });
+    }
+    if (query.categoryId) {
+      if (!isUUID(query.categoryId))
+        throw new BadRequestException("Danh mục lọc không hợp lệ.");
+      if (
+        !(await (client || this.db).category.findFirst({
+          where: { id: query.categoryId, userId },
+        }))
+      )
+        throw new NotFoundException("Không tìm thấy danh mục.");
+      filters.push({ categoryId: query.categoryId });
+    }
     if (query.search)
-      where.OR = [
-        { note: { contains: query.search.slice(0, 100), mode: "insensitive" } },
-        {
-          category: {
-            name: { contains: query.search.slice(0, 100), mode: "insensitive" },
+      filters.push({
+        OR: [
+          {
+            note: { contains: query.search.slice(0, 100), mode: "insensitive" },
           },
-        },
-      ];
-    const [items, total] = await this.db.$transaction(
-      async (tx) => {
-        const items = await tx.transaction.findMany({
-          where,
-          include: { category: true, wallet: true, destinationWallet: true },
-          orderBy: [{ occurredAt: "desc" }, { createdAt: "desc" }],
-          take: all ? 10000 : 12,
-          skip: all ? 0 : (page - 1) * 12,
-        });
-        const total = await tx.transaction.count({ where });
-        return [items, total] as const;
-      },
-      { isolationLevel: "RepeatableRead" },
-    );
+          {
+            category: {
+              name: {
+                contains: query.search.slice(0, 100),
+                mode: "insensitive",
+              },
+            },
+          },
+        ],
+      });
+    where.AND = filters;
+    if (query.sort && !["asc", "desc"].includes(query.sort))
+      throw new BadRequestException("Thứ tự không hợp lệ.");
+    const direction = query.sort === "asc" ? "asc" : "desc";
+    const read = async (tx: Prisma.TransactionClient) => {
+      const items = await tx.transaction.findMany({
+        where,
+        include: { category: true, wallet: true, destinationWallet: true },
+        orderBy: [
+          { occurredAt: direction },
+          { createdAt: direction },
+          { id: direction },
+        ],
+        take: all ? 10000 : 12,
+        skip: all ? 0 : (page - 1) * 12,
+      });
+      const total = await tx.transaction.count({ where });
+      return [items, total] as const;
+    };
+    const [items, total] = client
+      ? await read(client)
+      : await this.db.$transaction(read, { isolationLevel: "RepeatableRead" });
     if (all && total > 10000)
       throw new BadRequestException(
         "Có hơn 10.000 giao dịch. Hãy lọc dữ liệu trước khi xuất CSV.",

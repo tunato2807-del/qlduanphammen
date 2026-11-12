@@ -163,13 +163,28 @@ export class Budgets {
       })),
     };
   }
-  async activeBudget(userId: string, month: string) {
-    const plan = await this.db.budgetPlan.findFirst({
+  activeBudget(
+    userId: string,
+    month: string,
+    client?: Prisma.TransactionClient,
+  ) {
+    return client
+      ? this.readActiveBudget(userId, month, client)
+      : this.db.$transaction((tx) => this.readActiveBudget(userId, month, tx), {
+          isolationLevel: "RepeatableRead",
+        });
+  }
+  private async readActiveBudget(
+    userId: string,
+    month: string,
+    client: Prisma.TransactionClient,
+  ) {
+    const plan = await client.budgetPlan.findFirst({
       where: { userId, month, active: true },
       include: { items: { include: { category: true } } },
     });
     if (!plan) return null;
-    const actual = await this.db.transaction.groupBy({
+    const actual = await client.transaction.groupBy({
       by: ["categoryId"],
       where: { userId, kind: "EXPENSE", occurredAt: monthRange(month) },
       _sum: { amount: true },

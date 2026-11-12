@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Bell, Menu, Search, X } from "lucide-react";
 import { CategoryIcon } from "../components";
 import { MotionToggle } from "../Experience";
@@ -26,6 +27,30 @@ export default function Topbar({
   setNotifications: (value: boolean) => void;
   alerts: import("../types").BudgetItem[];
 }) {
+  const popover = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const key = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        document.getElementById("global-search")?.focus();
+      }
+      if (event.key === "Escape") setNotifications(false);
+    };
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, [setNotifications]);
+  useEffect(() => {
+    if (!notifications) return;
+    const close = (event: PointerEvent) => {
+      if (
+        event.target instanceof Node &&
+        !popover.current?.contains(event.target)
+      )
+        setNotifications(false);
+    };
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, [notifications, setNotifications]);
   return (
     <header className="topbar">
       <div className="breadcrumb">
@@ -44,6 +69,7 @@ export default function Topbar({
         <label className="global-search">
           <Search size={17} />
           <input
+            id="global-search"
             aria-label="Tìm kiếm giao dịch"
             placeholder="Tìm một giao dịch…"
             value={search}
@@ -52,10 +78,10 @@ export default function Topbar({
               if (page !== "transactions") navigate("transactions");
             }}
           />
-          <kbd>⌕</kbd>
+          <kbd>Ctrl K</kbd>
         </label>
         <MotionToggle />
-        <div className="notification-wrap">
+        <div className="notification-wrap" ref={popover}>
           <button
             className="icon-button bell-button"
             aria-label="Thông báo ngân sách"
@@ -90,7 +116,7 @@ export default function Topbar({
                     <span>
                       {i.category.name}
                       <small>
-                        {Number(i.spent) > Number(i.limit)
+                        {BigInt(i.spent) > BigInt(i.limit)
                           ? "Đã vượt ngân sách"
                           : "Đã sử dụng từ 80% ngân sách"}
                       </small>

@@ -1,6 +1,6 @@
 # Phương án làm lại Finora
 
-**Đã triển khai V2 theo ủy quyền tiếp tục ngày 29/10/2026.** Xem [kết quả bàn giao](RELEASE.md) và [ảnh ứng dụng hiện tại](../images/dashboard.png). Phần dưới giữ hồ sơ phương án ban đầu.
+**Bản hiện tại: làm lại toàn bộ ngày 12/11/2026.** Xem [kết quả mới](RENEWAL-2026-11.md) và [ảnh Dashboard](../images/dashboard.png). [Bàn giao V2](RELEASE.md) và phần dưới giữ hồ sơ lịch sử.
 
 **Đề xuất để duyệt, chưa phải phiên bản mới đã triển khai.** Hướng đã được người dùng chọn: cân bằng giao diện Gen Z, nghiệp vụ và chất lượng đồ án.
 

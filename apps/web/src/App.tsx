@@ -1,3 +1,7 @@
+import { useFinanceData } from "./app/useFinanceData";
+import { useLedger } from "./features/ledger/useLedger";
+import { ErrorBoundary } from "./shared/ErrorBoundary";
+import { type Budget } from "./types";
 import { CalendarDays, ChevronDown, Leaf, LoaderCircle } from "lucide-react";
 import { motion } from "motion/react";
 import {
@@ -17,11 +21,13 @@ import { useExperience } from "./Experience";
 import { Button, Toast } from "./components";
 const PlanningPage = lazy(() => import("./features/planning/PlanningPage"));
 const Dashboard = lazy(() => import("./Dashboard"));
-import BudgetsPage from "./features/budgeting/BudgetsPage";
-import SettingsPage from "./features/identity/SettingsPage";
+const BudgetsPage = lazy(() => import("./features/budgeting/BudgetsPage"));
+const SettingsPage = lazy(() => import("./features/identity/SettingsPage"));
 import { useSession } from "./features/identity/useSession";
-import TransactionsPage from "./features/ledger/TransactionsPage";
-import WalletsPage from "./features/ledger/WalletsPage";
+const TransactionsPage = lazy(
+  () => import("./features/ledger/TransactionsPage"),
+);
+const WalletsPage = lazy(() => import("./features/ledger/WalletsPage"));
 const ReportsPage = lazy(() => import("./features/reporting/ReportsPage"));
 import {
   api,
@@ -34,6 +40,13 @@ import {
   type Wallet,
 } from "./types";
 
+function readPage() {
+  const id = location.hash.slice(1).split("?")[0];
+  return [...navigation.map((n) => n.id), "settings"].includes(id)
+    ? id
+    : "overview";
+}
+
 export default function App() {
   const { reduced } = useExperience();
   const [recoveryLink, setRecoveryLink] = useState(() =>
@@ -41,19 +54,14 @@ export default function App() {
   );
   const { user, setUser, initializing, sessionError, retrySession } =
     useSession();
-  const [page, setPage] = useState(() =>
-    [...navigation.map((n) => n.id), "settings"].includes(
-      location.hash.slice(1),
-    )
-      ? location.hash.slice(1)
-      : "overview",
-  );
+  const [page, setPage] = useState(readPage);
   const [month, setMonth] = useState(today().slice(0, 7)),
-    [summary, setSummary] = useState<Summary | null>(null),
-    [categories, setCategories] = useState<Category[]>([]),
-    [error, setError] = useState(""),
-    [loading, setLoading] = useState(false),
     [version, setVersion] = useState(0);
+  const { summary, setSummary, categories, setCategories, error, loading } =
+    useFinanceData(user?.id, month, version);
+  const ledger = useLedger(user?.id, page === "transactions", month, version);
+  const { search, setSearch, txs, setTxs } = ledger;
+  const [budgetSource, setBudgetSource] = useState<Budget | null>(null);
   const [modal, setModal] = useState(""),
     [edit, setEdit] = useState<Transaction | undefined>(),
     [deleting, setDeleting] = useState<Transaction | null>(null),
@@ -62,22 +70,18 @@ export default function App() {
     [mobile, setMobile] = useState(false),
     [notifications, setNotifications] = useState(false),
     [hidden, setHidden] = useState(false),
-    [toast, setToast] = useState(""),
-    [search, setSearch] = useState("");
-  const [txPage, setTxPage] = useState(1),
-    [kind, setKind] = useState(""),
-    [txs, setTxs] = useState<TransactionPage | null>(null),
-    [txLoading, setTxLoading] = useState(false),
-    [txError, setTxError] = useState(""),
-    [mutationLoading, setMutationLoading] = useState(false);
-  const request = useRef(0);
+    [toast, setToast] = useState("");
+  const [mutationLoading, setMutationLoading] = useState(false);
+  useEffect(() => {
+    if (modal !== "budget") setBudgetSource(null);
+  }, [modal]);
   useEffect(() => {
     const expired = () => {
-      request.current++;
       setUser(null);
       setTxs(null);
       setModal("");
       setEdit(undefined);
+      setBudgetSource(null);
       setDeleting(null);
       setWalletEdit(null);
       setCategoryEdit(null);
@@ -87,12 +91,7 @@ export default function App() {
     };
     const hash = () => {
       if (location.hash.startsWith("#reset-password?")) setRecoveryLink(true);
-      setPage(
-        navigation.some((n) => n.id === location.hash.slice(1)) ||
-          location.hash === "#settings"
-          ? location.hash.slice(1)
-          : "overview",
-      );
+      setPage(readPage());
     };
     window.addEventListener("session-expired", expired);
     window.addEventListener("hashchange", hash);
@@ -111,69 +110,11 @@ export default function App() {
     );
   };
   const refresh = () => setVersion((v) => v + 1);
-  useEffect(() => {
-    if (!user) return;
-    const id = ++request.current;
-    const controller = new AbortController();
-    setLoading(true);
-    setError("");
-    Promise.all([
-      api<Summary>("/reports/summary?month=" + month, {
-        signal: controller.signal,
-      }),
-      api<Category[]>("/categories", { signal: controller.signal }),
-    ])
-      .then(([s, c]) => {
-        if (!controller.signal.aborted && request.current === id) {
-          setSummary(s);
-          setCategories(c);
-        }
-      })
-      .catch((e) => {
-        if (!controller.signal.aborted && request.current === id)
-          setError(e.message);
-      })
-      .finally(() => {
-        if (!controller.signal.aborted && request.current === id)
-          setLoading(false);
-      });
-    return () => controller.abort();
-  }, [user, month, version]);
-  useEffect(() => {
-    setTxPage(1);
-  }, [month, search, kind]);
-  useEffect(() => {
-    if (!user || page !== "transactions") return;
-    const controller = new AbortController();
-    setTxLoading(true);
-    setTxError("");
-    const timer = setTimeout(() => {
-      api<TransactionPage>(
-        "/transactions?" +
-          new URLSearchParams({ month, page: String(txPage), kind, search }),
-        { signal: controller.signal },
-      )
-        .then((data) => {
-          if (controller.signal.aborted) return;
-          setTxs(data);
-          if (txPage > data.pages) setTxPage(data.pages);
-        })
-        .catch((e) => {
-          if (!controller.signal.aborted) setTxError(e.message);
-        })
-        .finally(() => {
-          if (!controller.signal.aborted) setTxLoading(false);
-        });
-    }, 180);
-    return () => {
-      clearTimeout(timer);
-      controller.abort();
-    };
-  }, [user, page, month, version, txPage, kind, search]);
   const closeToast = useCallback(() => setToast(""), []);
   const saved = (message: string) => {
     setModal("");
     setEdit(undefined);
+    setBudgetSource(null);
     refresh();
     setToast(message);
   };
@@ -191,8 +132,9 @@ export default function App() {
   const alerts =
     summary?.budget?.items.filter(
       (i) =>
-        Number(i.spent) > 0 &&
-        (Number(i.limit) === 0 || Number(i.spent) / Number(i.limit) >= 0.8),
+        BigInt(i.spent) > 0n &&
+        (BigInt(i.limit) === 0n ||
+          BigInt(i.spent) * 5n >= BigInt(i.limit) * 4n),
     ) || [];
   if (initializing)
     return (
@@ -270,7 +212,7 @@ export default function App() {
         <main className="content" id="main-content" tabIndex={-1}>
           <div className="content-toolbar">
             <span className="section-kicker">
-              <span className="live-dot" /> CHỦ ĐỘNG HÔM NAY, AN TÂM NGÀY MAI
+              <span className="live-dot" /> YOUR MONEY, YOUR WAY
             </span>
             <label className="month-picker">
               <CalendarDays size={16} />
@@ -309,88 +251,93 @@ export default function App() {
               </p>
             </div>
           ) : (
-            <Suspense
-              fallback={
-                <div
-                  className="page-skeleton"
-                  role="status"
-                  aria-label="Đang tải màn hình"
-                >
-                  <i />
-                  <i />
-                  <i />
-                </div>
-              }
-            >
-              <motion.div
-                key={page}
-                initial={reduced ? false : { opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: reduced ? 0 : 0.25 }}
-                className={loading ? "data-updating" : ""}
+            <ErrorBoundary key={page}>
+              <Suspense
+                fallback={
+                  <div
+                    className="page-skeleton"
+                    role="status"
+                    aria-label="Đang tải màn hình"
+                  >
+                    <i />
+                    <i />
+                    <i />
+                  </div>
+                }
               >
-                {page === "overview" && (
-                  <Dashboard
-                    summary={summary}
-                    userName={user.name}
-                    hidden={hidden}
-                    setHidden={setHidden}
-                    onAdd={addTransaction}
-                    onBudget={() => setModal("budget")}
-                    onPage={navigate}
-                    onEdit={editTransaction}
-                    onDelete={setDeleting}
-                  />
-                )}
-                {page === "transactions" && (
-                  <TransactionsPage
-                    summary={summary}
-                    month={month}
-                    kind={kind}
-                    setKind={setKind}
-                    search={search}
-                    setSearch={setSearch}
-                    txs={txs}
-                    txError={txError}
-                    txLoading={txLoading}
-                    txPage={txPage}
-                    setTxPage={setTxPage}
-                    addTransaction={addTransaction}
-                    editTransaction={editTransaction}
-                    setDeleting={setDeleting}
-                    refresh={refresh}
-                  />
-                )}
-                {page === "wallets" && (
-                  <WalletsPage
-                    summary={summary}
-                    setModal={setModal}
-                    setWalletEdit={setWalletEdit}
-                  />
-                )}
-                {page === "budgets" && (
-                  <BudgetsPage summary={summary} setModal={setModal} />
-                )}
-                {page === "planning" && (
-                  <PlanningPage
-                    summary={summary}
-                    categories={categories}
-                    onChanged={refresh}
-                  />
-                )}
-                {page === "reports" && (
-                  <ReportsPage summary={summary} month={month} />
-                )}
-                {page === "settings" && (
-                  <SettingsPage
-                    user={user}
-                    categories={categories}
-                    setModal={setModal}
-                    setCategoryEdit={setCategoryEdit}
-                  />
-                )}
-              </motion.div>
-            </Suspense>
+                <motion.div
+                  key={page}
+                  initial={reduced ? false : { opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: reduced ? 0 : 0.25 }}
+                  className={loading ? "data-updating" : ""}
+                >
+                  {page === "overview" && (
+                    <Dashboard
+                      summary={summary}
+                      userName={user.name}
+                      hidden={hidden}
+                      setHidden={setHidden}
+                      onAdd={addTransaction}
+                      onBudget={() => setModal("budget")}
+                      onPage={navigate}
+                      onEdit={editTransaction}
+                      onDelete={setDeleting}
+                    />
+                  )}
+                  {page === "transactions" && (
+                    <TransactionsPage
+                      summary={summary}
+                      categories={categories}
+                      ledger={ledger}
+                      addTransaction={addTransaction}
+                      editTransaction={editTransaction}
+                      setDeleting={setDeleting}
+                      refresh={refresh}
+                    />
+                  )}
+                  {page === "wallets" && (
+                    <WalletsPage
+                      summary={summary}
+                      setModal={setModal}
+                      setWalletEdit={setWalletEdit}
+                    />
+                  )}
+                  {page === "budgets" && (
+                    <BudgetsPage
+                      summary={summary}
+                      setModal={(id) => {
+                        setBudgetSource(null);
+                        setModal(id);
+                      }}
+                      onUseVersion={(budget) => {
+                        setBudgetSource(budget);
+                        setModal("budget");
+                      }}
+                    />
+                  )}
+                  {page === "planning" && (
+                    <PlanningPage
+                      summary={summary}
+                      categories={categories}
+                      onChanged={refresh}
+                    />
+                  )}
+                  {page === "reports" && (
+                    <ReportsPage summary={summary} month={month} />
+                  )}
+                  {page === "settings" && (
+                    <SettingsPage
+                      user={user}
+                      onProfileSaved={setUser}
+                      categories={categories}
+                      setModal={setModal}
+                      setCategoryEdit={setCategoryEdit}
+                    />
+                  )}
+                </motion.div>
+              </Suspense>
+            </ErrorBoundary>
           )}
           <footer className="main-footer">
             <span>
@@ -398,7 +345,7 @@ export default function App() {
               Từng bước đến tự do tài chính.
             </span>
             <span>
-              Được tạo nên để bạn an tâm <span className="footer-spark">✦</span>
+              VND · Giờ Việt Nam <span className="footer-spark">✦</span>
             </span>
           </footer>
         </main>
@@ -407,6 +354,7 @@ export default function App() {
         toast={toast}
         closeToast={closeToast}
         modal={modal}
+        budgetSource={budgetSource}
         summary={summary}
         categories={categories}
         edit={edit}

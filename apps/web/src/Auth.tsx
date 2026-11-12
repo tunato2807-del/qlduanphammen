@@ -85,71 +85,72 @@ export default function Auth({ onLogin }: { onLogin: (user: User) => void }) {
         <Brand />
         <div className="auth-copy">
           <span className="pill">
-            <span className="live-dot" /> MỘT KHỞI ĐẦU NHẸ NHÀNG HƠN
+            <span className="live-dot" />
+            MỘT KHỞI ĐẦU CHO TƯƠNG LAI
           </span>
           <h1>
-            Tiền của bạn.
+            Sống hết mình.
             <br />
-            Cuộc sống <span>của bạn.</span>
+            <span>Tiền vẫn trong tầm tay.</span>
           </h1>
           <p>
-            Hiểu dòng tiền hôm nay.
+            Từ ly cà phê hôm nay đến chuyến đi bạn mơ ước.
             <br />
-            Tự tin với những kế hoạch ngày mai.
+            Cùng Finora dành chỗ cho những điều quan trọng.
           </p>
           <motion.div
             className="auth-preview"
-            initial={reduced ? false : { opacity: 0, y: 30, rotate: -3 }}
-            animate={{ opacity: 1, y: 0, rotate: -3 }}
-            transition={{ duration: reduced ? 0 : 0.8 }}
+            initial={reduced ? false : { opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduced ? 0 : 0.6 }}
           >
             <div className="preview-label">
-              <span>TỔNG TÀI SẢN</span>
-              <Leaf size={20} />
+              <span>MỘT THÁNG CÓ KẾ HOẠCH</span>
+              <Sparkles size={20} />
             </div>
             <strong>
-              38.555.000 <small>₫</small>
+              15.000.000 <small>₫</small>
             </strong>
-            <span className="preview-growth">
-              <TrendingUp size={15} /> Mỗi bước nhỏ, một tương lai lớn
-            </span>
-            <div className="mini-bars">
-              {[35, 50, 44, 66, 56, 78, 72, 92, 86, 100, 94, 115].map(
-                (h, i) => (
-                  <motion.i
-                    key={i}
-                    initial={reduced ? false : { height: 0 }}
-                    animate={{ height: h }}
-                    transition={{
-                      duration: reduced ? 0 : 0.3,
-                      delay: reduced ? 0 : 0.3 + i * 0.045,
-                    }}
-                  />
-                ),
-              )}
+            <span className="preview-growth">Thu nhập dự kiến · Minh họa</span>
+            <div className="auth-allocation">
+              <i />
+              <i />
+              <i />
             </div>
             <div className="preview-bottom">
               <span>
-                THU NHẬP <b>26,5 triệu</b>
+                CHI THIẾT YẾU<b>9 triệu</b>
               </span>
               <span>
-                TIẾT KIỆM DỰ KIẾN <b>8 triệu</b>
+                CHO BẢN THÂN<b>3 triệu</b>
               </span>
+              <span>
+                DỰ TRÙ TIẾT KIỆM<b>3 triệu</b>
+              </span>
+            </div>
+            <div className="auth-card-foot">
+              <Check size={16} /> Mỗi đồng tiền có một mục đích.
             </div>
           </motion.div>
           <div className="auth-float">
             <span>
-              <Check size={16} />
+              <Leaf size={19} />
             </span>
             <div>
-              Ngân sách đã sẵn sàng<small>Được thiết kế riêng cho bạn</small>
+              Từng bước nhỏ<small>Cho một tương lai rộng mở</small>
             </div>
-            <Sparkles size={20} />
+            <ArrowUpRight size={20} />
           </div>
         </div>
         <div className="auth-foot">
-          <ShieldCheck size={16} /> Dữ liệu riêng tư. Quyền kiểm soát thuộc về
-          bạn.
+          <span>
+            <ShieldCheck size={17} />
+            Dữ liệu riêng theo tài khoản
+          </span>
+          <span>
+            <Sparkles size={17} />
+            Có thể giảm chuyển động
+          </span>
         </div>
       </div>
       <main className="auth-form-panel">

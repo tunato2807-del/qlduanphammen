@@ -1,3 +1,5 @@
+import { GoalPatchDto } from "./dto";
+import { monthOffset } from "./budget";
 import {
   BadRequestException,
   Inject,
@@ -37,6 +39,78 @@ export class Planning {
       return tx.recurringRule.create({
         data: { ...dto, userId, amount: BigInt(dto.amount) },
       });
+    });
+  }
+
+  async replaceRule(
+    userId: string,
+    id: string,
+    dto: RecurringDto,
+    key?: string,
+  ) {
+    if (dto.startMonth < monthOffset(currentMonth(), 1))
+      throw new BadRequestException(
+        "Thay đổi phải có hiệu lực từ tháng sau trở đi.",
+      );
+    if (dto.endMonth && dto.endMonth < dto.startMonth)
+      throw new BadRequestException("Tháng kết thúc phải từ tháng bắt đầu.");
+    return this.requests.run(
+      userId,
+      key,
+      "recurring.replace",
+      { id, ...dto },
+      async (tx) => {
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${"rule" + id}))`;
+        const rule = await tx.recurringRule.findFirst({
+          where: { id, userId },
+        });
+        if (!rule) throw new NotFoundException("Không tìm thấy quy tắc.");
+        if (dto.startMonth <= rule.startMonth)
+          throw new BadRequestException(
+            "Tháng hiệu lực mới phải sau tháng bắt đầu của quy tắc cũ. Quy tắc chưa bắt đầu có thể tạm dừng và tạo mới.",
+          );
+        if (rule.endMonth && rule.endMonth < dto.startMonth)
+          throw new ConflictException(
+            "Quy tắc đã kết thúc hoặc đã được thay thế. Hãy tải lại danh sách.",
+          );
+        if (!rule.active)
+          throw new BadRequestException(
+            "Bật lại quy tắc trước khi thiết lập thay đổi.",
+          );
+        await this.ledger.transactionData(
+          userId,
+          {
+            kind: dto.kind,
+            amount: dto.amount,
+            walletId: dto.walletId,
+            categoryId: dto.categoryId,
+            note: dto.note,
+            occurredAt: dueDate(dto.startMonth, dto.day).toISOString(),
+          },
+          tx,
+        );
+        const previous = await tx.recurringRule.update({
+          where: { id },
+          data: { endMonth: monthOffset(dto.startMonth, -1) },
+        });
+        const replacement = await tx.recurringRule.create({
+          data: { ...dto, userId, amount: BigInt(dto.amount) },
+        });
+        return { previous, replacement };
+      },
+    );
+  }
+  async updateGoal(userId: string, id: string, dto: GoalPatchDto) {
+    const goal = await this.db.savingsGoal.findFirst({ where: { id, userId } });
+    if (!goal) throw new NotFoundException("Không tìm thấy mục tiêu.");
+    return this.db.savingsGoal.update({
+      where: { id },
+      data: {
+        name: dto.name,
+        archived: dto.archived,
+        target: dto.target ? BigInt(dto.target) : undefined,
+        targetDate: dto.targetDate ? new Date(dto.targetDate) : undefined,
+      },
     });
   }
 
@@ -182,19 +256,21 @@ export class Planning {
       { id, ...dto },
       async (tx) => {
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${"reserve" + userId}))`;
-        const [goal, wallet] = await Promise.all([
-          tx.savingsGoal.findFirst({ where: { id, userId, archived: false } }),
-          tx.wallet.findFirst({
-            where: {
-              id: dto.walletId,
-              userId,
-              ...(dto.action === "ADD" ? { archived: false } : {}),
-            },
-          }),
-        ]);
+        const goal = await tx.savingsGoal.findFirst({ where: { id, userId } });
+        const wallet = await tx.wallet.findFirst({
+          where: {
+            id: dto.walletId,
+            userId,
+            ...(dto.action === "ADD" ? { archived: false } : {}),
+          },
+        });
         if (!goal || !wallet)
           throw new NotFoundException(
             "Không tìm thấy mục tiêu hoặc ví phù hợp.",
+          );
+        if (goal.archived && dto.action === "ADD")
+          throw new BadRequestException(
+            "Mục tiêu đã lưu trữ. Khôi phục trước khi dành thêm tiền.",
           );
         const amount = BigInt(dto.amount);
         const allocations = await tx.goalContribution.aggregate({
@@ -209,25 +285,19 @@ export class Planning {
             "Không thể rút vượt phần đã dành trong ví này.",
           );
         if (dto.action === "ADD") {
-          const [out, inc, reserved] = await Promise.all([
-            tx.transaction.groupBy({
-              by: ["kind"],
-              where: { userId, walletId: wallet.id },
-              _sum: { amount: true },
-            }),
-            tx.transaction.aggregate({
-              where: {
-                userId,
-                destinationWalletId: wallet.id,
-                kind: "TRANSFER",
-              },
-              _sum: { amount: true },
-            }),
-            tx.goalContribution.aggregate({
-              where: { walletId: wallet.id, goal: { userId } },
-              _sum: { amount: true },
-            }),
-          ]);
+          const out = await tx.transaction.groupBy({
+            by: ["kind"],
+            where: { userId, walletId: wallet.id },
+            _sum: { amount: true },
+          });
+          const inc = await tx.transaction.aggregate({
+            where: { userId, destinationWalletId: wallet.id, kind: "TRANSFER" },
+            _sum: { amount: true },
+          });
+          const reserved = await tx.goalContribution.aggregate({
+            where: { walletId: wallet.id, goal: { userId } },
+            _sum: { amount: true },
+          });
           const balance =
             out.reduce(
               (s, t) =>

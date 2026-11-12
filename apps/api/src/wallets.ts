@@ -9,23 +9,28 @@ export class Wallets {
     @Inject(Database) public db: Database,
     @Inject(Idempotency) private requests: Idempotency,
   ) {}
-  async wallets(userId: string) {
-    const [wallets, outgoing, incoming] = await Promise.all([
-      this.db.wallet.findMany({
-        where: { userId },
-        orderBy: { createdAt: "asc" },
-      }),
-      this.db.transaction.groupBy({
-        by: ["walletId", "kind"],
-        where: { userId },
-        _sum: { amount: true },
-      }),
-      this.db.transaction.groupBy({
-        by: ["destinationWalletId"],
-        where: { userId, kind: "TRANSFER" },
-        _sum: { amount: true },
-      }),
-    ]);
+  wallets(userId: string, client?: Prisma.TransactionClient) {
+    return client
+      ? this.readWallets(userId, client)
+      : this.db.$transaction((tx) => this.readWallets(userId, tx), {
+          isolationLevel: "RepeatableRead",
+        });
+  }
+  private async readWallets(userId: string, client: Prisma.TransactionClient) {
+    const wallets = await client.wallet.findMany({
+      where: { userId },
+      orderBy: { createdAt: "asc" },
+    });
+    const outgoing = await client.transaction.groupBy({
+      by: ["walletId", "kind"],
+      where: { userId },
+      _sum: { amount: true },
+    });
+    const incoming = await client.transaction.groupBy({
+      by: ["destinationWalletId"],
+      where: { userId, kind: "TRANSFER" },
+      _sum: { amount: true },
+    });
     return wallets.map((w) => ({
       ...w,
       balance:

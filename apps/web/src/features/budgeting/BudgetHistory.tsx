@@ -4,8 +4,10 @@ import { api, money, type Budget } from "../../types";
 export default function BudgetHistory({
   month,
   revision,
+  onUseVersion,
 }: {
   month: string;
+  onUseVersion: (budget: Budget) => void;
   revision?: number;
 }) {
   const [result, setResult] = useState<{
@@ -59,6 +61,9 @@ export default function BudgetHistory({
                 {p.active ? "Đang áp dụng" : "Đã thay thế"} ·{" "}
                 {new Date(p.createdAt).toLocaleString("vi-VN")}
               </summary>
+              <Button secondary onClick={() => onUseVersion(p)}>
+                Dùng phiên bản {p.revision} làm bản nháp
+              </Button>
               <p>
                 Thu dự kiến {money(p.income)} · Tiết kiệm dự kiến{" "}
                 {money(p.savings)}

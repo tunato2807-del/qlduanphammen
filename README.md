@@ -4,9 +4,9 @@
 
 **Frontend:** React 19, TypeScript, Vite, CSS theo token, Motion, Recharts. **Backend:** NestJS 11, TypeScript. **Database:** PostgreSQL 17, Prisma 6.19 với bộ máy JavaScript và driver PostgreSQL.
 
-Bản mở rộng ngày 07/11/2026 thêm lập kế hoạch, CSV nhập, PDF và chuẩn bị vận hành. [Đặc tả và bằng chứng](specs/002-financial-planning/spec.md) · [Hồ sơ quản lý đồ án](docs/PROJECT-MANAGEMENT.md).
+Bản làm lại ngày **12/11/2026** đổi toàn bộ hệ thiết kế, hoàn thiện vòng đời kế hoạch và tổ chức NestJS thành các module. Giữ nguyên dữ liệu và migration. [Kết quả và giới hạn kiểm chứng](docs/rebuild/RENEWAL-2026-11.md) · [Hồ sơ quản lý đồ án](docs/PROJECT-MANAGEMENT.md).
 
-Bản làm lại Finora V2 giữ nghiệp vụ và dữ liệu, tổ chức frontend theo tính năng và backend theo provider. [Kết quả bàn giao V2](docs/rebuild/RELEASE.md).
+Các mốc trước được giữ để đối chiếu: [Finora V2](docs/rebuild/RELEASE.md), [mở rộng 07/11](specs/002-financial-planning/verification.md).
 
 ## Xem trước giao diện
 
@@ -18,20 +18,20 @@ Bản làm lại Finora V2 giữ nghiệp vụ và dữ liệu, tổ chức fron
 
 ## Chức năng đã có
 
-- Đăng ký, đăng nhập, đăng xuất, đổi mật khẩu và thu hồi các phiên đăng nhập khác.
+- Đăng ký, đăng nhập, đăng xuất, đổi mật khẩu, tên hiển thị và thu hồi các phiên đăng nhập khác.
 - Tạo, đổi tên và lưu trữ ví; số dư được tính từ sổ giao dịch.
 - Tạo, đổi tên, lưu trữ danh mục thu/chi; giữ nguyên dữ liệu lịch sử.
-- Thêm, sửa, xóa giao dịch thu, chi, chuyển ví; tìm kiếm, lọc, phân trang.
+- Thêm, sửa, xóa giao dịch thu, chi, chuyển ví; lọc tháng/loại/ví/danh mục, kết hợp tìm kiếm và thứ tự ngày. Bộ lọc ví bao gồm chuyển đến; CSV cùng điều kiện.
 - Ngân sách tháng tự động theo chi bắt buộc, trọng số và tiết kiệm dự kiến; hoặc nhập hạn mức thủ công.
-- Xem trước, xác nhận ngân sách; gợi ý từ ba tháng đã kết thúc, lịch sử phiên bản và đối chiếu hạn mức với chi thực tế.
-- Quy tắc thu/chi hằng tháng: nháp đến hạn, xác nhận ghi sổ hoặc bỏ qua, tạm dừng/bật lại; xử lý ngày cuối tháng.
-- Mục tiêu tiết kiệm có hạn hoàn thành, phân bổ tiền từ ví, rút phân bổ và lịch sử; không cộng dự trù vào tiền thực tế.
+- Xem trước, xác nhận ngân sách; gợi ý ba tháng, lịch sử và đối chiếu thực tế. Dùng phiên bản cũ làm bản nháp rồi xem trước, tạo revision mới khi xác nhận.
+- Quy tắc thu/chi hằng tháng: nháp, xác nhận/bỏ qua, tạm dừng/bật lại và ngày cuối tháng. Đổi quy tắc từ tháng tương lai trong một transaction; giữ nguyên nội dung nháp cũ.
+- Mục tiêu có hạn, sửa thông tin, lưu trữ/khôi phục, phân bổ/rút tiền và lịch sử. Lưu trữ vẫn giữ phần tiền đã dành và cho phép rút; không tạo tiền hoặc cộng dự trù vào thực tế.
 - Nhập CSV tối đa 50 KB/200 dòng: preview, lỗi từng dòng, bỏ trùng và xác nhận nguyên tử.
 - Báo cáo so tháng trước bằng số tiền và tải PDF tiếng Việt. [PDF/CSV mẫu chỉ dùng dữ liệu demo](docs/examples/README.md).
 - Khôi phục mật khẩu qua SMTP cấu hình được; token một lần/30 phút và thu hồi phiên. [Cách thử bằng Mailpit và vận hành](docs/OPERATIONS.md).
 - Chống ghi trùng cho thao tác tạo ví/giao dịch/ngân sách/kế hoạch qua Idempotency-Key và khóa transaction.
 - Dashboard, biểu đồ dòng tiền sáu tháng, báo cáo theo danh mục, cảnh báo từ 80% hạn mức và xuất CSV.
-- Giao diện Finora V2 dùng nền ấm, sidebar tối, điểm nhấn lavender/lime; dashboard ưu tiên số dư và ngân sách còn lại. Bố cục responsive, nút nảy và minh họa chuyển động; có skip link và menu mobile hỗ trợ bàn phím.
+- Giao diện mới dùng canvas xám xanh, sidebar trắng, thẻ tài sản navy, mint và violet. Dashboard gợi ý bước tiếp theo từ dữ liệu thật. Motion, minh họa nổi, responsive, skip link và menu bàn phím.
 - Lỗi mạng/máy chủ khi khởi tạo phiên có thông báo và nút thử lại; phân biệt với chưa đăng nhập.
 - API có `X-Request-Id`, mã lỗi và log metadata an toàn; không log body/cookie/số tiền.
 - Nút ✨ trên màn hình đăng nhập và thanh công cụ giúp giảm chuyển động; lựa chọn được lưu trên thiết bị. Tôn trọng cài đặt giảm chuyển động của hệ điều hành, bao gồm biểu đồ.
@@ -87,7 +87,7 @@ CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e
 
 Playwright tự khởi động ứng dụng nếu chưa chạy. Các luồng kiểm thử bao gồm tài khoản demo, CRUD giao dịch, áp dụng ngân sách, tải CSV, giao diện điện thoại, đăng ký mới, tạo ví, ngân sách thủ công đổi tên danh mục và lưu tùy chọn giảm chuyển động. Kiểm tra bổ sung dùng axe-core cho đăng nhập/đăng ký, các trang chính và dialog giao dịch/ngân sách/mật khẩu; kiểm tra 320/390/768/1024/1440px, focus menu và lỗi khởi tạo phiên. Đây là kiểm tra tự động trong phạm vi cụ thể, không phải chứng nhận WCAG toàn diện. Các tài khoản do E2E tạo được giữ lại trong database phát triển.
 
-Bộ mở rộng có thêm kiểm thử mục tiêu, định kỳ, CSV nhập, PDF, recovery, giữ mã gửi lại qua 503/429 và hiển thị BigInt vượt giới hạn Number. Kết quả cuối ngày 07/11: 34 API/nghiệp vụ và 12 browser test đạt; xem [bằng chứng](specs/002-financial-planning/verification.md).
+Ngày 12/11: **40 API/nghiệp vụ và 18 browser test** đạt. Có regression các tính năng cũ, lifecycle, thay định kỳ đồng thời, snapshot báo cáo khi có ghi đồng thời, phục hồi lỗi trang, đổi tháng, bộ lọc/CSV, axe và responsive. [Bằng chứng kỹ thuật](specs/005-application-modules/verification.md) · [UI](specs/003-experience-renewal/verification.md) · [nghiệp vụ](specs/004-planning-lifecycle/verification.md).
 
 Workflow `.github/workflows/ci.yml` chạy typecheck, format, API test, build, audit và browser test. CI dùng PostgreSQL tạm trên runner, không cần thông tin production. Chưa tự cấu hình branch protection.
 
@@ -147,7 +147,9 @@ NODE_ENV=production PORT=3001 npm start
 - `apps/web/src/features`: trang, form và hook của từng nghiệp vụ.
 - `apps/web/src/shared`: HTTP client, kiểu, định dạng và biểu đồ.
 - `apps/web/src/styles.css`: một hệ thiết kế dùng token; không còn lớp CSS override Studio.
-- `apps/api/src/{wallets,transactions,budgets,reports}.ts`: provider nghiệp vụ cùng ứng dụng NestJS.
+- `apps/api/src/{identity,ledger,budgeting,planning,reporting,demo}`: controllers và Nest modules, nối tại `AppModule`; `infrastructure` cung cấp database/idempotency.
+- Các provider nghiệp vụ ở `apps/api/src/{auth,wallets,transactions,budgets,planning,reports}.ts`; một ứng dụng NestJS, không microservice.
+- `useFinanceData`, `useLedger`, `usePlanning`: dữ liệu theo tài khoản/tháng, hủy request cũ; ErrorBoundary cho trang và root; mọi feature page tải động.
 - `apps/api/src/http.ts`: request ID và lỗi an toàn.
 
 ## Spec Kit cho quá trình phát triển

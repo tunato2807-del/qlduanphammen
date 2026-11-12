@@ -1,3 +1,4 @@
+import { dueDate } from "./planning-rules";
 import { Inject, Injectable } from "@nestjs/common";
 import { Database } from "./database";
 import { monthOffset, monthRange } from "./budget";
@@ -15,64 +16,115 @@ export class Reports {
     @Inject(Budgets) private budgetsService: Budgets,
   ) {}
   async summary(userId: string, month: string) {
-    const range = monthRange(month);
-    const [wallets, totals, spending, plan, recent] = await Promise.all([
-      this.walletsService.wallets(userId),
-      this.db.$queryRaw<
-        { month: string; income: bigint; expense: bigint; count: number }[]
-      >`
+    return this.db.$transaction(
+      async (tx) => {
+        const range = monthRange(month);
+        const wallets = await this.walletsService.wallets(userId, tx);
+        const totals = await tx.$queryRaw<
+          { month: string; income: bigint; expense: bigint; count: number }[]
+        >`
         SELECT to_char("occurredAt" AT TIME ZONE 'Asia/Ho_Chi_Minh','YYYY-MM') AS month,
         COALESCE(SUM("amount") FILTER (WHERE "kind"='INCOME'),0)::bigint AS income,
         COALESCE(SUM("amount") FILTER (WHERE "kind"='EXPENSE'),0)::bigint AS expense,
-        COUNT(*)::integer AS count
-        FROM "Transaction" WHERE "userId"=${userId}::uuid AND "occurredAt">=${monthRange(monthOffset(month, -5)).gte} AND "occurredAt"<${range.lt}
-        GROUP BY 1`,
-      this.db.$queryRaw<
-        {
-          id: string;
-          name: string;
-          icon: string;
-          color: string;
-          amount: bigint;
-        }[]
-      >`
+        COUNT(*)::integer AS count FROM "Transaction"
+        WHERE "userId"=${userId}::uuid AND "occurredAt">=${monthRange(monthOffset(month, -5)).gte} AND "occurredAt"<${range.lt} GROUP BY 1`;
+        const spending = await tx.$queryRaw<
+          {
+            id: string;
+            name: string;
+            icon: string;
+            color: string;
+            amount: bigint;
+          }[]
+        >`
         SELECT c.id,c.name,c.icon,c.color,SUM(t.amount)::bigint AS amount
         FROM "Transaction" t JOIN "Category" c ON c.id=t."categoryId"
         WHERE t."userId"=${userId}::uuid AND t.kind='EXPENSE' AND t."occurredAt">=${range.gte} AND t."occurredAt"<${range.lt}
-        GROUP BY c.id ORDER BY amount DESC`,
-      this.budgetsService.activeBudget(userId, month),
-      this.transactionsService.transactions(userId, { month }),
-    ]);
-    const history = Array.from({ length: 6 }, (_, i) => {
-      const m = monthOffset(month, i - 5),
-        t = totals.find((t) => t.month === m);
-      return { month: m, income: t?.income || 0n, expense: t?.expense || 0n };
-    });
-    const current = history[5],
-      previous = history[4];
-    return {
-      month,
-      balance: wallets.reduce((s, w) => s + w.balance, 0n),
-      income: current.income,
-      expense: current.expense,
-      net: current.income - current.expense,
-      wallets,
-      history,
-      spending,
-      budget: plan,
-      recent: recent.items.slice(0, 5),
-      transactionCount: totals.find((t) => t.month === month)?.count || 0,
-      comparison: {
-        month: previous.month,
-        income: previous.income,
-        expense: previous.expense,
-        net: previous.income - previous.expense,
-        incomeDelta: current.income - previous.income,
-        expenseDelta: current.expense - previous.expense,
-        netDelta:
-          current.income - current.expense - previous.income + previous.expense,
+        GROUP BY c.id ORDER BY amount DESC`;
+        const plan = await this.budgetsService.activeBudget(userId, month, tx);
+        const recent = await this.transactionsService.transactions(
+          userId,
+          { month },
+          false,
+          tx,
+        );
+        const goalCount = await tx.savingsGoal.count({
+          where: { userId, archived: false },
+        });
+        const saved = await tx.goalContribution.aggregate({
+          where: { goal: { userId } },
+          _sum: { amount: true },
+        });
+        const rules = await tx.recurringRule.findMany({
+          where: {
+            userId,
+            active: true,
+            startMonth: { lte: month },
+            OR: [{ endMonth: null }, { endMonth: { gte: month } }],
+          },
+          include: {
+            drafts: { where: { month } },
+            wallet: { select: { name: true } },
+          },
+        });
+        const due = rules.filter(
+          (r) =>
+            dueDate(month, r.day) <= new Date() &&
+            (!r.drafts[0] || r.drafts[0].state === "PENDING"),
+        );
+        const history = Array.from({ length: 6 }, (_, i) => {
+          const m = monthOffset(month, i - 5),
+            t = totals.find((t) => t.month === m);
+          return {
+            month: m,
+            income: t?.income || 0n,
+            expense: t?.expense || 0n,
+          };
+        });
+        const current = history[5],
+          previous = history[4];
+        return {
+          month,
+          asOf: new Date(),
+          balance: wallets.reduce((s, w) => s + w.balance, 0n),
+          income: current.income,
+          expense: current.expense,
+          net: current.income - current.expense,
+          wallets,
+          history,
+          spending,
+          budget: plan,
+          recent: recent.items.slice(0, 5),
+          transactionCount: totals.find((t) => t.month === month)?.count || 0,
+          planning: {
+            goalCount,
+            saved: saved._sum.amount || 0n,
+            dueCount: due.length,
+            due: due.slice(0, 3).map((r) => ({
+              id: r.id,
+              name: r.name,
+              amount: r.amount,
+              dueAt: dueDate(month, r.day),
+              wallet: r.wallet.name,
+            })),
+          },
+          comparison: {
+            month: previous.month,
+            income: previous.income,
+            expense: previous.expense,
+            net: previous.income - previous.expense,
+            incomeDelta: current.income - previous.income,
+            expenseDelta: current.expense - previous.expense,
+            netDelta:
+              current.income -
+              current.expense -
+              previous.income +
+              previous.expense,
+          },
+        };
       },
-    };
+      { isolationLevel: "RepeatableRead", timeout: 15000 },
+    );
   }
   async pdf(userId: string, month: string): Promise<Buffer> {
     const s = await this.summary(userId, month);

@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-12T02:11:28.075586+00:00",
+  "baselineCommit": "05d9f0a",
+  "gates": {
+    "typecheck": "passed",
+    "format": "passed",
+    "api": {
+      "passed": 40,
+      "failed": 0,
+      "skipped": 0
+    },
+    "browser": {
+      "passed": 18,
+      "failed": 0,
+      "skipped": 0
+    },
+    "audit": {
+      "vulnerabilities": 0
+    },
+    "build": "passed",
+    "schemaMigrationDiff": false,
+    "presentation": {
+      "editableSlides": 15,
+      "pdfPages": 15,
+      "speakerNotes": 15
+    }
+  },
+  "browserScope": "Chromium; legacy + renewal flows, axe serious/critical, 320/390/768/1024/1440, keyboard, reduced motion. Not a WCAG certificate.",
+  "productionSmoke": "production-smoke.json",
+  "performance": "performance.json",
+  "bundle": "bundle.json",
+  "limits": [
+    "No public deployment or real SMTP service",
+    "Owner UAT pending",
+    "Local gates are not a GitHub Actions result",
+    "Upstream pg/Prisma deprecation warning retained; see verification.md"
+  ]
+}

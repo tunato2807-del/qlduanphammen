@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-12T01:52:50.576Z",
+  "node": "v24.19.0",
+  "baselineCommit": "05d9f0a",
+  "rows": 10000,
+  "months": 6,
+  "protocol": "Provider summary; 3 warmups, 20 sequential alternating samples. Exact totals/history checked. Synthetic account deleted in finally.",
+  "baseline": {
+    "medianMs": 19.03,
+    "p95Ms": 22.84,
+    "samples": 20
+  },
+  "current": {
+    "medianMs": 41.44,
+    "p95Ms": 51.14,
+    "samples": 20
+  },
+  "queryStrategy": "Both revisions aggregate in SQL. Current revision also reads one RepeatableRead snapshot and includes planning counts.",
+  "limits": "Single local PostgreSQL environment; not a load test, concurrency test or production SLA."
+}

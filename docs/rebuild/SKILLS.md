@@ -82,3 +82,7 @@ Không chạy script/hook cài tự động từ repository nguồn. Không thê
 ## Cập nhật triển khai ngày 29/10/2026
 
 Người dùng đã giao tiếp tục sau khi xem phương án. Đã lập sáu SPEC, kế hoạch và thực hiện các lát cắt có kiểm chứng. TDD áp dụng cho lỗi phiên và request ID/mã lỗi (đã quan sát test fail trước sửa); browser runtime dùng Playwright/Chromium/axe, không dùng Chrome DevTools MCP. Không triển khai cross-model review hay production launch. Official live docs đã thử truy cập nhưng không tải được; ghi giới hạn trong ADR. Xem RELEASE.md cho đầu ra và kết quả thật; bảng ngày 28/10 phía trên là nhật ký thời điểm chuẩn bị.
+
+## Tiếp tục ngày 12/11/2026
+
+Danh sách và checksum phía trên giữ lịch sử lần đọc nguồn addyosmani. Lần làm lại 003–005 tiếp tục dùng các nguyên tắc: phạm vi đã được người dùng xác nhận, feature có spec/plan/tasks riêng, refactor theo ranh giới và lát cắt, kiểm thử hồi quy/RED→GREEN khi phát hiện lỗi, giữ dữ liệu và ghi số đo thật. Không chạy workflow gọi agent phụ hoặc tự cài extension. Bằng chứng hiện tại: [bàn giao 12/11](RENEWAL-2026-11.md).

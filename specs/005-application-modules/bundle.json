@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-12T01:59:18.151683+00:00",
+  "baselineCommit": "05d9f0a",
+  "protocol": "Vite builds of archived baseline and working source with same installed lockfile dependencies. gzip level 9, entry only; excludes lazy pages, charts and font files.",
+  "baseline": {
+    "js": {
+      "file": "index-K3EYGChN.js",
+      "bytes": 421675,
+      "gzipBytes": 132340
+    },
+    "css": {
+      "file": "index-BYwxv3JX.css",
+      "bytes": 35276,
+      "gzipBytes": 7719
+    }
+  },
+  "current": {
+    "js": {
+      "file": "index-DKBd06tE.js",
+      "bytes": 409389,
+      "gzipBytes": 129959
+    },
+    "css": {
+      "file": "index-BLL-ZcRQ.css",
+      "bytes": 52864,
+      "gzipBytes": 10857
+    }
+  }
+}

@@ -1,3 +1,4 @@
+import { type Budget } from "../types";
 import { ArrowRight } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import { Button, Modal, Tip, Toast } from "../components";
@@ -25,6 +26,7 @@ export default function AppDialogs({
   toast,
   closeToast,
   modal,
+  budgetSource,
   summary,
   categories,
   edit,
@@ -49,6 +51,7 @@ export default function AppDialogs({
   toast: string;
   closeToast: () => void;
   modal: string;
+  budgetSource: Budget | null;
   summary: Summary | null;
   categories: Category[];
   edit: Transaction | undefined;
@@ -98,7 +101,8 @@ export default function AppDialogs({
             key="budget"
             month={month}
             categories={categories}
-            budget={summary.budget}
+            budget={budgetSource || summary.budget}
+            fromHistory={!!budgetSource}
             onClose={() => setModal("")}
             onSaved={() => saved("Ngân sách đã được áp dụng.")}
           />

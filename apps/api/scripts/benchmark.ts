@@ -3,7 +3,7 @@ import "dotenv/config";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { mkdir, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { randomUUID } from "node:crypto";
 import { Database } from "../src/database";
 import { Wallets } from "../src/wallets";
@@ -14,13 +14,14 @@ import { Reports } from "../src/reports";
 async function main() {
   const root = resolve(__dirname, "../../..");
   const temp = resolve(root, ".local/benchmark");
-  const baseline = "27e9f72";
+  const baseline = process.env.FINORA_BENCHMARK_BASELINE || "05d9f0a";
   await mkdir(temp, { recursive: true });
   await writeFile(
     resolve(temp, "tsconfig.json"),
     JSON.stringify({ compilerOptions: { experimentalDecorators: true } }),
   );
-  for (const name of ["wallets", "reports"]) {
+  const legacyModules = ["wallets", "transactions", "budgets", "reports"];
+  for (const name of legacyModules) {
     let code = execFileSync(
       "git",
       ["show", `${baseline}:apps/api/src/${name}.ts`],
@@ -30,14 +31,18 @@ async function main() {
       .replace(/@Inject\(\w+\)\s*/g, "")
       .replace(/@Injectable\(\)\s*/g, "");
     code = code.replace(
-      /from "\.\/(\w+)"/g,
+      /from "\.\/([\w-]+)"/g,
       (_m, module) =>
-        `from ${JSON.stringify(module === "wallets" ? resolve(temp, "wallets") : resolve(root, "apps/api/src", module))}`,
+        `from ${JSON.stringify(legacyModules.includes(module) ? resolve(temp, module) : resolve(root, "apps/api/src", module))}`,
     );
     await writeFile(resolve(temp, name + ".ts"), code);
   }
   const { Reports: LegacyReports } = await import(resolve(temp, "reports.ts"));
   const { Wallets: LegacyWallets } = await import(resolve(temp, "wallets.ts"));
+  const { Transactions: LegacyTransactions } = await import(
+    resolve(temp, "transactions.ts")
+  );
+  const { Budgets: LegacyBudgets } = await import(resolve(temp, "budgets.ts"));
   const db = new Database();
   await db.$connect();
   const userId = randomUUID();
@@ -74,8 +79,16 @@ async function main() {
       wallets = new Wallets(db, requests),
       ledger = new Transactions(db, wallets, requests),
       budgets = new Budgets(db, requests);
+    const legacyWallets = new LegacyWallets(db, requests);
+    const legacyLedger = new LegacyTransactions(db, legacyWallets, requests);
+    const legacyBudgets = new LegacyBudgets(db, requests);
     const current = new Reports(db, wallets, ledger, budgets),
-      legacy = new LegacyReports(db, new LegacyWallets(db), ledger, budgets);
+      legacy = new LegacyReports(
+        db,
+        legacyWallets,
+        legacyLedger,
+        legacyBudgets,
+      );
     const old = await legacy.summary(userId, "2026-11"),
       now = await current.summary(userId, "2026-11");
     for (const field of [
@@ -87,6 +100,7 @@ async function main() {
     ] as const)
       assert.equal(now[field], old[field]);
     assert.deepEqual(now.history, old.history);
+    assert.deepEqual(now.comparison, old.comparison);
     assert.equal(now.spending[0].amount, old.spending[0].amount);
     const samples: { baseline: number[]; current: number[] } = {
       baseline: [],
@@ -120,19 +134,17 @@ async function main() {
         "Provider summary; 3 warmups, 20 sequential alternating samples. Exact totals/history checked. Synthetic account deleted in finally.",
       baseline: stats(samples.baseline),
       current: stats(samples.current),
-      transportRows: {
-        baselineLedgerReads: 20000,
-        currentMonthlyAggregate: 6,
-        currentSpendingAggregate: 1,
-        currentWalletAggregate: 2,
-      },
+      queryStrategy:
+        "Both revisions aggregate in SQL. Current revision also reads one RepeatableRead snapshot and includes planning counts.",
       limits:
         "Single local PostgreSQL environment; not a load test, concurrency test or production SLA.",
     };
-    await writeFile(
-      resolve(root, "specs/002-financial-planning/performance.json"),
-      JSON.stringify(result, null, 2) + "\n",
+    const output = resolve(
+      root,
+      process.env.FINORA_BENCHMARK_OUTPUT || ".local/benchmark-result.json",
     );
+    await mkdir(dirname(output), { recursive: true });
+    await writeFile(output, JSON.stringify(result, null, 2) + "\n");
     console.log(JSON.stringify(result, null, 2));
   } finally {
     await db.transaction.deleteMany({ where: { userId } });

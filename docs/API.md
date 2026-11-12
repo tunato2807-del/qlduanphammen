@@ -87,10 +87,10 @@ Các route cũ giữ tương thích. `/auth/config` thêm `recoveryEnabled`. Hai
 | GET    | `/recurring?month=YYYY-MM`               | `{rules,drafts}`; tạo nháp on-demand cho quy tắc đến hạn trong tháng, không hạch toán                  |
 | POST   | `/recurring`                             | `{name,kind,amount,walletId,categoryId,day,startMonth,endMonth?,note?}`; kind INCOME/EXPENSE, day 1–31 |
 | PATCH  | `/recurring/:id`                         | `{active:boolean}`; tạm dừng/bật lại, đổi nội dung bằng quy tắc mới                                    |
-| POST   | `/recurring-drafts/:id/action`           | `{action:"CONFIRM"                                                                                     | "SKIP"}`; lock, xác nhận một lần, không đổi trạng thái ngược                |
+| POST   | `/recurring-drafts/:id/action`           | `{action: CONFIRM hoặc SKIP}`; lock, xác nhận một lần, không đổi trạng thái ngược                      |
 | GET    | `/goals`                                 | Mục tiêu + saved/monthlyNeeded/overdue + contribution history                                          |
 | POST   | `/goals`                                 | `{name,target,targetDate}`; tiền chuỗi dương, ngày ISO                                                 |
-| POST   | `/goals/:id/contributions`               | `{action:"ADD"                                                                                         | "WITHDRAW",amount,walletId,note?}`; dương ở request, response amount có dấu |
+| POST   | `/goals/:id/contributions`               | `{action: ADD hoặc WITHDRAW,amount,walletId,note?}`; dương ở request, response amount có dấu           |
 | GET    | `/transactions/import/template`          | CSV header chuẩn tải xuống                                                                             |
 | POST   | `/transactions/import/preview`           | `{csv:string}` → `{rows,valid,duplicates,errors}`, không ghi sổ                                        |
 | POST   | `/transactions/import`                   | `{csv:string}` → `{imported,duplicates}`; tính lại, không cho lưu nếu có lỗi, transaction toàn bộ      |
@@ -118,3 +118,21 @@ occurredAt,kind,category,wallet,destinationWallet,amount,note
 Nhận cả header tiếng Việt do `/transactions/export` tạo. Tên ví/danh mục phải khớp chính xác và duy nhất trong tài khoản, chưa lưu trữ; category đúng loại, chuyển ví dùng destinationWallet và không hạch toán danh mục. Giới hạn 50 KB UTF-8/200 dòng; body HTTP JSON hiện giới hạn 64 KB, nên nội dung nhiều ký tự phải escape có thể chạm giới hạn sớm hơn. `rows[].line` là thứ tự bản ghi CSV + header (dòng ghi chú nhiều dòng vẫn tính một bản ghi). Lỗi cú pháp/header trả 400; lỗi dòng nằm trong preview. Nhập lại kiểm tra duplicate theo thời điểm, kind, amount, ví nguồn/đích, category và note trim; kể cả dòng trùng ngay trong file. Không giữ file nguồn, không tự tạo ví/danh mục.
 
 Phân bổ mục tiêu không sinh ledger transaction và không cộng vào thu/chi; kiểm tra tiền có thể dành tại thời điểm ghi. WITHDRAW có thể dùng ví đã lưu trữ để giải phóng phần dành cũ. Giao dịch chi sau đó vẫn được ghi thực tế, UI cảnh báo thiếu phần dành riêng. `monthlyNeeded` làm tròn lên nguyên VND trên số tháng còn lại gồm tháng hiện tại theo Việt Nam; overdue hiển thị riêng.
+
+## Bổ sung tương thích ngày 12/11/2026
+
+| Method | Route                    | Hợp đồng                                                                                   |
+| ------ | ------------------------ | ------------------------------------------------------------------------------------------ |
+| PATCH  | `/auth/profile`          | `{name}` 2–60 ký tự sau trim; trả safe user, không nhận email/password                     |
+| PATCH  | `/goals/:id`             | `{name?,target?,targetDate?,archived?}`; target chuỗi VND dương, targetDate ISO; chỉ owner |
+| POST   | `/recurring/:id/replace` | Toàn bộ payload như tạo rule, nhận Idempotency-Key; trả `{previous,replacement}`           |
+
+PATCH mục tiêu không nhận `saved`, `userId`, contributions hoặc giá trị `null`; trường không muốn đổi phải được bỏ khỏi payload. Lưu trữ không xóa lịch sử hoặc giải phóng tiền. ADD vào mục tiêu lưu trữ trả 400; WITHDRAW vẫn được kiểm tra theo goal/ví và số đã dành. Khôi phục bằng `{archived:false}`.
+
+Thay định kỳ phải có `startMonth >= tháng hiện tại tại Việt Nam + 1`, **sau `startMonth` của quy tắc cũ**, và không vượt `endMonth` cũ nếu có. Quy tắc cũ phải active. Transaction khóa rule, đặt `previous.endMonth = replacement.startMonth − 1`, tạo rule mới. Không đổi tên/số tiền/ngày/ví của rule cũ; nháp cũ vẫn có nội dung cũ và có thể xác nhận. Tháng không hợp lệ/đang tạm dừng trả 400; đã kết thúc/thay thế trả 409; ID ngoài owner trả 404. Hai replacement khác key đồng thời cùng cửa sổ chỉ một thành công; cùng key/payload trả kết quả đã lưu. Quy tắc chưa bắt đầu muốn đổi ngay tháng đầu: tạm dừng rồi tạo mới. Không sửa giao dịch đã ghi.
+
+`GET /transactions` và `/transactions/export` nhận thêm `categoryId=UUID`, `sort=asc|desc` (mặc định desc). `walletId` khớp nguồn **hoặc** đích chuyển ví. Các nhóm wallet/category/search/kind/month kết hợp bằng AND; search OR chỉ nằm trong nhóm tìm kiếm. Ngày, createdAt và id làm thứ tự ổn định. UUID/filter không hợp lệ trả 400; filter tham chiếu tài nguyên ngoài owner trả 404. Có thể lọc tài nguyên đã lưu trữ để xem lịch sử. CSV giữ cùng thứ tự/bộ lọc và giới hạn cũ.
+
+Summary thêm `asOf` (ISO thời điểm tạo kết quả) và `planning:{goalCount,saved,dueCount,due}`. `goalCount` chỉ mục tiêu đang hoạt động; `saved` gồm tiền đã dành trong cả mục tiêu lưu trữ. `due` tối đa ba phần tử `{id,name,amount,dueAt,wallet}`; `dueCount` đếm quy tắc active đã đến hạn ở tháng chọn, chưa xử lý. Summary không tạo draft; mở trang định kỳ mới đồng bộ draft. Tiền vẫn là chuỗi nguyên VND. Summary/PDF đọc các thành phần trong cùng transaction RepeatableRead, giữ mọi trường cũ. Số dư ví vẫn là hiện tại toàn thời gian, không phải cuối tháng chọn.
+
+Dùng lại budget revision là thao tác frontend: đưa dữ liệu lịch sử vào form, cảnh báo bỏ danh mục đã lưu trữ, preview rồi POST như hợp đồng hiện có; không thêm route ghi đè phiên bản.

@@ -1,6 +1,6 @@
 # Ghi chú thuyết trình Finora
 
-Cập nhật 07/11/2026 · 15 slide, khoảng 12–15 phút. Họ tên/lớp/GVHD cần bổ sung theo thông tin thật.
+Cập nhật 12/11/2026 · 15 slide, khoảng 12–15 phút. Họ tên/lớp/GVHD cần bổ sung theo thông tin thật.
 
 ## 1. Tài chính trong tầm tay.
 
@@ -12,7 +12,7 @@ Nêu ba vấn đề: khó biết tiền đi đâu, lập kế hoạch tách rờ
 
 ## 3. Một ứng dụng cá nhân, nghiệp vụ có ranh giới.
 
-Trình bày phạm vi VND, tháng Việt Nam và dữ liệu riêng theo tài khoản. Sáu nhóm năng lực trong capability map giữ nguyên; các chức năng mới mở rộng theo spec 002 đã được người dùng cho phép. Không mua dịch vụ hoặc đưa dữ liệu ra hệ thống bên ngoài.
+Trình bày phạm vi VND, tháng Việt Nam và dữ liệu riêng theo tài khoản. Sáu nhóm năng lực trong capability map giữ nguyên; các vòng đời mới theo specs 003–005 đã được người dùng cho phép. Không mua dịch vụ hoặc đưa dữ liệu ra hệ thống bên ngoài.
 
 ## 4. Người dùng kiểm soát mọi bước ghi tiền.
 
@@ -20,11 +20,11 @@ Tác nhân chính là người dùng cá nhân. Hệ thống tính toán và đ�
 
 ## 5. React → NestJS → PostgreSQL.
 
-Dùng TypeScript cho frontend và backend để thống nhất kiểu dữ liệu. NestJS là ứng dụng một khối theo provider nghiệp vụ, không tách microservice. Prisma dùng bộ máy JavaScript với PostgreSQL. Spec Kit chỉ phục vụ quá trình phát triển, không chạy trong sản phẩm.
+Dùng TypeScript cho frontend và backend để thống nhất kiểu dữ liệu. NestJS là ứng dụng một khối gồm Identity, Ledger, Budgeting, Planning, Reporting, Demo và Infrastructure. Demo tách khỏi Identity để tránh vòng phụ thuộc. Báo cáo đọc cùng snapshot RepeatableRead và truyền transaction client xuyên các provider. Prisma dùng bộ máy JavaScript với PostgreSQL. Spec Kit chỉ phục vụ quá trình phát triển, không chạy trong sản phẩm.
 
 ## 6. 13 model, một nguyên tắc: giữ được dấu vết.
 
-Nêu các nhóm dữ liệu, không đọc mọi cột. Sổ giao dịch là nguồn tính số dư; budget plan giữ revision; recurring draft unique theo quy tắc và tháng; goal contribution là phân bổ tiền đang có. Migration thêm sáu bảng và giữ dữ liệu cũ. Xem ERD đầy đủ trong tài liệu.
+Nêu các nhóm dữ liệu, không đọc mọi cột. Sổ giao dịch là nguồn tính số dư; budget plan giữ revision; recurring draft unique theo quy tắc và tháng; goal contribution là phân bổ tiền đang có. Migration 07/11 đã thêm sáu bảng; lần làm lại 12/11 không đổi schema hoặc migration, giữ dữ liệu cũ. Xem ERD đầy đủ trong tài liệu.
 
 ## 7. Chia ngân sách đúng đến từng đồng.
 
@@ -32,11 +32,11 @@ Ví dụ thu 15 triệu, tiết kiệm dự kiến 3 triệu, chi bắt buộc 6
 
 ## 8. Có căn cứ khi lập, có lịch sử khi điều chỉnh.
 
-Gợi ý dùng ba tháng đã kết thúc, cả tháng không phát sinh vẫn tính bằng không. Mức tiết kiệm gợi ý 20% có thể sửa. Nhấn mạnh đây là quy tắc gợi ý, không phải AI. Mọi phiên bản giữ hạn mức riêng và đối chiếu sổ thực tế hiện tại, không phải ảnh chụp số chi trong quá khứ.
+Gợi ý dùng ba tháng đã kết thúc, cả tháng không phát sinh vẫn tính bằng không. Mức tiết kiệm gợi ý 20% có thể sửa. Nhấn mạnh đây là quy tắc gợi ý, không phải AI. Có thể dùng revision cũ làm draft, cảnh báo danh mục lưu trữ rồi preview và xác nhận revision mới. Mọi phiên bản giữ hạn mức riêng và đối chiếu sổ thực tế hiện tại, không phải ảnh chụp số chi trong quá khứ.
 
 ## 9. Định kỳ và mục tiêu không làm sai tài sản.
 
-Khoản định kỳ tạo bản nháp theo ngày đến hạn, xử lý tháng ngắn bằng ngày cuối tháng. Xác nhận đồng thời vẫn chỉ ghi một transaction. Mục tiêu dành riêng tiền trong ví và có thể rút phần đã dành; không cộng thành thu nhập hoặc giảm tổng tài sản. Nếu chi tiêu sau đó khiến ví thiếu phần dành riêng thì giao diện cảnh báo.
+Khoản định kỳ tạo bản nháp theo ngày đến hạn, xử lý tháng ngắn bằng ngày cuối tháng. Xác nhận đồng thời vẫn chỉ ghi một transaction. Mục tiêu dành riêng tiền trong ví và có thể rút phần đã dành; không cộng thành thu nhập hoặc giảm tổng tài sản. Nếu chi tiêu sau đó khiến ví thiếu phần dành riêng thì giao diện cảnh báo. Sửa/archived/restore mục tiêu giữ lịch sử; archived chỉ rút. Thay định kỳ từ tháng sau và sau start cũ: kết thúc rule cũ trước tháng mới rồi tạo mới nguyên tử, nháp cũ giữ số tiền cũ.
 
 ## 10. Nhập có kiểm tra, xuất có đối chiếu.
 
@@ -44,7 +44,7 @@ CSV giới hạn 50 KB và 200 dòng. Xem lỗi theo dòng, đọc dấu nháy v
 
 ## 11. Trẻ trung, nhưng số liệu luôn rõ ràng.
 
-Giao diện nền ấm, sidebar tối, lavender và lime. Chuyển động dùng Motion, cho phép giảm và tôn trọng hệ điều hành. Bố cục thử từ 320 đến 1440 pixel; menu mobile giữ focus và đóng bằng Escape. Lỗi hover qua lại khi đổi form đã có regression test.
+Giao diện mới dùng canvas xám xanh, sidebar trắng, navy, mint và violet. Dashboard gợi ý bước tiếp theo từ dữ liệu thật; các trang lazy, hook theo tháng/tài khoản và ErrorBoundary cho phục hồi. Chuyển động dùng Motion, cho phép giảm và tôn trọng hệ điều hành. Bố cục thử từ 320 đến 1440 pixel; menu mobile giữ focus và đóng bằng Escape. Lỗi hover qua lại khi đổi form đã có regression test.
 
 ## 12. Giữ quyền sở hữu và giữ được dữ liệu.
 
@@ -52,12 +52,12 @@ Giải thích ownership phía server cho mọi ID, cookie HttpOnly/Secure produc
 
 ## 13. Bằng chứng chạy được, số liệu có giới hạn.
 
-34 kiểm thử API/unit và 12 kiểm thử browser đã đạt; axe không có lỗi serious/critical trong các màn hình được kiểm tra, không thay chứng nhận WCAG. Benchmark 10 nghìn giao dịch: trung vị 106.28 xuống 20.42 ms, 20 mẫu sau 3 warmup, cùng kết quả tiền. Đây là provider trong môi trường cục bộ, chưa phải tải đồng thời production. Restore thử trên DB riêng thành công.
+40 kiểm thử API/unit và 18 browser đạt, không skip. Axe không serious/critical ở phạm vi kiểm tra; không phải chứng nhận WCAG. Benchmark 10.000 giao dịch: trung vị cũ 19.03 ms, mới 41,44 ms, p95 mới 51,14 ms. Bản mới chậm hơn do đọc snapshot tuần tự và thêm kế hoạch; đổi lấy tính nhất quán khi có ghi đồng thời. 20 mẫu, 3 warmup; chưa phải load test/SLA. Production Docker non-root/read-only qua Caddy TLS nội bộ đã smoke. Restore riêng đã có bằng chứng 07/11, schema lần này giữ nguyên.
 
 ## 14. Quản lý bằng đầu ra và bằng chứng.
 
-Các mốc quá khứ lấy từ Git: MVP 25/10, V2 28–29/10, Spec Kit 04/11, mở rộng 07/11. Đề xuất UAT 08–10/11 chưa được coi là đã hoàn tất. RACI theo vai trò, không bịa tên thành viên. Dự toán 495 nghìn đồng là phương án hosting/tên miền và dự phòng, chưa phát sinh chi phí; xem giả định trong hồ sơ.
+Các mốc quá khứ lấy từ Git: MVP 25/10, V2 28–29/10, Spec Kit 04/11, mở rộng 07/11. Ngày 12/11 làm lại UI, lifecycle và modules; lịch UAT cũ 08–10/11 chưa có xác nhận. Đề xuất UAT mới từ 13/11, chưa coi là hoàn tất. RACI theo vai trò, không bịa tên thành viên. Dự toán 495 nghìn đồng là phương án hosting/tên miền và dự phòng, chưa phát sinh chi phí; xem giả định trong hồ sơ.
 
 ## 15. Một luồng demo, đủ thấy giá trị.
 
-Demo trong khoảng hai phút nếu thời gian cho phép: mở tài khoản mẫu, ngân sách gợi ý và lịch sử, tạo nháp định kỳ/xác nhận, dành tiền cho mục tiêu, preview CSV và tải PDF. Nêu rõ email thật và website public chờ dịch vụ. Kết thúc bằng câu hỏi về mô hình dữ liệu, phân bổ chính xác, chống trùng và bảo vệ tài khoản.
+Demo trong khoảng hai phút nếu thời gian cho phép: mở tài khoản mẫu, ngân sách và dùng revision làm draft, sửa/archived mục tiêu, thay định kỳ từ tương lai rồi xác nhận nháp cũ, lọc/preview CSV và tải PDF. Nêu rõ email thật và website public chờ dịch vụ. Kết thúc bằng câu hỏi về mô hình dữ liệu, phân bổ chính xác, chống trùng và bảo vệ tài khoản.

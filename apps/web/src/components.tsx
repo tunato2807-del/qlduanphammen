@@ -18,7 +18,15 @@ import {
   X,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useRef, type FormEvent, type ReactNode } from "react";
+import {
+  useId,
+  cloneElement,
+  isValidElement,
+  useEffect,
+  useRef,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import { useExperience } from "./Experience";
 import type { Transaction } from "./types";
 import { dateLabel, money } from "./types";
@@ -116,6 +124,24 @@ export function Field({
   children: ReactNode;
   hint?: string;
 }) {
+  const id = useId();
+  if (
+    isValidElement<{ id?: string; "aria-describedby"?: string }>(children) &&
+    typeof children.type === "string" &&
+    ["input", "select", "textarea"].includes(children.type)
+  ) {
+    const fieldId = children.props.id || id;
+    return (
+      <div className="field">
+        <label htmlFor={fieldId}>{label}</label>
+        {cloneElement(children, {
+          id: fieldId,
+          ...(hint ? { "aria-describedby": id + "-hint" } : {}),
+        })}
+        {hint && <small id={id + "-hint"}>{hint}</small>}
+      </div>
+    );
+  }
   return (
     <label className="field">
       <span>{label}</span>
@@ -124,6 +150,7 @@ export function Field({
     </label>
   );
 }
+
 export function Modal({
   title,
   description,
@@ -148,7 +175,10 @@ export function Modal({
     <dialog
       ref={ref}
       className={`modal ${wide ? "wide" : ""}`}
-      onCancel={onClose}
+      onCancel={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
       onClick={(e) => {
         if (e.target === ref.current) onClose();
       }}

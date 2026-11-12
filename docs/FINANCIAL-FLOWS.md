@@ -18,9 +18,9 @@ erDiagram
   User ||--o{ IdempotencyRecord : retries
 ```
 
-- `RecurringRule`: loại thu/chi, số tiền, ví/danh mục, ngày 1–31, tháng bắt đầu/kết thúc, active. Quy tắc chỉ thay trạng thái active trong phiên bản này; muốn đổi số tiền/lịch thì tạm dừng và tạo quy tắc mới, giữ dấu vết cũ.
+- `RecurringRule`: loại thu/chi, số tiền, ví/danh mục, ngày 1–31, tháng bắt đầu/kết thúc, active. Ngoài bật/tạm dừng, từ 12/11 có thay đổi có hiệu lực từ tháng tương lai: kết thúc rule cũ trước tháng hiệu lực và tạo rule mới nguyên tử. Nội dung cũ giữ nguyên để draft/lịch sử không đổi; xem quy tắc dưới đây.
 - `RecurringDraft`: unique(rule, month), thời điểm đến hạn, `PENDING → CONFIRMED` hoặc `PENDING → SKIPPED`, không chuyển ngược. Liên kết transaction nullable khi giao dịch bị xóa, nhưng trạng thái vẫn CONFIRMED để không ghi lại tiền.
-- `SavingsGoal`: số mục tiêu, hạn hoàn thành. `GoalContribution`: số tiền có dấu (dành thêm dương, rút âm), ví, thời điểm, ghi chú. Không phải ledger transaction; chỉ phân bổ tiền đã có. Không rút âm theo từng mục tiêu/ví. Dành thêm không vượt số dư ví trừ tổng đã dành tại thời điểm ghi; chi tiêu sau đó có thể làm thiếu phần dành riêng và UI cảnh báo. Chưa có chỉnh sửa hạn/mục tiêu hoặc đóng mục tiêu trên UI; lịch sử phân bổ vẫn được giữ.
+- `SavingsGoal`: số mục tiêu, hạn hoàn thành. `GoalContribution`: số tiền có dấu (dành thêm dương, rút âm), ví, thời điểm, ghi chú. Không phải ledger transaction; chỉ phân bổ tiền đã có. Không rút âm theo từng mục tiêu/ví. Dành thêm không vượt số dư ví trừ tổng đã dành tại thời điểm ghi; chi tiêu sau đó có thể làm thiếu phần dành riêng và UI cảnh báo. Từ 12/11 có sửa tên/đích/hạn, lưu trữ/khôi phục. Lưu trữ giữ cả lịch sử lẫn tiền đã dành; chỉ cho rút, không cho dành thêm.
 - `PasswordReset`: id là SHA256 token, user, thời hạn, thời điểm tạo. Reset thành công xóa mọi token và phiên của user.
 - `IdempotencyRecord`: unique(user,key), hash nội dung canonical + phạm vi thao tác, response JSON, createdAt. Không lưu cookie/token trong record. Key giữ trong DB không tự hết hạn ở phiên bản này để tránh ghi lặp do retry muộn; cần chính sách lưu trữ khi quy mô lớn.
 
@@ -146,3 +146,27 @@ sequenceDiagram
   A->>D: COMMIT
   A-->>U: Đăng nhập lại bằng mật khẩu mới
 ```
+
+## Sequence — thay quy tắc từ tháng tương lai (12/11)
+
+```mermaid
+sequenceDiagram
+  actor U as Người dùng
+  participant A as Planning API
+  participant D as PostgreSQL
+  U->>A: Rule cũ + toàn bộ rule mới + Idempotency-Key
+  A->>D: BEGIN, khóa key, khóa rule
+  A->>D: Đọc owner, active, khoảng hiệu lực
+  A->>A: Tháng mới từ tháng sau, sau start cũ và trong end cũ
+  A->>D: Đặt end cũ = tháng mới - 1
+  A->>D: Tạo rule mới, lưu response, COMMIT
+  A-->>U: Previous và replacement
+```
+
+Không chỉnh amount/name/day của rule cũ hoặc xóa draft. Xác nhận draft cũ dùng nội dung cũ; khoản tương lai chưa đến hạn không được ghi sớm. Thay đồng thời được tuần tự hóa bằng advisory lock; yêu cầu sau thấy rule đã kết thúc và nhận 409. Retry đúng key trả response cũ.
+
+## Vòng đời mục tiêu và phiên bản ngân sách (12/11)
+
+Mục tiêu: `đang theo đuổi → lưu trữ → khôi phục`. Chuyển trạng thái không sinh transaction/contribution, không đổi số tiền đã dành. ADD chỉ khi hoạt động; WITHDRAW hoạt động ở cả hai trạng thái. Sửa metadata không được sửa lịch sử; target mới có thể thấp hơn saved, phần vượt vẫn là tiền đã dành.
+
+Ngân sách: `revision cũ → draft cục bộ → chỉnh và preview → xác nhận revision mới`. Danh mục lưu trữ bị loại được thông báo trước preview; revision cũ vẫn tồn tại. Tiến độ lịch sử luôn đối chiếu sổ hiện tại, không phải ảnh chụp số chi lúc tạo.

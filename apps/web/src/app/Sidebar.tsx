@@ -101,13 +101,15 @@ export default function Sidebar({
       </nav>
       <div className="sidebar-bottom">
         <div className="sidebar-note">
-          <span className="note-flower">✳</span>
+          <span className="note-flower" aria-hidden="true">
+            ✦
+          </span>
           <strong>
-            Thói quen nhỏ.
+            Bắt đầu nhỏ.
             <br />
-            Tương lai lớn.
+            Đi được rất xa.
           </strong>
-          <p>Mỗi giao dịch được ghi lại là một bước hiểu mình hơn.</p>
+          <p>Một chiếc ví gọn gàng, thêm một chút an tâm mỗi ngày.</p>
           <button onClick={() => setModal("help")}>
             Bắt đầu từ hôm nay
             <ArrowUpRight size={15} />

@@ -1,77 +1,68 @@
 import { useState } from "react";
-import ImportDialog from "./ImportDialog";
 import {
   ArrowDownToLine,
   ArrowLeft,
   ArrowRight,
-  LoaderCircle,
   Plus,
   Search,
+  Upload,
   SlidersHorizontal,
 } from "lucide-react";
-import { Button, Empty, TransactionTable } from "../../components";
+import { Button, Empty, Field, TransactionTable } from "../../components";
 import { PageHeading } from "../../shared/PageHeading";
-import {
-  type Summary,
-  type Transaction,
-  type TransactionPage,
-} from "../../types";
+import { type Summary, type Category, type Transaction } from "../../types";
+import type { LedgerState } from "./useLedger";
+import ImportDialog from "./ImportDialog";
 export default function TransactionsPage({
   summary,
-  month,
-  kind,
-  setKind,
-  search,
-  setSearch,
-  txs,
-  txError,
-  txLoading,
-  txPage,
-  setTxPage,
+  categories,
+  ledger: l,
   addTransaction,
   editTransaction,
   setDeleting,
   refresh,
 }: {
   summary: Summary;
-  month: string;
-  kind: string;
-  setKind: (value: string) => void;
-  search: string;
-  setSearch: (value: string) => void;
-  txs: TransactionPage | null;
-  txError: string;
-  txLoading: boolean;
-  txPage: number;
-  setTxPage: (value: number) => void;
+  categories: Category[];
+  ledger: LedgerState;
   addTransaction: () => void;
-  editTransaction: (value: Transaction) => void;
-  setDeleting: (value: Transaction) => void;
+  editTransaction: (t: Transaction) => void;
+  setDeleting: (t: Transaction) => void;
   refresh: () => void;
 }) {
   const [importing, setImporting] = useState(false);
+  const filtered = !!(
+    l.search ||
+    l.kind ||
+    l.walletId ||
+    l.categoryId ||
+    l.sort !== "desc"
+  );
   return (
     <>
       <PageHeading
-        kicker="MỖI GIAO DỊCH, MỘT CÂU CHUYỆN"
+        kicker="SỔ GIAO DỊCH"
         title="Dòng tiền hằng ngày"
-        description="Những con số nhỏ tạo nên bức tranh lớn."
+        description="Mỗi khoản thu chi đều có một câu chuyện. Giữ chúng gọn gàng ở đây."
         action={
-          <Button onClick={addTransaction}>
-            <Plus size={18} />
-            Thêm giao dịch
-          </Button>
+          <div className="inline-actions">
+            <Button secondary onClick={() => setImporting(true)}>
+              <Upload size={16} />
+              Nhập CSV
+            </Button>
+            <Button onClick={addTransaction}>
+              <Plus size={17} />
+              Thêm giao dịch
+            </Button>
+          </div>
         }
       />
       {importing && (
         <ImportDialog onClose={() => setImporting(false)} onSaved={refresh} />
       )}
-      <section className="panel">
+      <section className="panel ledger-panel">
         <div className="transactions-toolbar">
-          <Button secondary onClick={() => setImporting(true)}>
-            Nhập CSV
-          </Button>
-          <div className="filter-tabs">
+          <div className="filter-tabs" role="group" aria-label="Loại giao dịch">
             {[
               ["", "Tất cả"],
               ["EXPENSE", "Chi tiêu"],
@@ -80,8 +71,9 @@ export default function TransactionsPage({
             ].map(([id, label]) => (
               <button
                 key={id}
-                className={kind === id ? "active" : ""}
-                onClick={() => setKind(id)}
+                aria-pressed={l.kind === id}
+                className={l.kind === id ? "active" : ""}
+                onClick={() => l.setKind(id)}
               >
                 {label}
               </button>
@@ -89,41 +81,93 @@ export default function TransactionsPage({
           </div>
           <a
             className="button secondary small-button"
-            href={
-              "/api/transactions/export?" +
-              new URLSearchParams({ month, kind, search })
-            }
+            href={"/api/transactions/export?" + new URLSearchParams(l.query)}
             download
           >
             <ArrowDownToLine size={16} />
             Xuất CSV
           </a>
         </div>
-        <div className="table-search">
-          <Search size={17} />
-          <input
-            aria-label="Lọc giao dịch theo ghi chú hoặc danh mục"
-            placeholder="Tìm theo ghi chú, danh mục…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <span>
-            <SlidersHorizontal size={15} />
-            {txs?.total || 0} giao dịch
-          </span>
+        <div className="ledger-filters">
+          <div className="table-search">
+            <Search size={18} />
+            <input
+              id="ledger-search"
+              aria-label="Lọc giao dịch theo ghi chú hoặc danh mục"
+              placeholder="Ghi chú hoặc danh mục…"
+              value={l.search}
+              onChange={(e) => l.setSearch(e.target.value)}
+            />
+          </div>
+          <Field label="Lọc theo ví">
+            <select
+              value={l.walletId}
+              onChange={(e) => l.setWalletId(e.target.value)}
+            >
+              <option value="">Tất cả ví</option>
+              {summary.wallets.map((w) => (
+                <option value={w.id} key={w.id}>
+                  {w.name}
+                  {w.archived ? " · Lưu trữ" : ""}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Lọc theo danh mục">
+            <select
+              value={l.categoryId}
+              disabled={l.kind === "TRANSFER"}
+              onChange={(e) => l.setCategoryId(e.target.value)}
+            >
+              <option value="">Tất cả danh mục</option>
+              {categories
+                .filter((c) => !l.kind || c.kind === l.kind)
+                .map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+            </select>
+          </Field>
+          <Field label="Thứ tự giao dịch">
+            <select value={l.sort} onChange={(e) => l.setSort(e.target.value)}>
+              <option value="desc">Mới nhất trước</option>
+              <option value="asc">Cũ nhất trước</option>
+            </select>
+          </Field>
         </div>
-        {txError ? (
+        <div className="ledger-count">
+          <span>
+            <SlidersHorizontal size={14} />
+            {l.txs?.total || 0} giao dịch
+            {l.walletId ? " · gồm chuyển đến và chuyển đi" : ""}
+          </span>
+          {filtered && (
+            <button className="text-button" onClick={l.clear}>
+              Xóa bộ lọc
+            </button>
+          )}
+        </div>
+        {l.error ? (
           <div className="form-error" role="alert">
-            {txError}
-            <button onClick={refresh}>Thử lại</button>
+            {l.error}
+            <Button secondary onClick={refresh}>
+              Thử lại
+            </Button>
           </div>
-        ) : txLoading ? (
-          <div className="loading-panel">
-            <LoaderCircle className="spin" size={24} />
+        ) : l.loading ? (
+          <div
+            className="table-skeleton"
+            role="status"
+            aria-label="Đang tải giao dịch"
+          >
+            <i />
+            <i />
+            <i />
           </div>
-        ) : txs?.items.length ? (
+        ) : l.txs?.items.length ? (
           <TransactionTable
-            items={txs.items}
+            items={l.txs.items}
             onEdit={editTransaction}
             onDelete={setDeleting}
           />
@@ -131,36 +175,35 @@ export default function TransactionsPage({
           <Empty
             title="Chưa tìm thấy giao dịch"
             description={
-              search
-                ? "Thử một từ khóa khác hoặc thay đổi tháng."
-                : "Thêm một khoản thu hoặc chi để bắt đầu."
+              filtered
+                ? "Thử thay đổi bộ lọc hoặc tháng báo cáo."
+                : "Tạo giao dịch đầu tiên hoặc nhập file CSV để bắt đầu."
             }
             action={
-              <Button secondary onClick={addTransaction}>
-                <Plus size={16} />
-                Thêm giao dịch
+              <Button secondary onClick={filtered ? l.clear : addTransaction}>
+                {filtered ? "Xóa bộ lọc" : "Thêm giao dịch"}
               </Button>
             }
           />
         )}
         <div className="pagination">
           <span>
-            Trang {txs?.page || 1} / {txs?.pages || 1}
+            Trang {l.txs?.page || 1} / {l.txs?.pages || 1}
           </span>
           <div>
             <button
               className="icon-button"
               aria-label="Trang trước"
-              disabled={txPage <= 1 || txLoading}
-              onClick={() => setTxPage(txPage - 1)}
+              disabled={l.page <= 1 || l.loading}
+              onClick={() => l.setPage(l.page - 1)}
             >
               <ArrowLeft size={17} />
             </button>
             <button
               className="icon-button"
               aria-label="Trang sau"
-              disabled={txPage >= (txs?.pages || 1) || txLoading}
-              onClick={() => setTxPage(txPage + 1)}
+              disabled={l.page >= (l.txs?.pages || 1) || l.loading}
+              onClick={() => l.setPage(l.page + 1)}
             >
               <ArrowRight size={17} />
             </button>

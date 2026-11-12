@@ -1,6 +1,6 @@
 # Hồ sơ quản lý dự án Finora
 
-Cập nhật 07/11/2026. Đề tài: xây dựng hệ thống quản lý tài chính cá nhân và lập ngân sách tự động. Hồ sơ dành cho báo cáo/bảo vệ; người dùng yêu cầu cân bằng trải nghiệm Gen Z, nghiệp vụ và chất lượng đồ án.
+Cập nhật 12/11/2026. Đề tài: xây dựng hệ thống quản lý tài chính cá nhân và lập ngân sách tự động. Hồ sơ dành cho báo cáo/bảo vệ; người dùng yêu cầu cân bằng trải nghiệm Gen Z, nghiệp vụ và chất lượng đồ án.
 
 ## Mục tiêu, phạm vi và bàn giao
 
@@ -24,7 +24,7 @@ Vai trò có thể do cùng một sinh viên đảm nhiệm; chưa có danh sác
 
 ## Gantt có ngày
 
-Các mốc 25/10–04/11 đối chiếu được trong Git; 07/11 là ngày thực hiện gói mở rộng. Mốc 08–10/11 là lịch đề xuất để người dùng nghiệm thu, không phải công việc đã hoàn thành hoặc lịch học đã được xác nhận.
+Các mốc 25/10–04/11 đối chiếu được trong Git; 07/11 là ngày thực hiện gói mở rộng. Mốc UAT 08–10/11 của hồ sơ trước chưa có xác nhận thực hiện. Ngày 12/11 người dùng xác nhận làm lại toàn bộ UI/nghiệp vụ/kỹ thuật; lịch UAT bên dưới là đề xuất mới, vẫn chờ chủ đề tài.
 
 ```mermaid
 gantt
@@ -39,8 +39,10 @@ gantt
   Spec Kit và constitution :done, spec, 2026-11-04, 1d
   section Mở rộng được yêu cầu
   Nghiệp vụ, UI và kiểm chứng :done, ext, 2026-11-07, 1d
-  section Lịch đề xuất
-  Người dùng chạy kịch bản UAT :uat, 2026-11-08, 2d
+  section Làm lại được xác nhận
+  UI, lifecycle, modules và kiểm chứng :done, renewal, 2026-11-12, 1d
+  section Lịch đề xuất chưa xác nhận
+  Người dùng chạy kịch bản UAT :uat, 2026-11-13, 2d
   Hoàn thiện thông tin bìa và diễn tập bảo vệ :review, after uat, 1d
 ```
 
@@ -107,3 +109,17 @@ Thang xác suất/tác động 1 thấp–3 cao; điểm = tích, dùng để x�
 | Mobile, Tab/Escape, giảm chuyển động | Không kẹt focus, đọc và thao tác được            | Chờ nghiệm thu                            |
 
 Sau nghiệm thu: ghi lỗi bằng request ID và bước tái hiện; không dán token, mật khẩu hoặc CSV thật lên issue công khai.
+
+## Bổ sung nghiệm thu lần làm lại 12/11
+
+Ba gói Spec Kit riêng quản lý UI (003), lifecycle (004), modules/snapshot (005); không ghi đè checklist 002 hoặc hồ sơ V2. Đã thực hiện sửa/lưu trữ/khôi phục mục tiêu, thay định kỳ tương lai, dùng revision làm draft, lọc ví/danh mục/chiều thời gian và tên hồ sơ. Truy vết và bằng chứng ở các feature tương ứng.
+
+| Kịch bản UAT bổ sung                    | Kết quả mong đợi                                    | Người thử / ngày / kết quả |
+| --------------------------------------- | --------------------------------------------------- | -------------------------- |
+| Sửa, lưu trữ, rút và khôi phục mục tiêu | Giữ lịch sử, tài sản không tăng, archived không ADD | Chờ nghiệm thu             |
+| Đổi số tiền định kỳ từ tháng tương lai  | Nháp cũ giữ số cũ, rule mới không ghi sớm           | Chờ nghiệm thu             |
+| Lấy revision làm draft rồi xác nhận     | Có preview/cảnh báo category, tạo revision mới      | Chờ nghiệm thu             |
+| Lọc ví nhận chuyển và xuất CSV          | Kết quả/CSV cùng điều kiện                          | Chờ nghiệm thu             |
+| Đổi tháng, tab và phục hồi lỗi          | Không hiện nhầm dữ liệu kỳ cũ; tab giữ đúng         | Chờ nghiệm thu             |
+
+Các kết quả tự động không được điền thay UAT này. Ước lượng chi phí và vai trò ở trên vẫn là giả định tham khảo, chưa phát sinh mua dịch vụ.

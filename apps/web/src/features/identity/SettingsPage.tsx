@@ -1,14 +1,17 @@
+import ProfileForm from "./ProfileForm";
 import { Plus, Settings, ShieldCheck } from "lucide-react";
 import { Button, CategoryIcon, Field, Tip } from "../../components";
 import { PageHeading } from "../../shared/PageHeading";
 import { type Category, type User } from "../../types";
 export default function SettingsPage({
   user,
+  onProfileSaved,
   categories,
   setModal,
   setCategoryEdit,
 }: {
   user: User;
+  onProfileSaved: (user: User) => void;
   categories: Category[];
   setModal: (value: string) => void;
   setCategoryEdit: (value: Category) => void;
@@ -30,6 +33,7 @@ export default function SettingsPage({
               <small>{user.email}</small>
             </div>
           </div>
+          <ProfileForm user={user} onSaved={onProfileSaved} />
           <Field label="Đơn vị tiền tệ">
             <input value="VND · Việt Nam Đồng" readOnly />
           </Field>

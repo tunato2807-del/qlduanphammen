@@ -47,6 +47,19 @@ export type Budget = {
   items: BudgetItem[];
 };
 export type Summary = {
+  asOf?: string;
+  planning?: {
+    goalCount: number;
+    saved: string;
+    dueCount: number;
+    due: {
+      id: string;
+      name: string;
+      amount: string;
+      dueAt: string;
+      wallet: string;
+    }[];
+  };
   comparison: {
     month: string;
     income: string;

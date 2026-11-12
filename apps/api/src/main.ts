@@ -1,70 +1,13 @@
-import { Idempotency } from "./idempotency";
-import { Planning } from "./planning";
-import { Imports } from "./imports";
-import { Recovery } from "./recovery";
-import { PlanningController, RecoveryController } from "./planning-controller";
 import "reflect-metadata";
 import "dotenv/config";
-import {
-  Controller,
-  Get,
-  Inject,
-  Module,
-  ServiceUnavailableException,
-} from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
 import { SafeErrorFilter, requestContext } from "./http";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import express, { Response } from "express";
+import express from "express";
 import { resolve } from "node:path";
-import { Database } from "./database";
-import { Accounts, SessionGuard } from "./auth";
-import { Wallets } from "./wallets";
-import { Transactions } from "./transactions";
-import { Budgets } from "./budgets";
-import { Reports } from "./reports";
-import { Demo } from "./demo";
-import { AuthController, FinanceController } from "./controllers";
-@Controller("api/health")
-class HealthController {
-  constructor(@Inject(Database) private db: Database) {}
-  @Get() async health() {
-    try {
-      await this.db.user.count();
-      return { status: "ok", database: "connected" };
-    } catch {
-      throw new ServiceUnavailableException(
-        "Database unavailable or not migrated",
-      );
-    }
-  }
-}
-@Module({
-  controllers: [
-    HealthController,
-    AuthController,
-    FinanceController,
-    PlanningController,
-    RecoveryController,
-  ],
-  providers: [
-    Database,
-    Idempotency,
-    Planning,
-    Imports,
-    Recovery,
-    Accounts,
-    SessionGuard,
-    Wallets,
-    Transactions,
-    Budgets,
-    Reports,
-    Demo,
-  ],
-})
-class AppModule {}
 export async function createApp() {
   const app = await NestFactory.create(AppModule, {
     bodyParser: false,

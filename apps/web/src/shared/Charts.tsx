@@ -33,12 +33,12 @@ export function FlowChart({ data }: { data: Summary["history"] }) {
         >
           <defs>
             <linearGradient id="income-fill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#438167" stopOpacity={0.16} />
-              <stop offset="100%" stopColor="#438167" stopOpacity={0} />
+              <stop offset="0%" stopColor="#40967a" stopOpacity={0.16} />
+              <stop offset="100%" stopColor="#40967a" stopOpacity={0} />
             </linearGradient>
             <linearGradient id="expense-fill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#e8aa80" stopOpacity={0.12} />
-              <stop offset="100%" stopColor="#e8aa80" stopOpacity={0} />
+              <stop offset="0%" stopColor="#9279d9" stopOpacity={0.12} />
+              <stop offset="100%" stopColor="#9279d9" stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid
@@ -50,22 +50,28 @@ export function FlowChart({ data }: { data: Summary["history"] }) {
             dataKey="name"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#949c98", fontSize: 12 }}
+            tick={{ fill: "#617085", fontSize: 12 }}
             dy={10}
           />
           <YAxis
             tickFormatter={compact}
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#949c98", fontSize: 11 }}
+            tick={{ fill: "#617085", fontSize: 11 }}
             width={42}
           />
           <Tooltip
-            formatter={(value) => money(Number(value))}
-            contentStyle={{
-              border: "1px solid #e8ece9",
-              borderRadius: 12,
-              fontSize: 12,
+            content={({ active, label }) => {
+              const row = data.find(
+                (i) => `T${Number(i.month.slice(5))}` === label,
+              );
+              return active && row ? (
+                <div className="chart-tooltip">
+                  <strong>{label}</strong>
+                  <span>Thu nhập: {money(row.income)}</span>
+                  <span>Chi tiêu: {money(row.expense)}</span>
+                </div>
+              ) : null;
             }}
           />
           <Area
@@ -73,7 +79,7 @@ export function FlowChart({ data }: { data: Summary["history"] }) {
             type="monotone"
             dataKey="income"
             name="Thu nhập"
-            stroke="#3c7a5e"
+            stroke="#39876b"
             strokeWidth={2.5}
             fill="url(#income-fill)"
           />
@@ -82,7 +88,7 @@ export function FlowChart({ data }: { data: Summary["history"] }) {
             type="monotone"
             dataKey="expense"
             name="Chi tiêu"
-            stroke="#e4a278"
+            stroke="#8e76df"
             strokeWidth={2.5}
             fill="url(#expense-fill)"
           />

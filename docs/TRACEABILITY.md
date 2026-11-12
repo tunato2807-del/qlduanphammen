@@ -18,3 +18,17 @@ Phạm vi mở rộng ngày 07/11/2026, [spec 002](../specs/002-financial-planni
 Các test nằm tại [apps/api/test](../apps/api/test) và [e2e](../e2e). Mỗi lần chạy API tạo tài khoản riêng rồi dọn; E2E tạo dữ liệu demo trên DB phát triển. Không có test bị skip để đạt gate. CI chạy lại bộ này trong PostgreSQL tạm.
 
 Giới hạn bằng chứng: axe tự động không chứng nhận WCAG toàn diện; benchmark cục bộ không chứng minh tải production. SMTP test dùng server cục bộ trong suite để xác minh email thực sự được phát qua giao thức SMTP; chưa đánh giá deliverability của nhà cung cấp email thật. Public HTTPS cần DNS/hosting sau này. UAT của chủ dự án vẫn cần được ghi nhận riêng.
+
+## Lần làm lại 12/11 — specs 003–005
+
+| Yêu cầu                                                     | Mã/thiết kế                                               | Kiểm chứng                                                                                                                  |
+| ----------------------------------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 003 FR01–03: hệ thiết kế, đủ luồng, hành động tiếp theo     | styles.css, Auth/Dashboard, shell/components              | 12 browser test cũ giữ nguyên; ảnh 8 màn demo; app/accessibility/planning suites                                            |
+| 003 FR04–05: lifecycle UI, lazy, hook, ErrorBoundary        | useFinanceData/useLedger/usePlanning, Planning components | renewal.spec.ts: 6 luồng, gồm render lỗi phục hồi và không hiển thị tháng cũ                                                |
+| 003 FR06–07: accessibility/delivery                         | Field/Modal, Experience, CSS tokens; docs/slide           | axe/keyboard/motion và 5 viewport; PPT/PDF/notes 15 slide                                                                   |
+| 004 FR01–03: goal/rule lifecycle                            | GoalPatchDto, Planning.updateGoal/replaceRule/contribute  | lifecycle.test.ts: goal ownership/archive/withdraw; replay, future start, concurrent 201/409, giữ draft cũ; renewal.spec.ts |
+| 004 FR04: revision làm draft                                | BudgetHistory/BudgetForm                                  | renewal.spec.ts: preview→revision mới; category lưu trữ có cảnh báo                                                         |
+| 004 FR05–06: filter/profile                                 | Transactions, ProfileDto/AuthController                   | lifecycle.test.ts: incoming transfer/AND/search/sort/export/foreign; profile safe fields; renewal.spec.ts                   |
+| 004 FR07, 005 FR01–05: bảo toàn hợp đồng, modules, snapshot | AppModule, module graph, Reports/client helpers           | Toàn bộ 40 API tests; snapshot commit giữa query ví/sổ; build Docker và HTTPS smoke                                         |
+
+[UI verification](../specs/003-experience-renewal/verification.md) · [Lifecycle verification](../specs/004-planning-lifecycle/verification.md) · [Technical verification](../specs/005-application-modules/verification.md). Lịch sử 002 phía trên vẫn phản ánh lần bàn giao 07/11.

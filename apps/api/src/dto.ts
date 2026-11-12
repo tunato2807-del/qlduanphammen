@@ -16,6 +16,7 @@ import {
   MaxLength,
   Min,
   ValidateNested,
+  ValidateIf,
   validateSync,
   ArrayMaxSize,
   ArrayMinSize,
@@ -149,4 +150,24 @@ export class ForgotDto {
 export class ResetDto {
   @Matches(/^[a-f0-9]{64}$/) token!: string;
   @IsString() @Length(8, 128) password!: string;
+}
+
+export class GoalPatchDto {
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsString()
+  @Length(1, 60)
+  name?: string;
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsString()
+  @Matches(/^[1-9]\d{0,12}$/)
+  target?: string;
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsISO8601({ strict: true })
+  targetDate?: string;
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsBoolean()
+  archived?: boolean;
+}
+export class ProfileDto {
+  @IsString() @Length(2, 60) name!: string;
 }

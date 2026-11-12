@@ -9,3 +9,9 @@ và các tài liệu kiểm chứng liên quan, theo `.specify/memory/constituti
 
 Các `SPEC-*.md` ở root, `CAPABILITY-MAP.md` và `tasks/` được giữ làm hồ sơ Finora V2.
 Không di chuyển, ghi đè hoặc tạo một feature mới để viết lại toàn bộ lịch sử đó.
+
+- [003 — Làm lại trải nghiệm](003-experience-renewal/spec.md).
+- [004 — Vòng đời kế hoạch và bộ lọc](004-planning-lifecycle/spec.md).
+- [005 — Nest modules và báo cáo snapshot](005-application-modules/spec.md).
+
+Kết quả hiện tại: [bàn giao 12/11/2026](../docs/rebuild/RENEWAL-2026-11.md).
