@@ -26,3 +26,7 @@ Cấu hình email/HTTPS và backup của lần bàn giao 07/11 vẫn giữ. Chư
 [Benchmark](../../specs/005-application-modules/performance.json) dùng 10.000 giao dịch, baseline 05d9f0a: median 19,03 → 41,44 ms, p95 22,84 → 51,14 ms. Bản mới cần snapshot tuần tự và thêm dữ liệu kế hoạch, nên chậm hơn; kết quả tiền vẫn khớp. Đây là phép đo provider cục bộ, chưa phải load test/SLA.
 
 [Bundle](../../specs/005-application-modules/bundle.json), gzip level 9 cùng dependencies: JS entry 132.340 → 129.959 byte; CSS 7.719 → 10.857 byte cho hệ thiết kế mới. Lazy pages/charts/fonts tính riêng. Chưa đo Web Vitals production. Cảnh báo upstream pg/Prisma và giới hạn vận hành ghi trong verification kỹ thuật, không bị che để làm xanh kiểm thử.
+
+## GitHub
+
+Mã và bộ bàn giao ở commit `e83ad7d` đã push thành công lên `main` và `feature/finora-renewal`, fast-forward từ `05d9f0a`, không ghi đè lịch sử. Commit tài liệu sau đó chỉ hoàn tất checklist/ghi nhận bàn giao. Các gate ở trên chạy trong môi trường cloud; không coi đó là kết quả GitHub Actions chưa quan sát.
