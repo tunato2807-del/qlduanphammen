@@ -1,3 +1,4 @@
+import BlueLandscape from "./shared/BlueLandscape";
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -97,9 +98,7 @@ export default function Dashboard({
     <>
       <div className="page-heading dashboard-heading">
         <div>
-          <div className="greeting">
-            HÔM NAY, BẠN MUỐN TIẾN XA HƠN MỘT CHÚT?
-          </div>
+          <div className="greeting">CHẬM MỘT NHỊP. RÕ MỘT KẾ HOẠCH.</div>
           <h1>
             Chào {userName.split(" ").slice(-2).join(" ")}
             <span className="wave" aria-hidden="true">
@@ -141,6 +140,9 @@ export default function Dashboard({
               {s.wallets.length} ví tài chính
             </span>
             <span>Số dư toàn thời gian</span>
+          </div>
+          <div className="balance-landscape">
+            <BlueLandscape />
           </div>
           <MoneyOrbit />
         </motion.section>

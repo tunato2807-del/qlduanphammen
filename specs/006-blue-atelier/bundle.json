@@ -1,0 +1,28 @@
+{
+  "baselineCommit": "0a2887b",
+  "baseline": {
+    "js": {
+      "file": "index-DKBd06tE.js",
+      "bytes": 409389,
+      "gzipBytes": 129959
+    },
+    "css": {
+      "file": "index-BLL-ZcRQ.css",
+      "bytes": 52864,
+      "gzipBytes": 10857
+    }
+  },
+  "current": {
+    "js": {
+      "file": "index-BYP6tW4R.js",
+      "bytes": 411990,
+      "gzipBytes": 130978
+    },
+    "css": {
+      "file": "index-CCf6cwb9.css",
+      "bytes": 55561,
+      "gzipBytes": 11551
+    }
+  },
+  "protocol": "Entry JS/CSS only, gzip level9, same dependencies. No added runtime dependency; excludes fonts and lazy chunks."
+}

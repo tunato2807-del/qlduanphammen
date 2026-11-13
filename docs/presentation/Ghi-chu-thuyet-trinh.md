@@ -1,6 +1,6 @@
 # Ghi chú thuyết trình Finora
 
-Cập nhật 12/11/2026 · 15 slide, khoảng 12–15 phút. Họ tên/lớp/GVHD cần bổ sung theo thông tin thật.
+Cập nhật 13/11/2026 · 15 slide, khoảng 12–15 phút. Họ tên/lớp/GVHD cần bổ sung theo thông tin thật.
 
 ## 1. Tài chính trong tầm tay.
 
@@ -44,7 +44,7 @@ CSV giới hạn 50 KB và 200 dòng. Xem lỗi theo dòng, đọc dấu nháy v
 
 ## 11. Trẻ trung, nhưng số liệu luôn rõ ràng.
 
-Giao diện mới dùng canvas xám xanh, sidebar trắng, navy, mint và violet. Dashboard gợi ý bước tiếp theo từ dữ liệu thật; các trang lazy, hook theo tháng/tài khoản và ErrorBoundary cho phục hồi. Chuyển động dùng Motion, cho phép giảm và tôn trọng hệ điều hành. Bố cục thử từ 320 đến 1440 pixel; menu mobile giữ focus và đóng bằng Escape. Lỗi hover qua lại khi đổi form đã có regression test.
+Giao diện Men lam: xanh dương chủ đạo, trắng ngà, điểm nhấn vàng cát/ngọc bích. Trang chào phủ màn hình, nhận diện giữa và quote serif tham khảo ảnh website người dùng gửi; minh họa sơn thủy tự vẽ. Dashboard gợi ý bước tiếp theo từ dữ liệu thật; các trang lazy, hook theo tháng/tài khoản và ErrorBoundary cho phục hồi. Chuyển động dùng Motion, cho phép giảm và tôn trọng hệ điều hành. Bố cục thử từ 320 đến 1440 pixel; menu mobile giữ focus và đóng bằng Escape. Lỗi hover qua lại khi đổi form đã có regression test.
 
 ## 12. Giữ quyền sở hữu và giữ được dữ liệu.
 
@@ -52,7 +52,7 @@ Giải thích ownership phía server cho mọi ID, cookie HttpOnly/Secure produc
 
 ## 13. Bằng chứng chạy được, số liệu có giới hạn.
 
-40 kiểm thử API/unit và 18 browser đạt, không skip. Axe không serious/critical ở phạm vi kiểm tra; không phải chứng nhận WCAG. Benchmark 10.000 giao dịch: trung vị cũ 19.03 ms, mới 41,44 ms, p95 mới 51,14 ms. Bản mới chậm hơn do đọc snapshot tuần tự và thêm kế hoạch; đổi lấy tính nhất quán khi có ghi đồng thời. 20 mẫu, 3 warmup; chưa phải load test/SLA. Production Docker non-root/read-only qua Caddy TLS nội bộ đã smoke. Restore riêng đã có bằng chứng 07/11, schema lần này giữ nguyên.
+40 kiểm thử API/unit và 19 browser đạt, không skip. Axe không serious/critical ở phạm vi kiểm tra; không phải chứng nhận WCAG. Benchmark 10.000 giao dịch: trung vị cũ 19.03 ms, mới 41,44 ms, p95 mới 51,14 ms. Bản mới chậm hơn do đọc snapshot tuần tự và thêm kế hoạch; đổi lấy tính nhất quán khi có ghi đồng thời. 20 mẫu, 3 warmup; chưa phải load test/SLA. Production Docker non-root/read-only qua Caddy TLS nội bộ đã smoke. Restore riêng đã có bằng chứng 07/11, schema lần này giữ nguyên.
 
 ## 14. Quản lý bằng đầu ra và bằng chứng.
 

@@ -15,3 +15,5 @@ Không di chuyển, ghi đè hoặc tạo một feature mới để viết lại
 - [005 — Nest modules và báo cáo snapshot](005-application-modules/spec.md).
 
 Kết quả hiện tại: [bàn giao 12/11/2026](../docs/rebuild/RENEWAL-2026-11.md).
+
+- [006 — Giao diện Men lam](006-blue-atelier/spec.md).

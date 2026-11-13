@@ -48,7 +48,11 @@ test("demo: transactions, budget, CSV, mobile and keyboard navigation", async ({
   await expect(page.getByText("Phương án của bạn đã sẵn sàng")).toBeVisible();
   await page.getByRole("button", { name: "Xác nhận áp dụng" }).click();
   await expect(dialog).not.toBeVisible();
-  await expect(page.getByText("Phiên bản 2", { exact: false })).toBeVisible();
+  await expect(
+    page
+      .locator(".section-row .period-badge")
+      .filter({ hasText: "Phiên bản 2" }),
+  ).toBeVisible();
   await page
     .locator("nav")
     .getByRole("button", { name: "Báo cáo", exact: true })

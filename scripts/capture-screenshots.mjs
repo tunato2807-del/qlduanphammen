@@ -46,6 +46,7 @@ try {
   await page.goto(baseURL);
   await page.getByRole("button", { name: "Đăng nhập", exact: true }).waitFor();
   await page.evaluate(() => document.fonts.ready);
+  await page.screenshot({ path: "docs/images/landing.png" });
   await page.screenshot({ path: "docs/images/login.png", fullPage: true });
   await page
     .getByRole("button", { name: "Trải nghiệm với dữ liệu mẫu" })
@@ -164,7 +165,7 @@ try {
   await page.screenshot({ path: "docs/images/mobile.png", fullPage: true });
   if (errors.length) throw new Error(errors.join("\n"));
   console.log(
-    "Saved eight demo screenshots and example PDF/CSV; no page errors.",
+    "Saved nine demo screenshots and example PDF/CSV; no page errors.",
   );
 } catch (error) {
   await mkdir(".local", { recursive: true });

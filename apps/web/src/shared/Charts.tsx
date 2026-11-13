@@ -33,12 +33,12 @@ export function FlowChart({ data }: { data: Summary["history"] }) {
         >
           <defs>
             <linearGradient id="income-fill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#40967a" stopOpacity={0.16} />
-              <stop offset="100%" stopColor="#40967a" stopOpacity={0} />
+              <stop offset="0%" stopColor="#3b82ad" stopOpacity={0.16} />
+              <stop offset="100%" stopColor="#3b82ad" stopOpacity={0} />
             </linearGradient>
             <linearGradient id="expense-fill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#9279d9" stopOpacity={0.12} />
-              <stop offset="100%" stopColor="#9279d9" stopOpacity={0} />
+              <stop offset="0%" stopColor="#c4a66b" stopOpacity={0.12} />
+              <stop offset="100%" stopColor="#c4a66b" stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid
@@ -79,7 +79,7 @@ export function FlowChart({ data }: { data: Summary["history"] }) {
             type="monotone"
             dataKey="income"
             name="Thu nhập"
-            stroke="#39876b"
+            stroke="#32759e"
             strokeWidth={2.5}
             fill="url(#income-fill)"
           />
@@ -88,7 +88,7 @@ export function FlowChart({ data }: { data: Summary["history"] }) {
             type="monotone"
             dataKey="expense"
             name="Chi tiêu"
-            stroke="#8e76df"
+            stroke="#ae8744"
             strokeWidth={2.5}
             fill="url(#expense-fill)"
           />

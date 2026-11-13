@@ -149,3 +149,7 @@ Reports mở một transaction RepeatableRead, truyền transaction client xuố
 Frontend App quản lý phiên/tháng/modal; từng trang lazy. Hook dữ liệu gắn owner+month và hủy request cũ, không đưa tháng trước vào nhãn tháng mới trong lúc tải. ErrorBoundary trang/root cho phép phục hồi lỗi render; lỗi mạng vẫn có retry. PlanningPage điều phối GoalCard, GoalForm, ContributionForm, RuleForm và RecurringPanel. Tab định kỳ được giữ qua URL `#planning?tab=recurring` khi đổi tháng/tải lại; không ghi dữ liệu tài chính vào localStorage. Bàn phím Ctrl/Cmd+K đưa focus vào tìm kiếm; giảm chuyển động vẫn theo người dùng/hệ điều hành.
 
 Rollback mã về commit `05d9f0a` không cần downgrade dữ liệu. Các route bổ sung là tương thích; thông tin goal/archive/endMonth dùng schema đã có. Backup/restore tiếp tục theo OPERATIONS, không reset database khi đổi bản.
+
+## Giao diện Men lam — 13/11/2026
+
+[Spec006](../specs/006-blue-atelier/spec.md) thay bảng màu violet/mint bằng xanh lam chủ đạo, xanh sương, trắng ngà, vàng cát và ngọc bích. Ảnh tham khảo do người dùng gửi cho thấy hero toàn màn hình, nhận diện giữa, mảng sáng/tối, quote serif và đường trang trí mảnh. Trang chào Finora chuyển những đặc điểm đó sang minh họa sơn thủy tự vẽ; màn hình nghiệp vụ giữ bố cục dễ đọc. Font serif hệ thống chỉ dùng tiêu đề, Be Vietnam Pro tự host cho nội dung/số tiền. CTA chuyển cả vị trí cuộn và focus tới phần tài khoản. Giữ reduced-motion, không có API/schema/dependency mới.

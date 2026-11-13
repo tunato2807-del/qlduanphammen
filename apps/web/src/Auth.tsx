@@ -1,3 +1,4 @@
+import BlueLandscape from "./shared/BlueLandscape";
 import RecoveryForm from "./features/identity/RecoveryForm";
 import {
   ArrowRight,
@@ -81,23 +82,78 @@ export default function Auth({ onLogin }: { onLogin: (user: User) => void }) {
   };
   return (
     <div className="auth-layout">
+      {!recovery && (
+        <>
+          <section className="welcome-hero" aria-label="Giới thiệu Finora">
+            <div className="welcome-art">
+              <BlueLandscape />
+            </div>
+            <span className="welcome-edition">FINORA · TÀI CHÍNH CÁ NHÂN</span>
+            <div className="welcome-center">
+              <span className="welcome-seal" aria-hidden="true">
+                F
+              </span>
+              <span className="editorial-rule" aria-hidden="true">
+                — · —
+              </span>
+              <p className="welcome-wordmark">finora.</p>
+              <h2>An tâm trong từng lựa chọn.</h2>
+              <p>Giữ nhịp chi tiêu. Dành chỗ cho những ước mơ.</p>
+              <button
+                className="welcome-enter"
+                onClick={() => {
+                  const panel = document.getElementById("finora-access");
+                  panel?.focus({ preventScroll: true });
+                  panel?.scrollIntoView({
+                    behavior: reduced ? "instant" : "smooth",
+                    block: "start",
+                  });
+                }}
+              >
+                Bắt đầu cùng Finora <ArrowRight size={18} />
+              </button>
+            </div>
+            <span className="welcome-bottom">
+              MỖI NGÀY MỘT CHÚT · TƯƠNG LAI THÊM VỮNG VÀNG
+            </span>
+          </section>
+          <section className="welcome-note" aria-label="Triết lý Finora">
+            <span className="editorial-rule" aria-hidden="true">
+              — · —
+            </span>
+            <h2>
+              “Đủ cho hôm nay.
+              <br />
+              Dành cho ngày mai.”
+            </h2>
+            <p>
+              Một không gian để hiểu dòng tiền, vun đắp thói quen
+              <br />
+              và từng bước thực hiện những dự định của riêng bạn.
+            </p>
+          </section>
+        </>
+      )}
       <div className="auth-story">
         <Brand />
         <div className="auth-copy">
           <span className="pill">
             <span className="live-dot" />
-            MỘT KHỞI ĐẦU CHO TƯƠNG LAI
+            TÍCH LŨY AN TÂM · NUÔI DƯỠNG DỰ ĐỊNH
           </span>
           <h1>
-            Sống hết mình.
+            An tâm hôm nay.
             <br />
-            <span>Tiền vẫn trong tầm tay.</span>
+            <span>Thảnh thơi ngày mai.</span>
           </h1>
           <p>
             Từ ly cà phê hôm nay đến chuyến đi bạn mơ ước.
             <br />
             Cùng Finora dành chỗ cho những điều quan trọng.
           </p>
+          <div className="auth-landscape">
+            <BlueLandscape />
+          </div>
           <motion.div
             className="auth-preview"
             initial={reduced ? false : { opacity: 0, y: 22 }}
@@ -153,7 +209,7 @@ export default function Auth({ onLogin }: { onLogin: (user: User) => void }) {
           </span>
         </div>
       </div>
-      <main className="auth-form-panel">
+      <main className="auth-form-panel" id="finora-access" tabIndex={-1}>
         <div className="auth-motion">
           <MotionToggle />
         </div>
