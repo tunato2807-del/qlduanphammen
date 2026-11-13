@@ -153,3 +153,7 @@ Rollback mã về commit `05d9f0a` không cần downgrade dữ liệu. Các rout
 ## Giao diện Men lam — 13/11/2026
 
 [Spec006](../specs/006-blue-atelier/spec.md) thay bảng màu violet/mint bằng xanh lam chủ đạo, xanh sương, trắng ngà, vàng cát và ngọc bích. Ảnh tham khảo do người dùng gửi cho thấy hero toàn màn hình, nhận diện giữa, mảng sáng/tối, quote serif và đường trang trí mảnh. Trang chào Finora chuyển những đặc điểm đó sang minh họa sơn thủy tự vẽ; màn hình nghiệp vụ giữ bố cục dễ đọc. Font serif hệ thống chỉ dùng tiêu đề, Be Vietnam Pro tự host cho nội dung/số tiền. CTA chuyển cả vị trí cuộn và focus tới phần tài khoản. Giữ reduced-motion, không có API/schema/dependency mới.
+
+## Nhịp sống xanh — 13/11/2026
+
+[Spec007](../specs/007-blue-living/spec.md) tiếp tục yêu cầu xanh dương nhạt, thêm menu và nội dung phong phú. `features/welcome` tách phần giới thiệu khỏi Auth, CSS có phạm vi `.welcome`. Header dùng nav/disclosure với Escape và focus; các section focus được khi điều hướng. Ba nút cảm hứng dùng aria-pressed và cập nhật nội dung qua vùng live. Hình SVG tự vẽ có mây/thuyền/hơi cà phê chuyển động, dùng tùy chọn Experience và giảm chuyển động hệ điều hành. Toàn bộ nội dung vẫn hiển thị khi tắt hiệu ứng. Không có dependency, API hoặc schema mới. Ảnh người thật chưa tích hợp do nguồn ảnh bị network policy chặn; xem [nguồn hình](VISUAL-SOURCES.md).

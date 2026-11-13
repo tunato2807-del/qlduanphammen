@@ -48,6 +48,15 @@ try {
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({ path: "docs/images/landing.png" });
   await page.screenshot({ path: "docs/images/login.png", fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({ path: "docs/images/landing-mobile.png" });
+  await page.getByRole("button", { name: "Menu", exact: true }).click();
+  await page.screenshot({ path: "docs/images/landing-menu.png" });
+  await page.keyboard.press("Escape");
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page
+    .locator("#cam-hung")
+    .screenshot({ path: "docs/images/inspiration.png" });
   await page
     .getByRole("button", { name: "Trải nghiệm với dữ liệu mẫu" })
     .click();
@@ -165,7 +174,7 @@ try {
   await page.screenshot({ path: "docs/images/mobile.png", fullPage: true });
   if (errors.length) throw new Error(errors.join("\n"));
   console.log(
-    "Saved nine demo screenshots and example PDF/CSV; no page errors.",
+    "Saved twelve demo screenshots and example PDF/CSV; no page errors.",
   );
 } catch (error) {
   await mkdir(".local", { recursive: true });

@@ -8,7 +8,9 @@ Bản làm lại ngày **12/11/2026** đổi toàn bộ hệ thiết kế, hoàn
 
 Các mốc trước được giữ để đối chiếu: [Finora V2](docs/rebuild/RELEASE.md), [mở rộng 07/11](specs/002-financial-planning/verification.md).
 
-Bản giao diện **Men lam — 13/11/2026**: xanh dương chủ đạo, trắng ngà và vàng cát; trang chào toàn màn hình, chữ cổ điển và minh họa sơn thủy. Thiết kế tham khảo các ảnh Gentlemen Barber Clubs người dùng gửi. [Đặc tả](specs/006-blue-atelier/spec.md) · [Kiểm chứng:40 API +19 browser đạt](specs/006-blue-atelier/verification.md).
+Bản giao diện **Nhịp sống xanh — 13/11/2026**: xanh dương nhạt, menu trang chào trên máy tính/điện thoại, ba cảnh minh họa có chuyển động và mục cảm hứng tương tác. [Đặc tả](specs/007-blue-living/spec.md) · [Kiểm chứng](specs/007-blue-living/verification.md). Bản Men lam trước đó được giữ trong [hồ sơ006](specs/006-blue-atelier/verification.md).
+
+**Ảnh người thật chưa tích hợp:** Pexels bị cấu hình mạng chặn; đã chuẩn bị bản nháp quyền truy cập, chờ review/save và Publish môi trường. Các hình hiện tại là SVG tự vẽ, không phải dữ liệu hay lời chứng thực người thật. [Nguồn hình và việc còn lại](docs/VISUAL-SOURCES.md).
 
 ![Trang chào Finora](docs/images/landing.png)
 
@@ -35,7 +37,7 @@ Bản giao diện **Men lam — 13/11/2026**: xanh dương chủ đạo, trắng
 - Khôi phục mật khẩu qua SMTP cấu hình được; token một lần/30 phút và thu hồi phiên. [Cách thử bằng Mailpit và vận hành](docs/OPERATIONS.md).
 - Chống ghi trùng cho thao tác tạo ví/giao dịch/ngân sách/kế hoạch qua Idempotency-Key và khóa transaction.
 - Dashboard, biểu đồ dòng tiền sáu tháng, báo cáo theo danh mục, cảnh báo từ 80% hạn mức và xuất CSV.
-- Giao diện Men lam dùng nền xanh sương, sidebar trắng, thẻ tài sản xanh lam, điểm nhấn ngọc bích và vàng cát. Dashboard gợi ý bước tiếp theo từ dữ liệu thật. Motion, minh họa nổi, responsive, skip link và menu bàn phím.
+- Giao diện Nhịp sống xanh dùng nền xanh dương nhạt, sidebar trắng, thẻ tài sản xanh lam, điểm nhấn ngọc bích và vàng cát. Dashboard gợi ý bước tiếp theo từ dữ liệu thật. Motion, minh họa nổi, responsive, skip link và menu bàn phím.
 - Lỗi mạng/máy chủ khi khởi tạo phiên có thông báo và nút thử lại; phân biệt với chưa đăng nhập.
 - API có `X-Request-Id`, mã lỗi và log metadata an toàn; không log body/cookie/số tiền.
 - Nút ✨ trên màn hình đăng nhập và thanh công cụ giúp giảm chuyển động; lựa chọn được lưu trên thiết bị. Tôn trọng cài đặt giảm chuyển động của hệ điều hành, bao gồm biểu đồ.

@@ -1,0 +1,28 @@
+{
+  "baselineCommit": "66186b7",
+  "baseline": {
+    "js": {
+      "file": "index-BYP6tW4R.js",
+      "bytes": 411990,
+      "gzipBytes": 130978
+    },
+    "css": {
+      "file": "index-CCf6cwb9.css",
+      "bytes": 55561,
+      "gzipBytes": 11551
+    }
+  },
+  "current": {
+    "js": {
+      "file": "index-BJ3yqxLX.js",
+      "bytes": 423219,
+      "gzipBytes": 134867
+    },
+    "css": {
+      "file": "index-CLm0pBmk.css",
+      "bytes": 63545,
+      "gzipBytes": 13252
+    }
+  },
+  "protocol": "Entry JS/CSS only, gzip level9, same dependencies; excludes fonts and lazy chunks. SVG artwork is in entry JS. No external asset requests."
+}

@@ -32,6 +32,11 @@ test("main screens and dialogs meet automated accessibility checks", async ({
     page.getByRole("button", { name: "Đăng nhập", exact: true }),
   ).toBeVisible();
   await accessible(page, "login");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "Menu", exact: true }).click();
+  await accessible(page, "public mobile navigation");
+  await page.keyboard.press("Escape");
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await page.getByRole("button", { name: "Đăng ký miễn phí" }).click();
   await accessible(page, "registration");
   await page
