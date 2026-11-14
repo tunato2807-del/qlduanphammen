@@ -29,3 +29,7 @@ Trang chào có ảnh CC0 lưu nội bộ, nền kem và chữ serif. Dashboard 
 Ảnh PNG gốc khoảng 456 KiB, tải riêng, cùng origin; hero ưu tiên tải và ảnh cảm hứng lazy. Không thêm dependency.
 
 Ảnh nghiệm thu: [trang chào](../../docs/images/ac-landing.png), [dashboard](../../docs/images/ac-dashboard.png), [mobile](../../docs/images/ac-mobile.png). Số liệu trong ảnh thuộc tài khoản demo tổng hợp.
+
+## Bàn giao GitHub
+
+Commit giao diện `0b3f64c` đã đẩy lên `main`, xác minh bằng `git ls-remote`. [CI mới #16](https://github.com/tunato2807-del/qlduanphammen/actions/runs/43621928165) được kích hoạt; tại thời điểm ghi nhận còn chạy. Kết quả local ở trên không thay thế trạng thái CI từ GitHub.
