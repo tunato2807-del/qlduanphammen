@@ -89,6 +89,7 @@ export function FlowChart({ data }: { data: Summary["history"] }) {
             dataKey="expense"
             name="Chi tiêu"
             stroke="#ae8744"
+            strokeDasharray="6 4"
             strokeWidth={2.5}
             fill="url(#expense-fill)"
           />

@@ -11,12 +11,12 @@
 :root {
   font-family: "Be Vietnam Pro", sans-serif;
   color: #1c2940;
-  background: #f3f5f8;
+  background: var(--canvas);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --canvas: #f1f7fc;
-  --surface: #fffefb;
+  --canvas: #edf5fc;
+  --surface: #ffffff;
   --ink: #1c2940;
   --muted: #5d6b7e;
   --accent: #255d8c;
@@ -786,8 +786,9 @@ svg {
 }
 .balance-spotlight {
   border-radius: 16px;
-  background: #153f62;
-  color: white;
+  background: linear-gradient(120deg, #d5eafa, #eaf4fc);
+  border: 1px solid #b8d5eb;
+  color: #153f62;
   padding: 25px 28px;
   position: relative;
   min-height: 230px;
@@ -815,7 +816,7 @@ svg {
   z-index: 2;
   font-size: 10px;
   letter-spacing: 0.7px;
-  color: #d2d9ea;
+  color: #315673;
 }
 .balance-spotlight .stat-top > span {
   display: flex;
@@ -830,8 +831,8 @@ svg {
   border-radius: 50%;
 }
 .balance-spotlight .icon-button {
-  color: #d2d9ea;
-  background: #ffffff0c;
+  color: #315673;
+  background: #ffffff80;
 }
 .balance-value {
   position: relative;
@@ -848,7 +849,7 @@ svg {
   position: relative;
   z-index: 2;
   font-size: 10px;
-  color: #c2cce0;
+  color: #3e6079;
 }
 .balance-bottom {
   position: relative;
@@ -856,11 +857,11 @@ svg {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  border-top: 1px solid #ffffff26;
+  border-top: 1px solid #b8d5eb;
   padding-top: 17px;
   margin-top: 24px;
   font-size: 9px;
-  color: #c5cfe3;
+  color: #3e6079;
 }
 .balance-bottom > span {
   display: flex;
@@ -869,7 +870,7 @@ svg {
 }
 .plan-spotlight {
   border-radius: 16px;
-  background: linear-gradient(125deg, #dcebf6, #edf3f8);
+  background: #ffffff;
   border: 1px solid #c5dae9;
   padding: 26px 27px;
   min-width: 0;
@@ -3285,8 +3286,10 @@ tr:last-child td {
     line-height: 1.7;
   }
   .next-step {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    align-items: start;
     gap: 11px;
-    flex-wrap: wrap;
     padding: 18px;
     margin-bottom: 21px;
   }
@@ -3305,7 +3308,9 @@ tr:last-child td {
     font-size: 10px;
   }
   .next-step .button {
-    margin-left: 45px;
+    grid-column: 2;
+    justify-self: start;
+    margin-left: 0;
   }
   .dashboard-main,
   .dashboard-bottom {

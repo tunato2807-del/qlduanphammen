@@ -3,6 +3,7 @@ export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,
   workers: 1,
+  reporter: process.env.CI ? [["list"], ["github"]] : [["list"]],
   timeout: 45000,
   expect: { timeout: 10000 },
   use: {

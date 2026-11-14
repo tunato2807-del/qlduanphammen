@@ -1,4 +1,3 @@
-import BlueLandscape from "./shared/BlueLandscape";
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -13,7 +12,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { MoneyOrbit, useExperience } from "./Experience";
+import { useExperience } from "./Experience";
 import {
   Button,
   Empty,
@@ -122,7 +121,7 @@ export default function Dashboard({
           <div className="stat-top">
             <span>
               <span className="balance-label-dot" />
-              TỔNG TÀI SẢN HIỆN TẠI
+              TỔNG SỐ DƯ CÁC VÍ
             </span>
             <button
               className="icon-button"
@@ -133,7 +132,9 @@ export default function Dashboard({
             </button>
           </div>
           <strong className="balance-value">{display(s.balance)}</strong>
-          <p className="balance-subtitle">Mọi nguồn tiền. Một nơi để an tâm.</p>
+          <p className="balance-subtitle">
+            Số tiền thực tế trong tất cả ví của bạn.
+          </p>
           <div className="balance-bottom">
             <span>
               <Wallet size={15} />
@@ -141,10 +142,6 @@ export default function Dashboard({
             </span>
             <span>Số dư toàn thời gian</span>
           </div>
-          <div className="balance-landscape">
-            <BlueLandscape />
-          </div>
-          <MoneyOrbit />
         </motion.section>
         <section className="plan-spotlight">
           <div className="stat-top">

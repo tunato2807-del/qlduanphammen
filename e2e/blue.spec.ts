@@ -62,16 +62,16 @@ test("public mobile navigation supports keyboard, Escape and section focus", asy
   await expect(page.locator("#finora-access")).toBeFocused();
 });
 
-test("welcome illustrations pause, retain preference and honor device reduced motion", async ({
+test("welcome decorations pause, retain preference and honor device reduced motion", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/");
   const animation = () =>
     page
-      .locator(".welcome-arch .life-cloud")
+      .locator(".welcome-floating")
       .evaluate((node) => getComputedStyle(node).animationName);
-  await expect.poll(animation).toBe("welcome-drift");
+  await expect.poll(animation).toBe("welcome-float");
   await page
     .getByRole("button", { name: "Tạm dừng chuyển động", exact: true })
     .click();
@@ -84,7 +84,40 @@ test("welcome illustrations pause, retain preference and honor device reduced mo
   await expect(resume).toHaveAttribute("aria-pressed", "true");
   await expect.poll(animation).toBe("none");
   await resume.click();
-  await expect.poll(animation).toBe("welcome-drift");
+  await expect.poll(animation).toBe("welcome-float");
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect.poll(animation).toBe("none");
+});
+
+test("lifestyle photograph loads locally and dashboard retains balance controls and charts", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const photo = page.getByRole("img", {
+    name: "Tách cà phê espresso trên bàn gỗ trong ánh nắng",
+  });
+  await expect(photo).toBeVisible();
+  await expect
+    .poll(() =>
+      photo.evaluate(
+        (img: HTMLImageElement) => img.complete && img.naturalWidth === 600,
+      ),
+    )
+    .toBe(true);
+  await expect(photo).toHaveAttribute("src", "/images/coffee-cc0.png");
+  await page
+    .getByRole("button", { name: "Trải nghiệm với dữ liệu mẫu" })
+    .click();
+  await expect(page.locator(".balance-value")).toContainText("₫");
+  const balance = await page.locator(".balance-value").innerText();
+  await page.getByRole("button", { name: "Ẩn số dư", exact: true }).click();
+  await expect(page.locator(".balance-value")).toHaveText("••••••••");
+  await page.getByRole("button", { name: "Hiện số dư", exact: true }).click();
+  await expect(page.locator(".balance-value")).toHaveText(balance);
+  await expect(
+    page.getByRole("img", {
+      name: "Biểu đồ thu nhập và chi tiêu trong sáu tháng",
+    }),
+  ).toBeVisible();
+  await expect(page.locator(".flow-chart .recharts-area")).toHaveCount(2);
 });

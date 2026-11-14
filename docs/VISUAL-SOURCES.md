@@ -1,14 +1,14 @@
-# Nguồn hình ảnh — Nhịp sống xanh
+# Nguồn hình ảnh — Finora A + C
 
-Ngày 13/11/2026, feature007.
+Cập nhật ngày 15/11/2026, feature008.
 
-| Thành phần                      | Nguồn                                                         | Trạng thái                                                                               |
-| ------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Cảnh thành thị, cà phê, bờ biển | SVG tự vẽ trong `apps/web/src/features/welcome/LifeScene.tsx` | Đã tích hợp; không phải ảnh chụp hoặc hình của người dùng thật                           |
-| Sơn thủy ở tài khoản/dashboard  | SVG tự vẽ trong `apps/web/src/shared/BlueLandscape.tsx`       | Giữ từ feature006                                                                        |
-| Biểu tượng                      | lucide-react, dependency hiện có                              | Theo giấy phép ISC của package                                                           |
-| Ảnh người châu Á theo yêu cầu   | Chưa lấy được nguồn đủ điều kiện                              | Chưa tích hợp; không có chân dung, tên, lời chứng thực hoặc dữ liệu tài chính người thật |
+| Thành phần | Nguồn | Giấy phép / sử dụng |
+| --- | --- | --- |
+| Ảnh cà phê trên trang chào và mục cảm hứng | Rachel Michetti, courtesy of Pikolo Espresso Bar; bộ dữ liệu scikit-image | CC0; ảnh đời sống, không phải dữ liệu hay lời chứng thực người dùng |
+| Cảnh thành phố, bờ biển | SVG tự vẽ trong `LifeScene.tsx` | Minh họa, không phải ảnh chụp |
+| Sơn thủy ở tài khoản | SVG tự vẽ trong `BlueLandscape.tsx` | Minh họa |
+| Biểu tượng | lucide-react | ISC |
 
-Pexels (`www.pexels.com`, `images.pexels.com`) bị proxy môi trường trả CONNECT403. Bản nháp cấu hình mạng đã lưu thêm hai hostname này và giữ các host đang được phép; chưa có hiệu lực trước khi người dùng review/save và Publish môi trường. Đây là trở ngại truy cập, chưa có kết luận về giấy phép của bất cứ ảnh cụ thể nào.
+Ảnh tải ngày 15/11/2026 từ https://raw.githubusercontent.com/scikit-image/scikit-image/v0.25.2/skimage/data/coffee.png, giữ nguyên tại `apps/web/public/images/coffee-cc0.png` (600 × 400). Nguồn xác nhận tác giả và CC0: https://github.com/scikit-image/scikit-image/blob/v0.25.2/skimage/data/_fetchers.py#L912-L928. Giấy phép: https://creativecommons.org/publicdomain/zero/1.0/.
 
-Bước tiếp theo sau khi truy cập được: chọn ảnh có metadata/mô tả nguồn phù hợp bối cảnh, đọc giấy phép và hạn chế dùng hình người; ghi tác giả, URL ảnh gốc, URL giấy phép, ngày tải, file cục bộ; tối ưu WebP và viết alt mô tả cảnh. Không suy đoán dân tộc dựa trên diện mạo; không gán tài khoản, số tiền hoặc lời đánh giá cho người trong ảnh. Không hotlink ảnh chặn hoặc ảnh chưa kiểm tra. Dữ liệu demo tài chính vẫn là dữ liệu tổng hợp, tách theo tài khoản.
+Ảnh phục vụ cùng origin, không gửi yêu cầu đến nhà cung cấp ảnh khi mở ứng dụng. Alt mô tả cảnh; kích thước được khai báo để giữ bố cục, ảnh hero tải ưu tiên, ảnh cảm hứng tải lazy. Nguồn Unsplash/Pexels không cần cho runtime. Không gán người thật với số tiền hoặc lời chứng thực.

@@ -3,7 +3,7 @@
   --welcome-blue: #245677;
   --welcome-soft: #e3f1fb;
   color: #25465e;
-  background: #f8fbfd;
+  background: #fdfcf9;
 }
 .welcome button,
 .welcome a {
@@ -19,7 +19,7 @@
   justify-content: space-between;
   gap: 24px;
   padding: 20px max(5%, calc((100vw - 1300px) / 2));
-  background: #e3f1fb;
+  background: #f5f2eb;
   position: relative;
   z-index: 5;
   border-bottom: 1px solid #bdd8e880;
@@ -74,7 +74,7 @@
   align-items: center;
   gap: 50px;
   padding: 70px max(7%, calc((100vw - 1240px) / 2)) 90px;
-  background: #e3f1fb;
+  background: #f5f2eb;
 }
 .welcome-kicker {
   display: inline-flex;
@@ -146,7 +146,7 @@
   margin: 20px 0 15px;
 }
 .welcome-arch {
-  border-radius: 240px 240px 18px 18px;
+  border-radius: 180px 180px 18px 18px;
   overflow: hidden;
   border: 8px solid #f7fbfd;
   outline: 1px solid #bed7e5;
@@ -154,7 +154,7 @@
 }
 .welcome-arch .life-scene {
   width: 100%;
-  height: 470px;
+  height: 430px;
   object-fit: cover;
 }
 .life-scene {

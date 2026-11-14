@@ -164,7 +164,14 @@ export default function Welcome() {
         </div>
         <div className="welcome-visual">
           <div className="welcome-arch">
-            <LifeScene />
+            <img
+              className="life-scene welcome-photo"
+              src="/images/coffee-cc0.png"
+              alt="Tách cà phê espresso trên bàn gỗ trong ánh nắng"
+              width={600}
+              height={400}
+              fetchPriority="high"
+            />
           </div>
           <span className="welcome-stamp">
             SỐNG CÓ KẾ HOẠCH
@@ -182,7 +189,7 @@ export default function Welcome() {
             </div>
           </div>
           <span className="welcome-art-label">
-            MINH HỌA · NHỊP SỐNG BÊN DÒNG SÔNG
+            MỘT KHOẢNG THẢNH THƠI · MỖI NGÀY
           </span>
         </div>
         <button
@@ -265,7 +272,7 @@ export default function Welcome() {
           <h2 id="moments-title">
             Kế hoạch nhỏ.<em> Cuộc sống đầy màu.</em>
           </h2>
-          <p>Cảm hứng từ những khoảnh khắc gần gũi trong đời sống Việt Nam.</p>
+          <p>Cảm hứng từ những khoảnh khắc gần gũi trong cuộc sống.</p>
         </div>
         <div
           className="welcome-moment-options"
@@ -285,8 +292,23 @@ export default function Welcome() {
         </div>
         <div className="welcome-moment-panel">
           <div className="welcome-moment-art">
-            <LifeScene scene={moment.id} />
-            <span>MINH HỌA CẢM HỨNG</span>
+            {moment.id === "cafe" ? (
+              <img
+                className="life-scene welcome-photo"
+                src="/images/coffee-cc0.png"
+                alt="Cà phê espresso và chiếc thìa nhỏ trên bàn gỗ"
+                width={600}
+                height={400}
+                loading="lazy"
+              />
+            ) : (
+              <LifeScene scene={moment.id} />
+            )}
+            <span>
+              {moment.id === "cafe"
+                ? "ẢNH: RACHEL MICHETTI · CC0"
+                : "MINH HỌA CẢM HỨNG"}
+            </span>
           </div>
           <div
             className="welcome-moment-copy"

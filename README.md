@@ -10,17 +10,17 @@ Các mốc trước được giữ để đối chiếu: [Finora V2](docs/rebuil
 
 Bản giao diện **Nhịp sống xanh — 13/11/2026**: xanh dương nhạt, menu trang chào trên máy tính/điện thoại, ba cảnh minh họa có chuyển động và mục cảm hứng tương tác. [Đặc tả](specs/007-blue-living/spec.md) · [Kiểm chứng](specs/007-blue-living/verification.md). Bản Men lam trước đó được giữ trong [hồ sơ006](specs/006-blue-atelier/verification.md).
 
-**Ảnh người thật chưa tích hợp:** Pexels bị cấu hình mạng chặn; đã chuẩn bị bản nháp quyền truy cập, chờ review/save và Publish môi trường. Các hình hiện tại là SVG tự vẽ, không phải dữ liệu hay lời chứng thực người thật. [Nguồn hình và việc còn lại](docs/VISUAL-SOURCES.md).
+**Giao diện A + C — 15/11/2026:** trang giới thiệu nền kem có ảnh cà phê CC0; dashboard xanh dương nhạt, menu trái, thẻ số dư và biểu đồ thu/chi nét liền–đứt. [Đặc tả và bằng chứng](specs/008-editorial-dashboard/verification.md) · [Nguồn ảnh](docs/VISUAL-SOURCES.md).
 
-![Trang chào Finora](docs/images/landing.png)
+![Trang chào Finora](docs/images/ac-landing.png)
 
 ## Xem trước giao diện
 
 Ảnh chụp ứng dụng đang chạy với dữ liệu mẫu:
 
-![Dashboard Finora](docs/images/dashboard.png)
+![Dashboard Finora](docs/images/ac-dashboard.png)
 
-[Xem giao diện trên điện thoại](docs/images/mobile.png)
+[Xem giao diện trên điện thoại](docs/images/ac-mobile.png)
 
 ## Chức năng đã có
 
