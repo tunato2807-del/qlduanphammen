@@ -119,7 +119,15 @@ test("future recurring changes preserve pending draft values and do not book fut
   await expect(draft).toContainText("1.000");
   await draft.getByRole("button", { name: "Xác nhận ghi sổ" }).click();
   await expect(draft.getByText("Đã ghi sổ", { exact: true })).toBeVisible();
-  await page.getByLabel("Tháng báo cáo").fill(future);
+  const [futureResponse] = await Promise.all([
+    page.waitForResponse((response) =>
+      response.url().includes(`/api/recurring?month=${future}`),
+    ),
+    page.getByLabel("Tháng báo cáo").fill(future),
+  ]);
+  expect(futureResponse.status(), "Future recurring request must succeed").toBe(
+    200,
+  );
   await expect(
     page.getByText("Chưa có khoản đến hạn trong tháng này."),
   ).toBeVisible();
