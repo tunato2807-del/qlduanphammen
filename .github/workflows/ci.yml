@@ -42,7 +42,13 @@ jobs:
       - run: npm run build
       - run: npm audit --audit-level=high
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      # Each suite gets a fresh API process and its own IP rate-limit budget.
+      # Keep production limits and every browser assertion enabled.
+      - name: Browser suites with isolated API lifetimes
+        run: |
+          for suite in e2e/*.spec.ts; do
+            npm run test:e2e -- "$suite" || exit "$?"
+          done
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

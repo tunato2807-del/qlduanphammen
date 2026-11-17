@@ -33,3 +33,13 @@ Trang chào có ảnh CC0 lưu nội bộ, nền kem và chữ serif. Dashboard 
 ## Bàn giao GitHub
 
 Commit giao diện `0b3f64c` đã đẩy lên `main`, xác minh bằng `git ls-remote`. [CI mới #16](https://github.com/tunato2807-del/qlduanphammen/actions/runs/43621928165) được kích hoạt; tại thời điểm ghi nhận còn chạy. Kết quả local ở trên không thay thế trạng thái CI từ GitHub.
+
+## Kiểm tra tiếp — 17/11/2026
+
+Giao diện A + C đã có trong `0b3f64c` và được giữ nguyên. Kiểm tra lại GitHub xác nhận `f64529d` thất bại ở run #15; log chi tiết vẫn cần đăng nhập. Không suy diễn nguyên nhân của run này từ kết quả local.
+
+[Run #18](https://github.com/tunato2807-del/qlduanphammen/actions/runs/43621980237) của `4512cc0` có 21 E2E đạt, 1 lỗi ở luồng đổi tháng quy tắc định kỳ. [Run chẩn đoán #19](https://github.com/tunato2807-del/qlduanphammen/actions/runs/43622479790) xác nhận API recurring trả **429 thay vì 200**. API giới hạn 300 yêu cầu/phút/IP và 30 yêu cầu xác thực/15 phút/IP; toàn bộ suite dùng chung IP. Lượt local dùng lại server sau các lần test cũng có 16 đạt, 6 lỗi; ảnh lỗi ghi thông báo hết hạn mức đăng nhập.
+
+Workflow nay chạy từng file E2E với server mới do Playwright quản lý (`CI=true`, `reuseExistingServer=false`). Mỗi file vẫn chạy toàn bộ bài kiểm thử với cùng rate limit sản phẩm. Assertion HTTP từ nhánh chẩn đoán được giữ lại. Không đổi API, phép tính tài chính, dependency hay migration.
+
+Kết quả local sau thay đổi: TypeScript, Prettier, 40 API/unit test, build và audit đều đạt (0 lỗ hổng). Chạy đúng vòng lặp CI với `CI=true CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium`: accessibility 2/2, app 4/4, blue 4/4, planning 6/6, renewal 6/6; tổng **22 đạt, 0 lỗi, 0 bỏ qua**. Luồng recurring xác nhận HTTP 200. Kết quả GitHub sau push cần được kiểm tra riêng.

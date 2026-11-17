@@ -7,3 +7,7 @@
 5. Ghi bằng chứng, commit và push. Không sửa lịch sử migration. Rollback giao diện bằng revert commit, không cần migration.
 
 Đối chiếu constitution: giữ kiến trúc/quyền sở hữu, dữ liệu tài chính, accessibility, motion và các quality gate. Không thêm dependency hay dịch vụ ngoài vào runtime.
+
+## Hoàn tất CI — 17/11/2026
+
+Chạy từng file E2E trong một lần Playwright riêng trên CI. Với `CI=true`, Playwright tự tạo và dừng server cho mỗi lần chạy, tránh cộng dồn hạn mức IP giữa các suite. Giữ nguyên rate limit, timeout, assertion và số test; không thêm retry. Mang assertion HTTP của nhánh chẩn đoán `c02ceb8` vào kiểm thử đổi tháng để lỗi API có thông tin trực tiếp.
